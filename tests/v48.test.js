@@ -12,7 +12,7 @@ test('검색/일정 편집과 동선 결과 화면은 모바일 두 탭으로 �
 });
 test('한 개 지도 인스턴스를 유지하며 편집 지도에는 계산 폴리라인을 숨김',async()=>{
  const app=await read('public/static/app.js');
- assert.match(app,/routePanelVisible/);assert.match(app,/if\(routePanelVisible&&r\?\.entries\)/);
+ assert.match(app,/routePanelVisible/);assert.match(app,/if\(!collecting&&routePanelVisible&&r\?\.entries\)/);
  assert.match(app,/refreshMap:renderMap/);
  assert.match(app,/if\(map\|\|!sdkReady/);assert.match(app,/mapCreateCount\+\+/);
  assert.match(app,/if\(previewSelected\)previewPlace\(previewSelected\)/);

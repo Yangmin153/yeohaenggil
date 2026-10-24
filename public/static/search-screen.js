@@ -14,7 +14,10 @@ function updateSize(){
  if(searchMap&&opened&&mode==='map')requestAnimationFrame(()=>window.naver?.maps?.Event?.trigger(searchMap,'resize'));
 }
 function mapCenter(){
- const region=window.TripApp?.getRegion?.()||'제주';
+ const d=window.TripApp?.getDay?.();
+ const place=[d?.origin,...(d?.stops||[]),d?.destination].find(p=>p&&Number.isFinite(p.lat)&&Number.isFinite(p.lng)&&!/미설정/.test(p.name||''));
+ if(place)return [place.lat,place.lng];
+ const region=window.YeoNext?.searchRegion?.()||'';
  if(centers[region])return centers[region];
  const naverMap=window.TripApp?.getMap?.();
  const c=naverMap?.getCenter?.();
@@ -45,7 +48,7 @@ function clearMarkers(){
  if(selectedMarker){selectedMarker.setMap(null);selectedMarker=null;}
 }
 function clearSavedMarkers(){for(const marker of savedMarkers)marker.setMap(null);savedMarkers=[];}
-function savedPlaces(){return window.TripApp?.getDay?.()?.stops||[];}
+function savedPlaces(){return window.TripApp?.allStops?.()||[];}
 function showSaved(place){
  selected=place;isSavedSelection=true;
  $('search-picked-name').textContent=place.name;
@@ -63,22 +66,20 @@ function refreshSavedMarkers(){
  if(!searchMap||!window.naver?.maps?.Marker)return;
  const grouped=new Map();
  for(const place of savedPlaces()){
-  const key=Number(place.lat).toFixed(3)+':'+Number(place.lng).toFixed(3);
-  const n=grouped.get(key)||0;grouped.set(key,n+1);
-  const offset=[[0,0],[-14,9],[14,9],[-14,-9],[14,-9],[0,-16]][n%6];
-  const content='<div class="search-saved-pin" title="담은 장소"><span>✓</span></div>';
-  const marker=new window.naver.maps.Marker({map:searchMap,position:new window.naver.maps.LatLng(place.lat,place.lng),
-   title:place.name,zIndex:600+n,icon:{content,anchor:new window.naver.maps.Point(20+offset[0],22+offset[1])}});
-  window.naver.maps.Event.addListener(marker,'click',()=>showSaved(place));
-  savedMarkers.push(marker);
+  const key=Number(place.lat).toFixed(4)+':'+Number(place.lng).toFixed(4);
+  if(!grouped.has(key))grouped.set(key,[]);
+  grouped.get(key).push(place);
+ }
+ for(const group of grouped.values()){
+  const place=group[0],count=group.length;
+  const pin=window.YeoPins?.marker?.(searchMap,place,{kind:count>1?'cluster':'pending',count,zIndex:600});
+  if(!pin)continue;
+  window.naver.maps.Event.addListener(pin,'click',()=>{if(count>1)window.YeoNext?.openSheet?.();else showSaved(place);});
+  savedMarkers.push(pin);
  }
 }
 function mark(item,pickedOne=false){
- const maps=window.naver?.maps;
- if(!searchMap||!maps?.Marker||!Number.isFinite(Number(item.lat))||!Number.isFinite(Number(item.lng)))return null;
- const color=pickedOne?'#1557d2':'#ffffff',textColor=pickedOne?'#ffffff':'#2769d9';
- const node='<div style="width:29px;height:35px;border-radius:16px 16px 16px 4px;transform:rotate(-45deg);background:'+color+';border:2px solid #2769d9;box-shadow:0 3px 10px #123c7433;display:grid;place-items:center"><span style="transform:rotate(45deg);font-size:16px;font-weight:800;color:'+textColor+'">⌖</span></div>';
- return new maps.Marker({map:searchMap,position:new maps.LatLng(Number(item.lat),Number(item.lng)),title:String(item.name||''),zIndex:pickedOne?800:100,icon:{content:node,anchor:new maps.Point(14,30)}});
+ return window.YeoPins?.marker?.(searchMap,item,{kind:pickedOne?'selected':'pending',selected:pickedOne,zIndex:pickedOne?800:100})||null;
 }
 function paintMarkers(){
  clearMarkers();
@@ -124,12 +125,12 @@ function show(){
  if(window.YeoRegion&&!window.YeoRegion.ensureSelected())return;
  opened=true;historyEntry=true;previousFocus=document.activeElement;previousScroll=window.scrollY;
  feedback.hidden=true;picked.hidden=true;selected=null;items=[];isSavedSelection=false;input.value='';results.replaceChildren();results.hidden=true;
- $('search-screen-region').textContent=(window.TripApp?.getRegion?.()||'')+' · 방문지 추가';
- $('search-screen-count').textContent=(window.TripApp?.getDay?.()?.stops?.length||0)+'곳 담음';
+ $('search-screen-region').textContent=(window.YeoNext?.dateLabel?.()||'오늘')+' · 방문지 추가';
+ $('search-screen-count').textContent='담은 장소 보기 ('+savedPlaces().length+')';
  screen.hidden=false;screen.querySelector('#search-screen-form-mount').append(form);resultMount.append(results);
  document.documentElement.style.overflow='hidden';document.body.style.position='fixed';document.body.style.top='-'+previousScroll+'px';document.body.style.width='100%';document.body.classList.add('search-open');
  savedSignature='';updateSize();showMode('map');
- const region=window.TripApp?.getRegion?.()||'';
+ const region=String(window.TripApp?.getDay?.()?.id||'');
  if(searchMap&&lastChosenRegion!==region){const [lat,lng]=mapCenter();searchMap.setCenter(new window.naver.maps.LatLng(lat,lng));searchMap.setZoom(11);}
  lastChosenRegion=region;
  history.pushState({...history.state,yeohaenggilSearch:true},'',location.href);
@@ -151,7 +152,7 @@ function addSuccess(message){
  if(!opened)return;
  selected=null;isSavedSelection=false;picked.hidden=true;
  savedSignature='';refreshSavedMarkers();
- $('search-screen-count').textContent=(window.TripApp?.getDay?.()?.stops?.length||0)+'곳 담음';
+ $('search-screen-count').textContent='담은 장소 보기 ('+savedPlaces().length+')';
  feedback.textContent='✓ '+message;feedback.hidden=false;
  clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>feedback.hidden=true,2100);
  showMode('map');
@@ -174,7 +175,8 @@ window.visualViewport?.addEventListener('resize',updateSize);
 window.visualViewport?.addEventListener('scroll',updateSize);
 window.addEventListener('resize',updateSize);
 document.addEventListener('trip-map-ready',()=>{if(opened)maybeMap()});
-document.addEventListener('trip:stops-changed',()=>{if(opened){savedSignature='';refreshSavedMarkers();}});
-document.addEventListener('trip:day-changed',()=>{if(opened){selected=null;picked.hidden=true;isSavedSelection=false;savedSignature='';refreshSavedMarkers();$('search-screen-count').textContent=savedPlaces().length+'곳 담음';}});
+document.addEventListener('trip:stops-changed',()=>{if(opened){savedSignature='';refreshSavedMarkers();$('search-screen-count').textContent='담은 장소 보기 ('+savedPlaces().length+')';}});
+document.addEventListener('trip:day-changed',()=>{if(opened){selected=null;picked.hidden=true;isSavedSelection=false;savedSignature='';refreshSavedMarkers();$('search-screen-count').textContent='담은 장소 보기 ('+savedPlaces().length+')';}});
 window.addEventListener('resize',()=>{if(opened)refreshSavedMarkers();});
-window.YeoSearch={show,hide,isOpen:()=>opened,preview,searchStarted,onResults,addSuccess,refreshSavedMarkers};
+$('search-screen-count').addEventListener('click',()=>window.YeoNext?.openSheet?.());
+window.YeoSearch={show,hide,isOpen:()=>opened,preview,showSavedPlace:showSaved,searchStarted,onResults,addSuccess,refreshSavedMarkers};

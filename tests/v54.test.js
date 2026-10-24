@@ -31,7 +31,7 @@ test('v5.4 accessible secondary actions are distinct from primary CTAs',async()=
 test('v5.4 destination map markers are readable and respond to map zoom',async()=>{
  const app=await read('public/static/app.js'),css=await read('public/static/design-v54.css');
  assert.match(app,/naver\.maps\.Event\.addListener\(map,'zoom_changed'/);
- assert.match(app,/precision=map\.getZoom\(\)>=15\?4/);
+ assert.match(app,/precision=map\.getZoom\(\)>=16\?5/);
  assert.match(app,/new naver\.maps\.InfoWindow/);
  assert.match(css,/body \.route-marker\{width:40px!important;height:44px!important/);
  assert.match(css,/body\[data-map-zoom="far"\]/);
@@ -63,6 +63,6 @@ test('v5.4 modified application scripts remain syntactically valid',async()=>{
 
 test('v5.4 pre-route stop markers remain stops even if endpoints are unconfigured',async()=>{
  const [app,map]=await Promise.all([read('public/static/app.js'),read('public/static/map-workspace.js')]);
- assert.match(app,/start=place\.id===d\.origin\.id,end=place\.id===d\.destination\.id/);
+ assert.match(app,/start=state\.days\.some\(x=>place\.id===x\.origin\.id\),end=state\.days\.some/);
  assert.match(map,/filter\(p=>p&&!\/미설정\/\.test\(p\.name\)\)/);
 });

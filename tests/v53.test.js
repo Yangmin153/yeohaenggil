@@ -5,7 +5,7 @@ const read=p=>readFile(new URL('../'+p,import.meta.url),'utf8');
 
 test('v5.3 onboarding is first and can reselect a region without deleting stops',async()=>{
  const [html,ui,app,css]=await Promise.all(['public/index.html','public/static/design-v51.js','public/static/app.js','public/static/design-v53.css'].map(read));
- assert.match(html,/<body data-mobile-view="edit" class="region-needs-choice">/);
+ assert.match(html,/<body data-mobile-view="edit" data-trip-step="1" class="region-ready">/);
  assert.match(css,/body\.region-needs-choice #trip-workspace/);
  assert.match(ui,/function rechoose\(\)/);
  assert.match(ui,/function accept\(value\)/);
@@ -33,7 +33,7 @@ test('v5.3 map search has map, toggleable large list, visible pin and continuous
  const [html,js,quick]=await Promise.all(['public/index.html','public/static/search-screen.js','public/static/quick-add.js'].map(read));
  for(const id of ['search-naver-map','search-map-stage','search-screen-results-mount','search-list-toggle','search-picked','search-picked-add'])
   assert.match(html,new RegExp('id="'+id+'"'));
- for(const token of ['new maps.Map','new maps.Marker','function onResults(next)','function preview(item)','function showMode(next)','function addSuccess(message)'])
+ for(const token of ['new maps.Map','YeoPins?.marker','function onResults(next)','function preview(item)','function showMode(next)','function addSuccess(message)'])
   assert.ok(js.includes(token),token);
  assert.match(quick,/window\.YeoSearch\?\.onResults\?\.\(next\)/);
  assert.match(quick,/if\(duplicate\)\{feedback/);
@@ -51,7 +51,7 @@ test('v5.3 fullscreen dialog blocks background scroll and restores its state',as
 test('v5.3 route numbers and durations are only shown after calculation, no live transit claims',async()=>{
  const [app,html,css]=await Promise.all(['public/static/app.js','public/index.html','public/static/design-v53.css'].map(read));
  assert.match(app,/const routeNumber=i=>/);
- assert.match(app,/const label=r\?\.entries\?routeNumber\(i\):'•'/);
+ assert.match(app,/const stopNumber=d\.result\?\.entries\?\.findIndex/);
  assert.match(app,/readableMinutes\(leg\.durationMinutes\)/);
  assert.doesNotMatch(app,/data-navigate-index/);
  assert.match(html,/대중교통 · 지원 준비 중/);

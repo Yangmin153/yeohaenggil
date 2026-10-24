@@ -1,0 +1,25 @@
+/* Shared Naver custom marker — CSS size precisely matches Naver Point(22,52) anchor. */
+.yg-map-pin,.yg-map-pin *{box-sizing:border-box!important}
+.yg-map-pin{position:relative;width:44px!important;height:52px!important;transform:none!important;overflow:visible!important;pointer-events:auto}
+.yg-map-pin__head{position:absolute;top:0;left:1px;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:#fff;
+ border:3px solid var(--yg-pin-color,#e75b18);border-radius:50%;box-shadow:0 4px 12px #12264152;color:var(--yg-pin-color,#e75b18)}
+.yg-map-pin__head b{font-family:inherit;font-size:17px;font-weight:900;line-height:1;letter-spacing:-.35px}
+.yg-map-pin__head svg{width:22px;height:22px;stroke-width:2.3}
+.yg-map-pin__tail{position:absolute;top:38px;left:16px;width:12px;height:12px;background:#fff;
+ border-right:3px solid var(--yg-pin-color);border-bottom:3px solid var(--yg-pin-color);transform:rotate(45deg);border-radius:1px;box-shadow:2px 2px 3px #12264110}
+.yg-map-pin__category{position:absolute;right:-4px;bottom:12px;width:19px;height:19px;border:2px solid white;border-radius:50%;background:#f3f8ff;
+ color:var(--yg-pin-color);display:grid;place-items:center;box-shadow:0 2px 6px #172d4b33}
+.yg-map-pin__category svg{width:12px;height:12px;stroke-width:2}
+.yg-map-pin--origin .yg-map-pin__head{background:#2175e6;color:white;border-color:white;box-shadow:0 0 0 3px #2175e6,0 4px 12px #12264155}
+.yg-map-pin--destination .yg-map-pin__head{background:#e64b3e;color:white;border-color:white;box-shadow:0 0 0 3px #e64b3e,0 4px 12px #12264155}
+.yg-map-pin--cluster .yg-map-pin__head{background:#395570;color:white;border-color:white;box-shadow:0 0 0 3px #395570,0 4px 12px #12264155}
+.yg-map-pin--cluster .yg-map-pin__head b{font-size:14px}
+.yg-map-pin--selected .yg-map-pin__head{outline:3px solid #eeb347;outline-offset:3px}
+.yg-map-pin--selected{z-index:2}
+body[data-trip-step="3"] .timeline-dot{display:flex!important;align-items:center;justify-content:center;width:36px!important;height:36px!important;
+ min-width:36px!important;font-size:17px!important;border-radius:50%;background:#e75b18!important;color:white!important;border:2px solid #fff;box-shadow:0 2px 6px #b63b1370}
+body[data-trip-step="3"] .timeline-entry:first-child .timeline-dot{background:#2175e6!important}
+body[data-trip-step="3"] .timeline-entry:last-child .timeline-dot{background:#e64b3e!important}
+body[data-trip-step="3"] .timeline-info strong{font-size:15px!important;line-height:1.45}
+body[data-trip-step="3"] .trip-leg-divider{margin:4px 0 8px!important}
+body[data-trip-step="3"] .trip-leg-summary{font-size:12px!important;font-weight:750}

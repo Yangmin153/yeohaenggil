@@ -5,6 +5,9 @@
   "functions": {
     "api/route.js": {
       "maxDuration": 60
+    },
+    "api/multi-route.js": {
+      "maxDuration": 60
     }
   },
   "headers": [

@@ -8,10 +8,10 @@ function visibleSheetPixels(){const sheet=$('map-sheet'),map=$('map-region');if(
 function fitPadding(){const small=media.matches,height=$('map-region')?.clientHeight||300;return {top:small?18:34,left:small?16:42,right:small?16:42,bottom:small?24:Math.max(40,visibleSheetPixels()+24)};}
 function escaped(t){return String(t||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function render(){const d=current();if(!d)return;
- $('map-day-select').innerHTML=days().map((day,i)=>`<option value="${i}" ${i===app().getActive()?'selected':''}>${i+1}일 차</option>`).join('');
+ $('map-day-select').innerHTML=days().map((day,i)=>`<option value="${i}" ${i===app().getActive()?'selected':''}>${day.date?new Intl.DateTimeFormat('ko-KR',{month:'long',day:'numeric',weekday:'short',timeZone:'UTC'}).format(new Date(day.date+'T12:00:00Z')):(i+1)+'일 차'}</option>`).join('');
  const ordered=d.result?.orderIds?.length?d.result.orderIds.map(id=>d.stops.find(x=>x.id===id)).filter(Boolean):d.stops;
  const places=[d.origin,...ordered,d.destination].filter(p=>p&&!/미설정/.test(p.name));
- $('map-sheet-list').innerHTML=places.map((p,i)=>`<button class="map-sheet-place" type="button" data-map-place="${escaped(p.id)}"><span class="map-sheet-order">${d.result?(i<20?String.fromCharCode(0x2460+i):i+1):'•'}</span><span class="map-sheet-place-name">${escaped(p.name)}</span><span class="map-sheet-category">${p.id===d.origin.id?'출발':p.id===d.destination.id?'도착':window.TripMeta.meta(p).label}</span></button>`).join('');
+ $('map-sheet-list').innerHTML=places.map((p,i)=>`<button class="map-sheet-place" type="button" data-map-place="${escaped(p.id)}"><span class="map-sheet-order">${d.result?(i===0?'S':i===places.length-1?'E':i):'•'}</span><span class="map-sheet-place-name">${escaped(p.name)}</span><span class="map-sheet-category">${p.id===d.origin.id?'출발':p.id===d.destination.id?'도착':window.TripMeta.meta(p).label}</span></button>`).join('');
  const locked=Boolean(window.__tripMapLocked);$('map-lock').textContent=locked?'움직임 허용':'지도 잠그기';$('map-lock').setAttribute('aria-pressed',String(locked));
  $('map-maximize').textContent=fullscreen?'작게 보기':'지도 크게';$('map-maximize').setAttribute('aria-pressed',String(fullscreen));
  $('map-sheet-toggle').setAttribute('aria-expanded',String(sheetOpen));$('map-sheet').classList.toggle('is-open',sheetOpen);
@@ -22,7 +22,7 @@ function lock(next){window.__tripMapLocked=next;app()?.setMapLocked(next);render
 function expanded(next){fullscreen=next;document.body.classList.toggle('map-immersive',next);$('map-full-close').hidden=!next;if(next)sheetOpen=false;render();resize();setTimeout(fit,120);}
 function mapPlace(id){sheetOpen=false;render();app()?.focusPlace(id);}
 function init(){if(!app())return;
- window.__tripMapLocked=media.matches;app().setMapLocked(media.matches);
+ window.__tripMapLocked=false;app().setMapLocked(false);
 
  const changeZoom=step=>{
   const map=app()?.getMap?.();
@@ -30,6 +30,7 @@ function init(){if(!app())return;
   const next=Math.max(6,Math.min(19,map.getZoom()+step));
   if(next!==map.getZoom())map.setZoom(next);
  };
+ $('yg-route-fit').addEventListener('click',fit);
  $('map-zoom-out').addEventListener('click',()=>changeZoom(-1));
  $('map-zoom-in').addEventListener('click',()=>changeZoom(1));
  $('map-lock').addEventListener('click',()=>lock(!window.__tripMapLocked));
@@ -40,7 +41,7 @@ function init(){if(!app())return;
  $('map-sheet-toggle').addEventListener('click',()=>{sheetOpen=!sheetOpen;render();resize();setTimeout(fit,95);});
  $('map-sheet-list').addEventListener('click',e=>{const btn=e.target.closest('[data-map-place]');if(btn)mapPlace(btn.dataset.mapPlace);});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&fullscreen)expanded(false)});
- media.addEventListener?.('change',()=>{if(!fullscreen)lock(media.matches);resize()});
+ media.addEventListener?.('change',()=>{if(!fullscreen)lock(false);resize()});
  window.MapWorkspace={refresh:render,fitPadding,visibleSheetPixels};render();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();

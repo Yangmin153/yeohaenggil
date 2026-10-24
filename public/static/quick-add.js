@@ -24,9 +24,12 @@ function render(next){
   const title=document.createElement('strong');title.textContent=item.name;
   const category=document.createElement('span');category.className='quick-result-category';category.textContent=String(item.category||'장소').split('>').at(-1).trim();
   const address=document.createElement('small');address.textContent=item.address||'주소 정보 없음';
-  heading.append(title,category);info.append(heading,address);preview.append(info);
+  heading.append(title,category);info.append(heading,address);
+  const categoryIcon=document.createElement('span');categoryIcon.className='yg-search-category-icon';
+  categoryIcon.innerHTML=window.TripMeta?.icon?.(item,19)||'';
+  preview.append(categoryIcon,info);
   preview.addEventListener('click',()=>{if(window.YeoSearch?.isOpen?.()){window.YeoSearch.preview(item);return;}selectedPreview=item;app.previewPlace(item);input.blur();setSearchActive(false);document.getElementById('map-region').scrollIntoView({behavior:'smooth',block:'start'});});
-  const addButton=document.createElement('button');addButton.type='button';addButton.className='quick-direct-add';addButton.textContent='지도';addButton.setAttribute('aria-label',item.name+' 지도에서 보기');addButton.addEventListener('click',()=>window.YeoSearch?.preview?.(item));
+  const addButton=document.createElement('button');addButton.type='button';addButton.className='quick-direct-add';addButton.textContent='+ 추가';addButton.setAttribute('aria-label',item.name+' 방문지 추가');addButton.addEventListener('click',()=>add(item,addButton));
   row.append(preview,addButton);results.append(row);
  }
  window.YeoSearch?.onResults?.(next);
@@ -36,15 +39,15 @@ function render(next){
   selectedPreview=next[0];app.previewPlace(next[0]);
  }
 }
-async function search(force=false){const text=cleanQuery(input.value);if(text.length<2){cancel();if(text)setMessage('두 글자 이상 입력해 주세요.');else results.hidden=true;return;}const key=app.getRegion()+'::'+text;if(!force&&key===lastKey&&lastItems.length){render(lastItems);return;}cancel();const current=sequence;abort=new AbortController();const signal=abort.signal;setMessage('장소를 검색하고 있어요…',false,true);setSearchActive(true);try{let found=[];for(const q of searchTerms(text,app.getRegion())){const result=await request(q,signal);if(current!==sequence)return;found=result.items||[];if(found.length)break;}if(current!==sequence)return;lastKey=key;lastItems=rankResults(found,app.getRegion());render(lastItems);}catch(e){if(signal.aborted||current!==sequence)return;setMessage('검색에 실패했어요: '+e.message,true);}finally{if(current===sequence)abort=null;}}
+async function search(force=false){const text=cleanQuery(input.value);if(text.length<2){cancel();if(text)setMessage('두 글자 이상 입력해 주세요.');else results.hidden=true;return;}const region=window.YeoNext?.searchRegion?.()??app.getRegion();const key=region+'::'+text;if(!force&&key===lastKey&&lastItems.length){render(lastItems);return;}cancel();const current=sequence;abort=new AbortController();const signal=abort.signal;setMessage('장소를 검색하고 있어요…',false,true);setSearchActive(true);try{let found=[];for(const q of searchTerms(text,region)){const result=await request(q,signal);if(current!==sequence)return;found=result.items||[];if(found.length)break;}if(current!==sequence)return;lastKey=key;lastItems=rankResults(found,region);render(lastItems);}catch(e){if(signal.aborted||current!==sequence)return;setMessage('검색에 실패했어요: '+e.message,true);}finally{if(current===sequence)abort=null;}}
 function feedback(msg){const el=$('quick-feedback');el.hidden=false;el.textContent=msg;clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>el.hidden=true,2300);app.toast(msg);}
 function add(item,button=null){
- if(window.YeoRegion&&!window.YeoRegion.ensureSelected())return;
- const duplicate=app.getDay().stops.some(x=>samePlace(x,item));
+ if(window.YeoRegion&&!window.YeoRegion.ensureSelected())return false;
+ const duplicate=app.allStops().some(x=>samePlace(x,item));
  if(duplicate){feedback('이미 담은 장소예요. 중복으로 추가하지 않았어요.');return false;}
  const result=app.addQuickStop(item,false);
  if(!result.ok){feedback(result.error||'장소를 담지 못했어요. 다시 해보세요.');return false;}
- const total=app.getDay().stops.length;
+ const total=app.allStops().length;
  const isFullSearch=Boolean(window.YeoSearch?.isOpen?.());
  if(button){button.textContent='✓ 담았어요';button.classList.add('is-added');button.disabled=true;}
  document.dispatchEvent(new CustomEvent('trip:stop-added',{detail:{count:total,id:result.stop?.id,name:item.name}}));
