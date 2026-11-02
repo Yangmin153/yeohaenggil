@@ -27,7 +27,7 @@ function updateSize(){
 }
 // A new traveler has no chosen destination yet. Never infer Jeju (or any other
 // region) from the legacy default region or from the background map camera.
-const KOREA_CENTER=[36.35,127.9],KOREA_ZOOM=6;
+const KOREA_CENTER=[36.35,127.9],KOREA_ZOOM=7;
 function chosenPlace(){
  const d=window.TripApp?.getDay?.();
  return [...(d?.stops||[]),d?.origin,d?.destination].find(p=>
