@@ -1,0 +1,23 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#f5faf7"><title>함께 보는 여행길 · 읽기 전용 일정</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css">
+<link rel="stylesheet" href="/static/shared-trip.css?v=1">
+</head><body class="yg-viewonly">
+<header class="sv-header"><a href="/" class="sv-brand">↗ 여행길</a><span class="sv-label">읽기 전용 일정</span></header>
+<main class="sv-layout">
+<section class="sv-head"><span class="sv-kicker">함께 보는 여행</span><h1>우리의 여행길</h1><p>방문 순서와 장소를 확인하세요. 이 화면에서는 일정을 수정할 수 없어요.</p></section>
+<div id="sv-error" class="sv-error" role="alert" hidden></div>
+<div id="sv-content" hidden>
+ <nav id="sv-days" class="sv-days" aria-label="확인할 여행 날짜"></nav>
+ <section class="sv-map-card" aria-label="방문지 위치 지도">
+  <div class="sv-map-head"><strong>장소 위치</strong><small>연결선은 방문 순서 안내이며 실제 도로 경로가 아닙니다.</small></div>
+  <div id="sv-map" class="sv-map"><svg id="sv-fallback-map" viewBox="0 0 500 260" role="img" aria-label="방문지 간략 위치도" preserveAspectRatio="xMidYMid meet"></svg></div>
+ </section>
+ <section class="sv-timeline-card"><div class="sv-title-row"><h2>방문 순서</h2><span id="sv-metrics"></span></div><ol id="sv-timeline" class="sv-timeline"></ol></section>
+ <div class="sv-share-actions"><button type="button" id="sv-save-card">이 날짜 이미지 저장</button><button type="button" id="sv-share-card">이미지 공유</button></div>
+</div>
+</main>
+<footer class="sv-footer">여행길 · 친구와 함께 보는 여행 일정</footer>
+<script type="module" src="/static/view-trip.js?v=1"></script></body></html>
