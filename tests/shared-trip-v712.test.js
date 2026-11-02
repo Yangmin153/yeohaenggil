@@ -52,7 +52,7 @@ test('sharing uses independent noneditable view, preserves trip editor & offers 
 });
 test('route loading progress tracks completed work, not invented percentages',async()=>{
  const [html,js]=await Promise.all(['public/index.html','public/static/vnext.js'].map(read));
- assert.match(html,/id="yg-calc-spinner"/);
+ assert.match(html,/class="yg-calc-spinner"/);
  assert.match(html,/id="yg-calc-count"/);
  assert.match(js,/bar\.max=full\.length;bar\.value=completed/);
  assert.match(js,/completed\+\+;progress\(\)/);
