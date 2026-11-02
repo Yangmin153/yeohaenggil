@@ -1,0 +1,17 @@
+name: Triple-inspired design preview tests
+on:
+  push:
+    branches: [design/triple-inspired-b375ee37]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444
+        with:
+          node-version: '22'
+      - name: Run original app regression tests
+        run: npm test
