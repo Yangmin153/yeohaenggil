@@ -1,0 +1,63 @@
+/* STEP3 share sheet and real per-day route calculation progress */
+body[data-trip-step]:not([data-trip-step="3"]) .yg-share-entry{display:none!important}
+.yg-share-entry{max-width:950px;margin:5px auto 15px;display:flex;align-items:center;
+ justify-content:space-between;gap:12px;padding:14px 17px;background:#edf8f5;
+ border:1px solid #d3eee5;border-radius:16px}
+.yg-share-entry>span{font-size:14px;line-height:1.5;font-weight:750;color:#417167}
+.yg-share-entry button{min-height:44px;min-width:120px;border:0;border-radius:12px;
+ padding:10px 14px;background:#13b5a1;color:#fff;font-size:14px;font-weight:800}
+.yg-share-panel{position:fixed;inset:0;z-index:1900;display:flex;align-items:flex-end;justify-content:center;
+ background:rgba(11,27,30,.5);overscroll-behavior:contain}
+.yg-share-panel[hidden]{display:none!important}
+body.yg-share-open{overflow:hidden!important}
+.yg-share-card{width:min(620px,100%);max-height:min(92dvh,820px);overflow-y:auto;
+ background:white;border-radius:24px 24px 0 0;padding:22px 18px calc(20px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 35px #112c2926}
+.yg-share-card header{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.yg-share-kicker{color:#049481;font-size:12px;font-weight:800}
+.yg-share-card h2{font-size:22px;margin:6px 0;color:#193f40;line-height:1.5}
+.yg-share-card header button{flex:0 0 44px;min-height:44px;border:0;border-radius:12px;background:#f2f6f5;color:#6a8381;font-size:18px}
+.yg-share-card>p{margin:3px 0 16px;font-size:14px;line-height:1.5;color:#6e8581}
+.yg-share-card>label{display:block;margin-bottom:8px;font-size:12px;font-weight:800;color:#456b65}
+.yg-share-card>input{width:100%;height:48px;border:1px solid #d6ebe4;border-radius:12px;padding:12px;color:#35665d;font-size:12px;background:#f8fbfa}
+.yg-share-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}
+.yg-share-grid button{min-height:54px;border:1px solid #c8ebe2;background:#ebfaf5;color:#0b866f;border-radius:12px;font-size:14px;font-weight:800;padding:10px}
+.yg-share-grid button:nth-child(2),.yg-share-grid button:nth-child(4){background:#12b3a1;border-color:#12b3a1;color:#fff}
+.yg-share-grid button:disabled{opacity:.5;cursor:wait}
+.yg-share-card>small{display:block;font-size:12px;line-height:1.5;color:#82918e}
+.yg-share-card #yg-share-feedback:not([hidden]){border-radius:11px;background:#e8f7f3;color:#157967;padding:11px;font-size:12px;line-height:1.5;margin:12px 0 0}
+.yg-calc-overlay{position:fixed;inset:0;z-index:1850;display:flex;justify-content:center;align-items:center;
+ background:rgba(12,36,40,.48);padding:20px}
+.yg-calc-overlay[hidden]{display:none!important}
+.yg-calc-card{display:flex;flex-direction:column;align-items:center;width:min(360px,100%);
+ padding:32px 24px;background:#fff;border-radius:22px;box-shadow:0 18px 50px #162f2d30}
+.yg-calc-spinner{width:48px;height:48px;border:5px solid #d3f1e7;border-top-color:#12b7a2;
+ border-radius:50%;animation:yg-calc-spin .8s linear infinite;margin-bottom:18px}
+@keyframes yg-calc-spin{to{transform:rotate(360deg)}}
+.yg-calc-card strong{font-size:18px;line-height:1.5;color:#183f3a;text-align:center}
+.yg-calc-card>p{font-size:14px;line-height:1.5;margin:9px 0 18px;color:#6b8680;text-align:center}
+.yg-calc-card progress{width:100%;height:9px;appearance:none;border:0;border-radius:9px;overflow:hidden;background:#e5f3ee}
+.yg-calc-card progress::-webkit-progress-bar{background:#e5f3ee;border-radius:9px}
+.yg-calc-card progress::-webkit-progress-value{background:#13b6a3;border-radius:9px}
+.yg-calc-card progress::-moz-progress-bar{background:#13b6a3;border-radius:9px}
+.yg-calc-card>small{font-size:12px;color:#7d938e;margin-top:10px}
+body[data-trip-step] #yg-calc-progress[hidden]{display:none!important}
+body[data-trip-step] #yg-calc-progress:not([hidden]){font-size:12px;line-height:1.5}
+@media(max-width:600px){.yg-share-entry{margin:4px 0 12px;padding:12px;gap:8px}
+ .yg-share-entry>span{font-size:12px}.yg-share-entry button{min-width:118px;font-size:12px}
+ .yg-share-card{padding:19px 14px calc(18px + env(safe-area-inset-bottom,0px))}
+ .yg-share-grid button{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.yg-calc-spinner{animation:none;border-color:#13b6a3}}
+/* iPhone Safari: keyboard must shrink the search dialog, not cover its result list. */
+body[data-trip-step] .search-screen{
+ max-height:var(--search-height,100dvh)!important;height:var(--search-height,100dvh)!important;
+ overscroll-behavior:contain;padding-bottom:env(safe-area-inset-bottom,0px)
+}
+body[data-trip-step] .search-screen-form-mount{flex:0 0 auto}
+body[data-trip-step] .search-screen-results-mount{
+ flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;
+ overscroll-behavior:contain;-webkit-overflow-scrolling:touch
+}
+body[data-trip-step] .search-screen[data-keyboard-open="true"] .search-screen-top{min-height:44px!important}
+body[data-trip-step] .search-screen[data-keyboard-open="true"] .search-screen-results-mount{padding-bottom:14px!important}
+body[data-trip-step] .search-screen[data-keyboard-open="true"] .search-area-tools{display:none!important}
