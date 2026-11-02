@@ -144,13 +144,23 @@ async function calculate(){
   return route;
  };
  busy=true;for(const id of ['yg-calculate','yg-three-recalc'])$(id).disabled=true;
+ const overlay=$('yg-calc-overlay'),bar=$('yg-calc-bar'),counter=$('yg-calc-count'),message=$('yg-calc-overlay-message');
+ let completed=0;
+ const progress=()=>{
+  bar.max=full.length;bar.value=completed;
+  counter.textContent=completed+' / '+full.length+'일 완료';
+  message.textContent=completed===full.length?'계산 결과를 정리하고 있어요.':'날짜별 실제 자동차 이동 경로를 확인하고 있어요.';
+ };
+ overlay.hidden=false;progress();
  $('yg-calc-progress').hidden=false;
- $('yg-calc-progress').textContent='실제 자동차 이동 경로를 계산하고 있어요…';
+ $('yg-calc-progress').textContent='동선 계산 중 · 0 / '+full.length+'일 완료';
  try{
   let result;
   const routes=arranged.map(d=>({date:d.date,route:null})),queue=[...full];
   await Promise.all(Array.from({length:Math.min(2,queue.length)},async()=>{
-   while(queue.length){const {d,i}=queue.shift();routes[i].route=await routeRequest(d);}
+   while(queue.length){const {d,i}=queue.shift();routes[i].route=await routeRequest(d);
+    completed++;progress();$('yg-calc-progress').textContent='동선 계산 중 · '+completed+' / '+full.length+'일 완료';
+   }
   }));
   result={days:routes,warnings:[]};
   const latest=JSON.stringify({days:days().map(d=>({date:d.date,origin:d.origin,destination:d.destination,stops:d.stops,mode:d.mode})),pending:app.unassignedStops()});
@@ -159,7 +169,11 @@ async function calculate(){
   if(!ok)throw Error('계산 결과와 현재 방문지가 일치하지 않아요. 다시 계산해 주세요.');
   lastWarnings=result.warnings||[];$('yg-calc-progress').hidden=true;go(3);
  }catch(e){app.toast('동선 계산 실패: '+e.message);$('yg-calc-progress').textContent=e.message;}
- finally{busy=false;for(const id of ['yg-calculate','yg-three-recalc'])$(id).disabled=false;}
+ finally{
+  overlay.hidden=true;busy=false;
+  if(completed===full.length)$('yg-calc-progress').hidden=true;
+  for(const id of ['yg-calculate','yg-three-recalc'])$(id).disabled=false;
+ }
 }
 function openSearch(){
  if(!days().every(d=>d.date)){app.toast('여행 날짜를 먼저 선택해 주세요.');return;}
