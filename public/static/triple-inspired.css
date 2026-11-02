@@ -238,6 +238,20 @@ body[data-trip-step="2"] #yg-step-two-actions{
 }
 body[data-trip-step="2"] #yg-step-two-actions>button{min-height:54px!important}
 
+/* Decorative result heading appears only after a successful step transition. */
+body[data-trip-step]:not([data-trip-step="3"]) .yg-trip-result-intro{display:none!important}
+/* Minimum legible type for itinerary labels (the older CSS used 10–11px). */
+body[data-trip-step] .app-shell small,
+body[data-trip-step] .yg-sheet-head p,
+body[data-trip-step] .yg-place-focus small,
+body[data-trip-step] #timeline-note,
+body[data-trip-step] .yg-collection-hint,
+body[data-trip-step] .map-sheet-list small,
+body[data-trip-step] .timeline-entry small,
+body[data-trip-step] .yg-nav-place-info small,
+body[data-trip-step] .search-area-tools p{
+ font-size:12px!important;line-height:1.5!important;
+}
 /* STEP 3: place the map above a readable day-by-day route timeline */
 body[data-trip-step="3"] .yg-trip-result-intro{
  max-width:950px;margin:12px auto 16px;
