@@ -15,6 +15,14 @@ try{
  await page.locator('#sv-timeline .sv-stop').first().waitFor();
  const count=await page.locator('#sv-timeline .sv-stop').count();
  if(count!==3)throw Error('Expected 3 route locations, got '+count);
+ const mapResp=await page.request.get(base+'/api/static-map?p=37.579700,126.977000;37.582600,126.984000');
+ console.log('STATIC_MAP_STATUS',mapResp.status(),mapResp.headers()['content-type']);
+ if(!mapResp.ok()){
+  const message=await mapResp.text().catch(()=>null);
+  console.log('STATIC_MAP_DIAGNOSTIC',String(message).slice(0,340));
+  throw new Error('Naver Static Map API must be enabled and return an actual image.');
+ }
+ if(!String(mapResp.headers()['content-type']).startsWith('image/'))throw Error('Static Map response is not an image');
  const save=page.waitForEvent('download',{timeout:20000});
  await page.locator('#sv-save-card').click();
  const downloaded=await save;
@@ -34,6 +42,9 @@ try{
  },day);
  await page.reload({waitUntil:'domcontentloaded'});
  await page.locator('#yg-share-open').waitFor({state:'visible'});
+ const header=await page.locator('#yg-share-open').boundingBox();
+ const account=await page.locator('#account-button').boundingBox();
+ if(!header||!account||Math.abs(header.y-account.y)>15)throw Error('Share and Login are not in the same header row');
  await page.locator('#yg-share-open').click();
  await page.locator('#yg-share-link').waitFor({state:'visible'});
  const link=await page.locator('#yg-share-link').inputValue();
