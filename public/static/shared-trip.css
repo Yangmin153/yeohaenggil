@@ -1,0 +1,39 @@
+/* 여행길 view-only shares — Pretendard, even 12px+ sizes, 150% multiline spacing */
+*{box-sizing:border-box}body.yg-viewonly{
+ margin:0;background:#f5f8f6;color:#183138;font-family:Pretendard,"Pretendard Variable",-apple-system,sans-serif;
+ letter-spacing:-.03em;font-size:14px
+}
+[hidden]{display:none!important}
+button,a{font:inherit;letter-spacing:-.03em}
+.sv-header{height:65px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;max-width:800px;margin:auto}
+.sv-brand{text-decoration:none;font-size:20px;font-weight:850;color:#119e88}
+.sv-label{font-size:12px;font-weight:700;color:#718683;background:#e8f7f1;padding:8px 11px;border-radius:100px}
+.sv-layout{max-width:760px;margin:0 auto;padding:14px 16px 48px}
+.sv-head .sv-kicker{font-size:12px;font-weight:800;color:#008c79}
+.sv-head h1{font-size:28px;line-height:1.5;margin:4px 0 3px}
+.sv-head p{font-size:14px;line-height:1.5;color:#71817e;margin:0 0 18px}
+.sv-error{padding:16px;background:#fff4ee;border:1px solid #f2cebd;border-radius:14px;color:#924d34;line-height:1.5}
+.sv-days{display:flex;gap:8px;overflow-x:auto;padding:2px 0 14px;scrollbar-width:none}
+.sv-day{flex:none;min-height:44px;padding:11px 14px;border-radius:12px;background:white;border:1px solid #e1e9e4;color:#66827a;font-size:14px;font-weight:750}
+.sv-day.is-active{background:#0db09d;color:#fff;border-color:#0db09d}
+.sv-map-card,.sv-timeline-card{border:1px solid #e7eeea;background:#fff;border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 5px 25px #143e2f08}
+.sv-map-head{display:grid;gap:5px;margin:0 0 12px}.sv-map-head strong{font-size:18px}.sv-map-head small{font-size:12px;line-height:1.5;color:#83908c}
+.sv-map{height:285px;position:relative;border-radius:15px;background:#e7f5ee;overflow:hidden}
+#sv-fallback-map{width:100%;height:100%;position:absolute;inset:0;z-index:1;pointer-events:none}
+.sv-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.sv-title-row h2{font-size:20px;margin:0}
+#sv-metrics{font-size:12px;line-height:1.5;color:#05846f;font-weight:750}
+.sv-timeline{padding:12px 0 0;margin:0;list-style:none}
+.sv-stop{display:flex;align-items:flex-start;gap:13px;padding:11px 0;position:relative}
+.sv-stop+li::before{content:"";position:absolute;top:-10px;left:20px;height:19px;border-left:2px dashed #b4e1d0}
+.sv-number{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:14px;background:#e7f9f2;color:#058a76;font-size:12px;font-weight:850}
+.sv-stop:first-child .sv-number{background:#0b9e88;color:#fff}
+.sv-stop:last-child .sv-number{background:#e98e6a;color:#fff}
+.sv-stop-text{flex:1;min-width:0;padding-top:2px;display:grid;gap:5px}
+.sv-stop-text strong{font-size:16px;line-height:1.5;word-break:keep-all;overflow-wrap:anywhere}
+.sv-stop-text small{font-size:12px;line-height:1.5;color:#83939a;overflow-wrap:anywhere}
+.sv-share-actions{display:flex;gap:10px}.sv-share-actions button{flex:1;min-height:48px;border:1px solid #cbeadf;border-radius:13px;background:#ecfaf5;color:#0e8572;font-size:14px;font-weight:800}
+.sv-share-actions button:last-child{background:#12b2a0;border-color:#12b2a0;color:white}
+.sv-footer{text-align:center;font-size:12px;line-height:1.5;color:#9aa6a2;padding:15px 12px 45px}
+@media(max-width:375px){.sv-layout{padding:8px 12px 40px}.sv-head h1{font-size:26px}.sv-map{height:245px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important}}
