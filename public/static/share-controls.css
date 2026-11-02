@@ -1,11 +1,18 @@
 /* STEP3 share sheet and real per-day route calculation progress */
-body[data-trip-step]:not([data-trip-step="3"]) .yg-share-entry{display:none!important}
-.yg-share-entry{max-width:950px;margin:5px auto 15px;display:flex;align-items:center;
- justify-content:space-between;gap:12px;padding:14px 17px;background:#edf8f5;
- border:1px solid #d3eee5;border-radius:16px}
-.yg-share-entry>span{font-size:14px;line-height:1.5;font-weight:750;color:#417167}
-.yg-share-entry button{min-height:44px;min-width:120px;border:0;border-radius:12px;
- padding:10px 14px;background:#13b5a1;color:#fff;font-size:14px;font-weight:800}
+/* Consistent share control in the header, beside account login. */
+body[data-trip-step] .site-header #yg-share-open{
+ display:inline-flex!important;align-items:center;justify-content:center;gap:6px;
+ flex:0 0 auto;min-height:40px;padding:7px 12px;border-radius:12px;
+ background:#e7f8f2!important;border:1px solid #bce8da!important;
+ color:#087d6d!important;font-size:12px!important;font-weight:800!important;
+}
+body[data-trip-step] .site-header #yg-share-open span{font-size:14px}
+@media(max-width:460px){
+ body[data-trip-step] .site-header .header-right{gap:5px!important;flex-wrap:nowrap!important}
+ body[data-trip-step] .site-header #yg-share-open{padding:7px 9px!important;min-width:0}
+ body[data-trip-step] .site-header #account-button{padding:7px 10px!important;min-width:0}
+ body[data-trip-step] .site-header .api-indicator{display:none!important}
+}
 .yg-share-panel{position:fixed;inset:0;z-index:1900;display:flex;align-items:flex-end;justify-content:center;
  background:rgba(11,27,30,.5);overscroll-behavior:contain}
 .yg-share-panel[hidden]{display:none!important}
