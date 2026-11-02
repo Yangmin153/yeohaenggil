@@ -38,7 +38,7 @@
   <script defer src="/static/vnext.js?v=7.12.0"></script>
   <script defer src="/static/navigation.js?v=7.6.0"></script>
   <script defer src="/static/live-route.js?v=7.5.0"></script>
-  <script type="module" src="/static/share-trip.js?v=1.1.0"></script>
+  <script type="module" src="/static/share-trip.js?v=1.2.0"></script>
 </head>
 <body data-mobile-view="edit" data-trip-step="1" class="region-ready">
   <div class="app-shell">
@@ -47,7 +47,7 @@
         <span class="brand-symbol" aria-hidden="true">↗</span>
         <div><strong>여행길</strong><small>나만의 여행 플래너</small></div>
       </div>
-      <div class="header-right"><span class="api-indicator" id="api-indicator"><i></i>지도 연결 확인 중</span><button class="header-action" id="btn-export" title="여행 일정을 파일로 저장">파일로 저장 <span>↓</span></button><button class="header-icon" id="btn-import" title="백업된 일정 불러오기" aria-label="일정 불러오기">↥</button><button class="header-share" id="btn-share" type="button">일정 공유</button><button class="account-header-button" id="cloud-save" type="button" hidden>클라우드 저장</button><button class="account-header-button" id="account-button" type="button">로그인</button></div>
+      <div class="header-right"><span class="api-indicator" id="api-indicator"><i></i>지도 연결 확인 중</span><button class="header-action" id="btn-export" title="여행 일정을 파일로 저장">파일로 저장 <span>↓</span></button><button class="header-icon" id="btn-import" title="백업된 일정 불러오기" aria-label="일정 불러오기">↥</button><button class="header-share" id="btn-share" type="button">일정 공유</button><button class="account-header-button" id="cloud-save" type="button" hidden>클라우드 저장</button><button class="header-share-action" id="yg-share-open" type="button">일정 공유 <span aria-hidden="true">↗</span></button><button class="account-header-button" id="account-button" type="button">로그인</button></div>
     </header>
 
     <nav class="mobile-view-tabs" id="mobile-view-tabs" aria-label="여행 계획 화면 선택">
@@ -115,7 +115,6 @@
       <div><strong>나의 여행길</strong><p>지도와 방문 순서를 한눈에 확인해요.</p></div>
       <span class="yg-trip-result-chip">03 / 동선 확인</span>
     </div>
-    <div class="yg-share-entry"><span>완성된 동선을 일행과 함께 확인하세요.</span><button type="button" id="yg-share-open">일정 공유 <span aria-hidden="true">↗</span></button></div>
     <div class="workspace" id="trip-workspace">
       <main class="editor">
         <div class="panel-heading"><div><div class="section-kicker">MY TRIP</div><h2>가고 싶은 곳 담기</h2></div><div class="region-back-actions"><button class="small-quiet" type="button" id="btn-change-region">⌖ 지역 변경</button><button class="small-quiet" id="btn-reset">↺ 초기화</button></div></div>
@@ -290,7 +289,7 @@
 <div id="yg-share-panel" class="yg-share-panel" role="dialog" aria-modal="true" aria-label="여행 일정 공유" hidden>
   <section class="yg-share-card">
    <header><div><span class="yg-share-kicker">함께 보는 여행길</span><h2>일행에게 여행 공유하기</h2></div><button type="button" id="yg-share-close" aria-label="공유 창 닫기">✕</button></header>
-   <p>일정을 수정할 수 없는 링크와 이미지로 공유할 수 있어요.</p>
+   <p>아직 동선을 계산하지 않았어도 일정 초안을 공유할 수 있어요. 링크를 받은 사람은 수정할 수 없어요.</p>
    <label for="yg-share-link">읽기 전용 웹 링크</label>
    <input id="yg-share-link" readonly aria-label="읽기 전용 여행 링크">
    <div class="yg-share-grid">
@@ -299,7 +298,7 @@
      <button type="button" data-share-action="save">현재 날짜 이미지 저장</button>
      <button type="button" data-share-action="image">카카오톡에 이미지 공유</button>
    </div>
-   <small>링크를 가진 사람은 공유된 장소와 이동 순서를 볼 수 있어요. 카카오톡 앱 공유 메뉴에서 카카오톡을 선택하세요. 이미지는 네이버 지도 캡처가 아닌 장소 좌표 기반의 개요예요.</small>
+   <small>링크를 가진 사람은 공유된 장소와 이동 순서를 볼 수 있어요. 카카오톡 앱 공유 메뉴에서 카카오톡을 선택하세요. 이미지에는 네이버 Static Map 지도와 방문지 위치가 표시돼요. 실제 주행 경로선은 포함되지 않아요.</small>
    <p id="yg-share-feedback" role="status" aria-live="polite" hidden></p>
   </section>
  </div>
