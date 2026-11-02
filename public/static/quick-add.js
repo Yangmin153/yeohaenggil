@@ -8,7 +8,7 @@ function setMessage(text,retry=false,loading=false){results.replaceChildren();co
 function syncRegion(){const v=app.getRegion();if(!document.body.classList.contains('region-needs-choice'))region.value=v;$('quick-region-label').textContent=tripSearchAnchor(app.getDay())?'동선 주변':'전국';}
 function sync(){syncRegion();const disabled=$('btn-route').disabled;$('mobile-route').disabled=disabled;$('mobile-route').textContent=disabled?'최적 동선 계산 중…':app.getDay().result?'동선 다시 계산':'최적 동선 만들기';}
 function setDirty(value){dirty=Boolean(value);document.body.classList.toggle('trip-route-dirty',dirty);}
-function adjustViewport(){const viewport=window.visualViewport;if(!viewport)return;const rise=Math.max(0,innerHeight-viewport.height-viewport.offsetTop);document.documentElement.style.setProperty('--keyboard-rise',Math.max(0,rise>110?rise:0)+'px');if(rise>110)document.body.classList.add('quick-search-active');else if(input.value==='')document.body.classList.remove('quick-search-active');}
+function adjustViewport(){const viewport=window.visualViewport;if(!viewport)return;const rise=Math.max(0,innerHeight-viewport.height-viewport.offsetTop);document.documentElement.style.setProperty('--keyboard-rise',Math.max(0,rise>110?rise:0)+'px');if(window.YeoSearch?.isOpen?.())return;if(rise>110)document.body.classList.add('quick-search-active');else if(input.value==='')document.body.classList.remove('quick-search-active');}
 function setSearchActive(on){document.body.classList.toggle('quick-search-active',on);if(!on){results.hidden=true;results.replaceChildren();}adjustViewport();}
 function syncView(view){if(view==='map')setSearchActive(false);else sync();}
 function cancel(){clearTimeout(timer);++sequence;if(abort){metrics.aborts++;abort.abort();abort=null;}}
