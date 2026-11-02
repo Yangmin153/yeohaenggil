@@ -55,5 +55,5 @@ test('search UI strings are explicit and buttons have minimum 44px target',async
  assert.match(html,/id="search-global-results"/);
  assert.match(css,/min-height:44px/);
  assert.match(screen,/textContent='담은 장소 보기'/);
- assert.match(html,/search-screen\.js\?v=7\.10\.0/);
+ assert.match(html,/search-screen\.js\?v=7\.12\.0/);
 });
