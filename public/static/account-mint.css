@@ -49,3 +49,44 @@ body[data-trip-step] #account-panel button:not(.account-social-google):not(.acco
  outline:3px solid #8ee0c9!important;outline-offset:2px
 }
 /* Preserve Kakao yellow and Google provider brand colors. */
+
+/* Logged-in trip library: no legacy blue cards or buttons. */
+body[data-trip-step] #account-panel .account-signed-hero{
+ background:#ebf8f3!important;border:1px solid #cceadd!important;border-radius:16px
+}
+body[data-trip-step] #account-panel .account-signed-mark{
+ background:#13b5a1!important;color:#fff!important
+}
+body[data-trip-step] #account-panel .account-signed-hero strong,
+body[data-trip-step] #account-panel .account-trips-heading h3{
+ color:#24473e!important;font-size:16px!important
+}
+body[data-trip-step] #account-panel .account-signed-hero p,
+body[data-trip-step] #account-panel #account-signed>label,
+body[data-trip-step] #account-panel .account-trips-status{
+ color:#608377!important;font-size:12px!important;line-height:1.5!important
+}
+body[data-trip-step] #account-panel #account-trip-name{
+ border-color:#d2e8dd!important;background:#f9fcfa!important;color:#213e36
+}
+body[data-trip-step] #account-panel .account-toolbar button:first-child{
+ background:#13b5a1!important;color:#fff!important;border-radius:12px!important
+}
+body[data-trip-step] #account-panel .account-toolbar button:not(:first-child){
+ border-color:#d3eae0!important;color:#187c69!important;background:#ecf8f3!important;
+ border-radius:12px!important
+}
+body[data-trip-step] #account-panel .account-refresh{
+ color:#10866f!important;border-color:#cce9df!important;background:#fff!important;
+ font-size:12px!important;min-height:40px!important
+}
+body[data-trip-step] #account-panel .account-trip-row{
+ border-color:#e0eae4!important;background:#fff!important
+}
+body[data-trip-step] #account-panel .account-trip-open strong{
+ color:#24443d!important;font-size:14px!important
+}
+body[data-trip-step] #account-panel .account-trip-open small{
+ color:#80928a!important;font-size:12px!important;line-height:1.5!important
+}
+body[data-trip-step] #account-panel .account-bottom{border-color:#e4efe8!important}
