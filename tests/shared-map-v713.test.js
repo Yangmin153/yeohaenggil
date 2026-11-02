@@ -27,7 +27,7 @@ test('new snapshots keep correct start/visit/end labels without fabricating an o
  assert.deepEqual(snap.d[0].p.map(x=>x.r),['S','V','V']);
  const text=summaryText(snap);
  assert.match(text,/출발 · 숙소/);
- assert.match(text,/1\\. 방문 · 카페/);
+ assert.ok(text.includes('1. 방문 · 카페'));
  assert.doesNotMatch(text,/도착 · 카페/);
 });
 test('static map viewport uses exact Web Mercator map projection for real coordinates',()=>{
@@ -60,7 +60,7 @@ test('share button sits next to login and account colors are mint throughout the
  const i=html.indexOf('id="yg-share-open"'),j=html.indexOf('id="account-button"');
  assert.ok(i>0&&j>i&&j-i<190);
  assert.equal((html.match(/id="yg-share-open"/g)||[]).length,1);
- assert.match(html,/account-mint\\.css/);
+ assert.ok(html.includes('account-mint.css'));
  assert.match(css,/account-signed-hero/);
  assert.match(css,/account-toolbar button:first-child/);
  assert.match(css,/#13b5a1/);
