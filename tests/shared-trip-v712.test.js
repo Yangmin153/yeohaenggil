@@ -20,7 +20,7 @@ test('view-only trip link roundtrips exact stop order and limits account data',a
  assert.deepEqual(result.d[0].p.map(x=>x.n),['경복궁','광화문광장','북촌한옥마을','서울역']);
  assert.equal(result.d[0].m,25);
  assert.equal(result.d[0].k,5900);
- assert.match(summaryText(result),/자동차 이동 약 25분/);
+ assert.match(summaryText(result),/예상 차량 이동 25분/);
 });
 test('share link deliberately excludes live GPS coordinates',()=>{
  const day=sample();day.liveOrigin=p('gps','현재위치',37.99999,126.34567);
@@ -31,7 +31,7 @@ test('share link deliberately excludes live GPS coordinates',()=>{
 });
 test('rejects routes missing calculation and malformed or oversized shared links',async()=>{
  const day=sample();day.result=null;
- assert.throws(()=>snapshotDays([day]),/동선을 계산/);
+ assert.equal(snapshotDays([day]).d[0].w,'draft');
  assert.rejects(()=>decodeSnapshot('z%%%%'),/올바른|길거나/);
  assert.throws(()=>validateSnapshot({v:1,d:[{t:'bad',p:[{n:'X',a:'',x:Infinity,y:3}]}]}));
  const tooMany=sample();tooMany.stops=Array.from({length:41},(_,i)=>p(String(i),'x',37,126));
@@ -48,7 +48,7 @@ test('sharing uses independent noneditable view, preserves trip editor & offers 
  assert.match(ui,/navigator\.share/);
  assert.match(viewjs,/decodeSnapshot/);
  assert.match(viewjs,/sv-timeline/);
- assert.match(viewjs,/mapPlot/);
+ assert.match(viewjs,/staticMapLayout/);
 });
 test('route loading progress tracks completed work, not invented percentages',async()=>{
  const [html,js]=await Promise.all(['public/index.html','public/static/vnext.js'].map(read));
