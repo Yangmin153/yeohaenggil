@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="/static/vnext.css?v=7.9.0">
   <link rel="stylesheet" href="/static/route-pins.css?v=6.4.0">
   <link rel="stylesheet" href="/static/triple-inspired.css?v=1.0.0">
+  <link rel="stylesheet" href="/static/share-controls.css?v=1.0.0">
   <script defer src="/static/search-utils.js?v=4.2.0"></script>
   <script defer src="/static/place-meta.js?v=4.3.0"></script>
   <script defer src="/static/route-pins.js?v=6.4.0"></script>
@@ -37,6 +38,7 @@
   <script defer src="/static/vnext.js?v=7.6.0"></script>
   <script defer src="/static/navigation.js?v=7.6.0"></script>
   <script defer src="/static/live-route.js?v=7.5.0"></script>
+  <script type="module" src="/static/share-trip.js?v=1.0.0"></script>
 </head>
 <body data-mobile-view="edit" data-trip-step="1" class="region-ready">
   <div class="app-shell">
@@ -113,6 +115,7 @@
       <div><strong>나의 여행길</strong><p>지도와 방문 순서를 한눈에 확인해요.</p></div>
       <span class="yg-trip-result-chip">03 / 동선 확인</span>
     </div>
+    <div class="yg-share-entry"><span>완성된 동선을 일행과 함께 확인하세요.</span><button type="button" id="yg-share-open">일정 공유 <span aria-hidden="true">↗</span></button></div>
     <div class="workspace" id="trip-workspace">
       <main class="editor">
         <div class="panel-heading"><div><div class="section-kicker">MY TRIP</div><h2>가고 싶은 곳 담기</h2></div><div class="region-back-actions"><button class="small-quiet" type="button" id="btn-change-region">⌖ 지역 변경</button><button class="small-quiet" id="btn-reset">↺ 초기화</button></div></div>
@@ -190,6 +193,15 @@
     </div>
     <div id="yg-step-two-actions" class="yg-step-actions"><button type="button" id="yg-back-dates" class="yg-secondary">← 날짜 수정</button><button type="button" id="yg-calculate" class="yg-primary">내 여행 동선 만들기 <span>→</span></button><p id="yg-calc-progress" role="status" hidden>여행 날짜별 동선을 계산하고 있어요…</p></div>
     <div id="yg-assign-warning" role="status" aria-live="polite"></div>
+    <div id="yg-calc-overlay" class="yg-calc-overlay" role="status" aria-live="polite" hidden>
+      <section class="yg-calc-card" aria-label="동선 계산 진행 상황">
+       <div class="yg-calc-spinner" aria-hidden="true"></div>
+       <strong>가장 좋은 여행 순서를 찾고 있어요.</strong>
+       <p id="yg-calc-overlay-message">도로 이동 시간을 확인하고 있어요.</p>
+       <progress id="yg-calc-bar" max="1" value="0" aria-label="계산 완료된 날짜"></progress>
+       <small id="yg-calc-count">0 / 1일 완료</small>
+      </section>
+    </div>
     <div id="yg-step-three-actions" class="yg-step-actions yg-result-toolbar">
       <button type="button" id="yg-back-places" class="yg-secondary">← 방문지 수정</button>
       <button type="button" id="yg-three-add" class="yg-outline">＋ 방문지 추가</button>
@@ -275,6 +287,22 @@
   </div>
   <input type="file" id="import-file" accept="application/json,.json" hidden>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="yg-share-panel" class="yg-share-panel" role="dialog" aria-modal="true" aria-label="여행 일정 공유" hidden>
+  <section class="yg-share-card">
+   <header><div><span class="yg-share-kicker">함께 보는 여행길</span><h2>일행에게 여행 공유하기</h2></div><button type="button" id="yg-share-close" aria-label="공유 창 닫기">✕</button></header>
+   <p>일정을 수정할 수 없는 링크와 이미지로 공유할 수 있어요.</p>
+   <label for="yg-share-link">읽기 전용 웹 링크</label>
+   <input id="yg-share-link" readonly aria-label="읽기 전용 여행 링크">
+   <div class="yg-share-grid">
+     <button type="button" data-share-action="copy">링크 복사</button>
+     <button type="button" data-share-action="text">카카오톡에 텍스트 공유</button>
+     <button type="button" data-share-action="save">현재 날짜 이미지 저장</button>
+     <button type="button" data-share-action="image">카카오톡에 이미지 공유</button>
+   </div>
+   <small>링크를 가진 사람은 공유된 장소와 이동 순서를 볼 수 있어요. 카카오톡 앱 공유 메뉴에서 카카오톡을 선택하세요. 이미지는 네이버 지도 캡처가 아닌 장소 좌표 기반의 개요예요.</small>
+   <p id="yg-share-feedback" role="status" aria-live="polite" hidden></p>
+  </section>
+ </div>
 <div id="search-screen" class="search-screen" role="dialog" aria-modal="true" aria-label="장소 검색" hidden>
  <div class="search-screen-top">
   <button type="button" id="search-screen-back" aria-label="검색 닫고 일정으로 돌아가기">✕</button>
