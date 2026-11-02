@@ -492,7 +492,7 @@ function resizeMapStable({fit=false}={}){
 function createMapIfVisible(){
  if(map||!sdkReady||!window.naver?.maps||!mapHasArea())return;
  try{
-  map=new naver.maps.Map('map',{center:new naver.maps.LatLng(36.35,127.9),zoom:6,minZoom:6,zoomControl:false,scrollWheel:false});
+  map=new naver.maps.Map('map',{center:new naver.maps.LatLng(36.35,127.9),zoom:7,minZoom:6,zoomControl:false,scrollWheel:false});
   mapCreateCount++;markerInfo=new naver.maps.InfoWindow({backgroundColor:'#fff',borderColor:'#e5ecf6',borderWidth:1,maxWidth:260});
   setMapLocked(false);$('map-placeholder').classList.add('hidden');
   let lastZoomGroup='';
