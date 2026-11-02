@@ -21,8 +21,12 @@ function unlockBackground(){
 
 function updateSize(){
  const viewport=window.visualViewport;
- screen.style.setProperty('--search-height',Math.round(viewport?.height||innerHeight)+'px');
- screen.style.setProperty('--search-top',Math.round(viewport?.offsetTop||0)+'px');
+ const height=Math.max(240,Math.round(viewport?.height||innerHeight));
+ const top=Math.round(viewport?.offsetTop||0);
+ screen.style.setProperty('--search-height',height+'px');
+ screen.style.setProperty('--search-top',top+'px');
+ const keyboardOpen=Boolean(opened&&viewport&&innerHeight-(viewport.height+viewport.offsetTop)>120);
+ screen.dataset.keyboardOpen=String(keyboardOpen);
  if(searchMap&&opened&&mode==='map')requestAnimationFrame(()=>window.naver?.maps?.Event?.trigger(searchMap,'resize'));
 }
 // A new traveler has no chosen destination yet. Never infer Jeju (or any other
@@ -273,6 +277,8 @@ $('search-picked-add').addEventListener('click',chooseAdd);
 $('search-picked-cancel').addEventListener('click',()=>clearPreview());
 // The saved-place list can be opened without changing the current step.
 input.addEventListener('input',()=>{if(opened)clearPreview({restoreCamera:false});});
+input.addEventListener('focus',()=>{if(opened)requestAnimationFrame(updateSize);});
+input.addEventListener('blur',()=>{if(opened)requestAnimationFrame(updateSize);});
 input.addEventListener('focus',()=>{if(!opened&&matchMedia('(max-width:768px)').matches)show()});
 input.addEventListener('pointerdown',e=>{if(!opened&&matchMedia('(max-width:768px)').matches){e.preventDefault();show();}});
 window.addEventListener('popstate',()=>{if(opened)hide(true)});
