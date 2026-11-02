@@ -1,0 +1,51 @@
+/* Match Supabase login / account manager with the mint travel planner. */
+body[data-trip-step] #account-panel .account-sheet{background:#fff;color:#193d38;border-radius:24px 24px 0 0}
+body[data-trip-step] #account-panel .account-top{border-color:#e4efeb}
+body[data-trip-step] #account-panel .account-top h2,
+body[data-trip-step] #account-panel .account-auth-view h3{color:#173c39!important;letter-spacing:-.03em!important;line-height:1.5!important}
+body[data-trip-step] #account-panel .account-auth-view p,
+body[data-trip-step] #account-panel .account-auth-view label{color:#607f76!important;line-height:1.5!important}
+body[data-trip-step] #account-panel .account-auth-view input{
+ background:#f8fbf9!important;color:#24463f!important;border-color:#d7e9e2!important;
+ min-height:48px;font-size:14px!important;border-radius:12px!important
+}
+body[data-trip-step] #account-panel .account-auth-view input:focus{
+ outline:2px solid #6fd0b3!important;background:#fff!important
+}
+body[data-trip-step] #account-panel .account-auth-primary,
+body[data-trip-step] #account-panel .account-signed button.account-auth-primary{
+ background:#13b5a1!important;border-color:#13b5a1!important;color:#fff!important;
+ border-radius:13px!important;font-size:14px!important
+}
+body[data-trip-step] #account-panel .account-auth-outline{
+ background:#eaf9f3!important;border-color:#caeee0!important;color:#087c68!important;
+ border-radius:13px!important;font-size:14px!important
+}
+body[data-trip-step] #account-panel .account-auth-back,
+body[data-trip-step] #account-panel .account-auth-view .account-link{
+ color:#078c74!important;font-size:12px!important
+}
+body[data-trip-step] #account-panel .account-welcome-icon,
+body[data-trip-step] #account-panel .account-mail-icon{
+ background:#e5f9f1!important;color:#0ba78c!important
+}
+body[data-trip-step] #account-panel .account-field-hint,
+body[data-trip-step] #account-panel #account-auth-welcome small{
+ font-size:12px!important;line-height:1.5!important
+}
+body[data-trip-step] #account-panel #account-auth-verify p strong{color:#0c9379!important;font-size:14px!important}
+body[data-trip-step] #account-panel #account-feedback:not(:empty){
+ background:#eaf9f3!important;color:#16725f!important;font-size:12px!important;line-height:1.5!important
+}
+body[data-trip-step] #account-panel #account-feedback[data-error="true"]{
+ background:#fff0ea!important;color:#a34531!important
+}
+body[data-trip-step] #account-panel .account-signed,
+body[data-trip-step] #account-panel .account-dashboard,
+body[data-trip-step] #account-panel .account-trips{
+ border-color:#e0ebe6!important
+}
+body[data-trip-step] #account-panel button:not(.account-social-google):not(.account-social-kakao):focus-visible{
+ outline:3px solid #8ee0c9!important;outline-offset:2px
+}
+/* Preserve Kakao yellow and Google provider brand colors. */
