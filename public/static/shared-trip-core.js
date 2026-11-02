@@ -18,11 +18,12 @@ export function snapshotDays(days){
   const byId=new Map(stops.map(p=>[p.id,p]));
   const sorted=day.result.orderIds.map(id=>byId.get(id));
   if(sorted.length!==stops.length||sorted.some(p=>!p)||new Set(day.result.orderIds).size!==stops.length)throw Error('계산된 방문지 순서가 올바르지 않아요. 다시 계산해 주세요.');
-  const places=[day.liveOrigin||day.origin,...sorted,day.destination].map(compactPlace);
+  // Never publish a live/current GPS coordinate in a share link without separate consent.
+  const places=[day.origin,...sorted,day.destination].map(compactPlace);
   if(places.some(p=>!validPlace(p)))throw Error('장소 좌표를 확인한 뒤 다시 공유해 주세요.');
   const minutes=Number(day.result.drivingMinutes),distance=Number(day.result.totalDistanceMeters);
-  return {t:dayName(day.date),p:places,m:Number.isFinite(minutes)&&minutes>=0?Math.round(minutes):null,
-   k:Number.isFinite(distance)&&distance>=0?Math.round(distance):null};
+  return {t:dayName(day.date),p:places,m:!day.liveOrigin&&Number.isFinite(minutes)&&minutes>=0?Math.round(minutes):null,
+   k:!day.liveOrigin&&Number.isFinite(distance)&&distance>=0?Math.round(distance):null};
  })};
 }
 export function validateSnapshot(s){
