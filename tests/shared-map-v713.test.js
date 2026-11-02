@@ -46,14 +46,14 @@ test('server static map rejects non-Korean coordinates and external fetchers bef
 });
 test('PNG uses a real Static Map image and no invented route strokes',async()=>{
  const [card,view,api]=await Promise.all(['public/static/trip-card.js','public/static/view-trip.js','api/static-map.js'].map(file));
- assert.match(card,/\\/api\\/static-map\\?p=/);
- assert.match(card,/ctx\\.drawImage\\(actual\\.image/);
- assert.doesNotMatch(card,/ctx\\.lineTo\\(p\\.x,p\\.y\\)/);
- assert.doesNotMatch(view,/new maps\\.Polyline/);
- assert.doesNotMatch(view,/createElementNS\\(svgNS,'polyline'\\)/);
- assert.match(view,/renderStaticMap\\(day\\)/);
- assert.match(api,/maps\\.apigw\\.ntruss\\.com\\/map-static\\/v2\\/raster/);
- assert.match(api,/process\\.env\\.NAVER_MAPS_CLIENT_SECRET/);
+ assert.ok(card.includes('/api/static-map?p='));
+ assert.ok(card.includes('ctx.drawImage(actual.image'));
+ assert.ok(!card.includes('ctx.lineTo(p.x,p.y)'));
+ assert.ok(!view.includes('new maps.Polyline'));
+ assert.ok(!view.includes("createElementNS(svgNS,'polyline')"));
+ assert.ok(view.includes('renderStaticMap(day)'));
+ assert.ok(api.includes('maps.apigw.ntruss.com/map-static/v2/raster'));
+ assert.ok(api.includes('process.env.NAVER_MAPS_CLIENT_SECRET'));
 });
 test('share button sits next to login and account colors are mint throughout the library',async()=>{
  const [html,css]=await Promise.all(['public/index.html','public/static/account-mint.css'].map(file));
