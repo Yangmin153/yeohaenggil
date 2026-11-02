@@ -61,7 +61,14 @@ try{
  await page.locator('#quick-input').press('Enter');
  await page.locator('#quick-results .quick-result-row').first().waitFor({timeout:25000});
  await page.setViewportSize({width:390,height:520});
+ await page.waitForTimeout(350);
  const box=await page.locator('.search-screen-results-mount').boundingBox();
+ const debug=await page.evaluate(()=>({innerHeight,visualHeight:window.visualViewport?.height,
+  overlay:document.querySelector('#search-screen')?.getBoundingClientRect().toJSON(),
+  result:document.querySelector('.search-screen-results-mount')?.getBoundingClientRect().toJSON(),
+  cssHeight:document.querySelector('#search-screen')?.style.getPropertyValue('--search-height'),
+  mode:document.querySelector('#search-screen')?.dataset.searchMode}));
+ console.log('MOBILE_VIEWPORT_DIAGNOSTIC',JSON.stringify(debug));
  if(!box||box.y+box.height>530)throw Error('Search results overflow mobile viewport');
  console.log('PASS: visit search and compact viewport result list');
 }catch(e){
