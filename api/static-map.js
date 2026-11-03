@@ -1,6 +1,6 @@
 /* Same-origin Naver Static Map image endpoint; client secret never reaches the browser.
  * The Naver Cloud Maps application MUST have Static Map API enabled. */
-import {staticMapLayout} from '../public/static/static-map-layout.js';
+import {staticMapLayout,focusedStaticMapLayout} from '../public/static/static-map-layout.js';
 const endpoint='https://maps.apigw.ntruss.com/map-static/v2/raster';
 const fail=(message,status=400)=>new Response(JSON.stringify({detail:message}),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store'}});
 export async function GET(request){
@@ -17,8 +17,17 @@ export async function GET(request){
   if(!/^\d{1,2}\.\d{1,6},\d{2,3}\.\d{1,6}$/.test(item))return fail('장소 좌표를 확인해 주세요.',422);
   const [x,y]=item.split(',').map(Number);points.push({x,y});
  }
- const map=staticMapLayout(points);
- if(!map||points.length!==map.pixels.length)return fail('대한민국 지도 범위의 장소를 선택해 주세요.',422);
+ const standard=staticMapLayout(points);
+ if(!standard||points.length!==standard.pixels.length)return fail('대한민국 지도 범위의 장소를 선택해 주세요.',422);
+ const focusValue=url.searchParams.get('f')||'';
+ let map=standard;
+ if(focusValue){
+  if(!/^\d{1,2}\.\d{1,6},\d{2,3}\.\d{1,6}$/.test(focusValue))return fail('지도 중심 좌표 형식을 확인해 주세요.',422);
+  const [x,y]=focusValue.split(',').map(Number);
+  const w=Number(url.searchParams.get('w')||390),h=Number(url.searchParams.get('h')||500),level=Number(url.searchParams.get('z')||13);
+  map=focusedStaticMapLayout(points,{x,y},w,h,level);
+  if(!map)return fail('방문지 범위 또는 지도 크기를 확인해 주세요.',422);
+ }
  const id=process.env.NAVER_MAPS_CLIENT_ID,secret=process.env.NAVER_MAPS_CLIENT_SECRET;
  if(!id||!secret)return fail('네이버 지도 서버 키가 설정되지 않았어요.',503);
  const api=new URL(endpoint);
