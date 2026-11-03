@@ -44,7 +44,7 @@ test('search selection is text-results-only, never a map click or map marker sel
  assert.ok(quick.includes("window.YeoSearch.completeEndpoint(item)"));
  assert.ok(html.includes('id="btn-pick-map-primary" hidden disabled'));
  assert.ok(app.includes("startMapPick(){toast('장소 검색 결과에서 방문지를 선택해 주세요.');}"));
- assert.ok(search.includes("show('destination')"));
+ assert.ok(search.includes("show('destination',{transitionMessage:"));
 });
 test('STEP3 selects one visit and edits its exact visit number, without arrows or lock actions',async()=>{
  const [html,js,app]=await Promise.all(['public/index.html','public/static/vnext.js','public/static/app.js'].map(read));
