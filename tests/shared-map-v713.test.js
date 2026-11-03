@@ -44,14 +44,18 @@ test('server static map rejects non-Korean coordinates and external fetchers bef
  const cross=await staticMapGET(req('37.579700,126.977000',{'sec-fetch-site':'cross-site'}));
  assert.equal(cross.status,403);
 });
-test('PNG uses a real Static Map image and no invented route strokes',async()=>{
- const [card,view,api]=await Promise.all(['public/static/trip-card.js','public/static/view-trip.js','api/static-map.js'].map(file));
- assert.ok(card.includes('/api/static-map?p='));
- assert.ok(card.includes('ctx.drawImage(actual.image'));
- assert.ok(!card.includes('ctx.lineTo(p.x,p.y)'));
+test('view-only map uses authentic Naver tiles without fake road lines and supports focusing a place',async()=>{
+ const [html,view,api]=await Promise.all(['public/view.html','public/static/view-trip.js','api/static-map.js'].map(file));
+ assert.ok(html.includes('id="sv-map-fit"'));
+ assert.ok(html.includes('id="sv-timeline"'));
+ assert.ok(!html.includes('id="sv-save-card"'));
+ assert.ok(!html.includes('id="sv-share-card"'));
+ assert.ok(view.includes('renderStaticMap(day)'));
+ assert.ok(view.includes("fill:'transparent'"));
+ assert.ok(view.includes('function focusPlace('));
+ assert.ok(view.includes('function fitAll('));
  assert.ok(!view.includes('new maps.Polyline'));
  assert.ok(!view.includes("createElementNS(svgNS,'polyline')"));
- assert.ok(view.includes('renderStaticMap(day)'));
  assert.ok(api.includes('maps.apigw.ntruss.com/map-static/v2/raster'));
  assert.ok(api.includes('process.env.NAVER_MAPS_CLIENT_SECRET'));
 });
