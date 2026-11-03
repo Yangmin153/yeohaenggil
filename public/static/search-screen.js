@@ -316,7 +316,7 @@ function show(kind='stop',options={}){
  $('search-stage-label').textContent=searchKind==='origin'?'첫 번째 · 출발지':searchKind==='destination'?'두 번째 · 도착지':'방문지 검색';
  $('search-stage-help').textContent=searchKind==='origin'
   ?'어디서 출발하시나요?'
-  :searchKind==='destination'?'어디에서 여행을 마치시나요?':'검색 결과에서 가고 싶은 장소를 담아 주세요.';
+  :searchKind==='destination'?'마지막 도착지는 어디인가요?':'검색 결과에서 가고 싶은 장소를 담아 주세요.';
  updateSavedButton();
  screen.hidden=false;screen.querySelector('#search-screen-form-mount').append(form);resultMount.append(results);
  window.YGScrollLock?.lock('search-screen');document.body.classList.add('search-open');lockBackground();
@@ -347,12 +347,16 @@ function hide(fromPopstate=false){
  searchDayId=null;
  (previousFocus?.isConnected?previousFocus:$('btn-add-place'))?.focus?.({preventScroll:true});
 }
+function notify(message){
+ if(!opened)return;
+ feedback.textContent=message;feedback.hidden=false;
+ clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>feedback.hidden=true,2100);
+}
 function addSuccess(message,place=null){
  if(!opened)return;
  items=[];clearMarkers();
  updateSavedButton();
- feedback.textContent=message;feedback.hidden=false;
- clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>feedback.hidden=true,2100);
+ notify(message);
  // The user asked to inspect the newly added stop immediately on Naver Maps.
  // All saved visits remain, and candidate result markers are removed.
  if(place)focusAdded(place);
@@ -429,7 +433,7 @@ document.addEventListener('trip:stops-changed',()=>{if(opened){paintMarkers();up
 document.addEventListener('trip:day-changed',()=>{if(opened){clearPreview({restoreCamera:false});paintMarkers();updateSavedButton();}});
 window.addEventListener('resize',()=>{if(opened&&mode==='map')paintMarkers();});
 $('search-screen-count').addEventListener('click',()=>window.YeoNext?.openSheet?.());
-window.YeoSearch={show,hide,isOpen:()=>opened,returnStep:()=>returnStep,mode:()=>searchKind,isEndpointMode:endpointMode,completeEndpoint,preview,clearPreview,focusAdded,showSavedPlace:showSaved,searchStarted,onResults,addSuccess,refreshSavedMarkers,
+window.YeoSearch={show,hide,isOpen:()=>opened,returnStep:()=>returnStep,mode:()=>searchKind,isEndpointMode:endpointMode,completeEndpoint,preview,clearPreview,focusAdded,showSavedPlace:showSaved,searchStarted,onResults,notify,addSuccess,refreshSavedMarkers,
  getMapDiagnostics:()=>({
   viewMode:mode,stage:searchKind,selectedName:selected?.name||null,
   saved: savedMarkers.length,candidates:markers.length,focused:!!selectedMarker,
