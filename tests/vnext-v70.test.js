@@ -80,7 +80,7 @@ test('legacy place editor keeps scroll lock but direct map picking is disabled',
 });
 test('step2 headings share same typographic scale and each task has one short helper',async()=>{
  const [html,css]=await Promise.all([read('public/index.html'),read('public/static/vnext.css')]);
- assert.match(html,/순서가 달라도 괜찮아요\. 여행길이 동선을 정리해요/);
- assert.match(html,/출발할 곳과 마지막 도착 장소를 선택하세요/);
+ assert.match(html,/원하는 순서대로 설정하고, 지도에서 위치를 확인하세요/);
+ assert.match(html,/각각 선택하거나 언제든 변경할 수 있어요/);
  assert.match(css,/font-size:clamp\(22px,4\.6vw,30px\)!important/);
 });
