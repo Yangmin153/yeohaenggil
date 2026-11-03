@@ -49,6 +49,6 @@ test('both itinerary and full-screen search initialize at neutral nationwide zoo
  assert.match(search,/searchMap\.setZoom\(mapStartZoom\(\)\)/);
  assert.doesNotMatch(search,/return c\?\[c\.lat\(\),c\.lng\(\)\]/);
  assert.match(html,/app\.js\?v=7\.17\.0/);
- assert.match(html,/search-screen\.js\?v=7\.16\.0/);
+ assert.match(html,/search-screen\.js\?v=7\.17\.0/);
  assert.match(html,/id="quick-region-label" class="quick-region-label">전국/);
 });
