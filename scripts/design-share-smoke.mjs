@@ -15,34 +15,26 @@ try{
  await page.locator('#sv-timeline .sv-stop').first().waitFor();
  const count=await page.locator('#sv-timeline .sv-stop').count();
  if(count!==3)throw Error('Expected 3 route locations, got '+count);
- const mapResp=await page.request.get(base+'/api/static-map?p=37.579700,126.977000;37.582600,126.984000');
- console.log('STATIC_MAP_STATUS',mapResp.status(),mapResp.headers()['content-type']);
- if(!mapResp.ok()){
-  const message=await mapResp.text().catch(()=>null);
-  console.log('STATIC_MAP_DIAGNOSTIC',String(message).slice(0,340));
-  throw new Error('Naver Static Map API must be enabled and return an actual image.');
- }
- if(!String(mapResp.headers()['content-type']).startsWith('image/'))throw Error('Static Map response is not an image');
- if(await page.locator('#sv-save-card').count()||await page.locator('#sv-share-card').count())throw Error('Old PNG actions should be removed');
+ if(await page.locator('#sv-save-card').count()||await page.locator('#sv-share-card').count())throw Error('PNG save/share controls must remain removed');
+ await page.waitForFunction(()=>document.querySelector('.sv-naver-pin')||document.querySelector('#sv-map-unavailable')?.hidden===false,null,{timeout:16000});
  const viewDiagnostics=await page.evaluate(()=>({
   error:document.querySelector('#sv-error')?.textContent,
   errorHidden:document.querySelector('#sv-error')?.hidden,
-  svg:document.querySelector('#sv-fallback-map')?.outerHTML.slice(0,1100),
-  image:document.querySelector('.sv-static-background')?.src,
-  mapChildren:document.querySelector('#sv-map')?.children.length
+  mapStatus:document.querySelector('#sv-map-caption')?.textContent,
+  fallbackVisible:document.querySelector('#sv-map-unavailable')?.hidden===false,
+  mapPins:document.querySelectorAll('.sv-naver-pin').length,
+  obsoleteLayers:document.querySelectorAll('#sv-fallback-map,.sv-static-background').length
  }));
  console.log('VIEW_MAP_DIAGNOSTICS',JSON.stringify(viewDiagnostics));
- if(viewDiagnostics.errorHidden===false)throw Error('Read-only viewer reported an error: '+viewDiagnostics.error);
- const mapRect=page.locator('#sv-fallback-map rect');
- if(await mapRect.count()){
-  const mapSvg=await mapRect.getAttribute('fill');
-  if(mapSvg!=='transparent')throw Error('Map marker overlay must not cover the Naver map image');
- }else if(!await page.locator('#sv-map img').count())throw Error('Neither fallback SVG nor actual map image was rendered');
+ if(viewDiagnostics.errorHidden===false)throw Error('Read-only viewer error: '+viewDiagnostics.error);
+ if(viewDiagnostics.obsoleteLayers)throw Error('Read-only view still has a duplicate static map/SVG overlay');
+ if(viewDiagnostics.fallbackVisible)throw Error('Naver Dynamic Map unavailable on this Preview: '+viewDiagnostics.mapStatus);
+ if(viewDiagnostics.mapPins!==3)throw Error('Expected exactly three markers on the sole Naver map');
  await page.locator('[data-focus-index="1"]').click();
  const info=await page.locator('#sv-map-caption').textContent();
  if(!info.includes('북촌한옥마을'))throw Error('Selected timeline place was not focused in map');
  await page.locator('#sv-map-fit').click();
- console.log('PASS: view-only Naver map tiles, transparent pins, map focus/fit, no PNG controls');
+ console.log('PASS: one live Naver map, no duplicate image or SVG, marker focus/fit and no PNG controls');
  const config=await page.evaluate(async()=>{
    const r=await fetch('/api/config');const cfg=await r.json();
    return {status:r.status,supabaseReady:cfg.supabaseReady,match:cfg.supabaseUrl==='https://halbesrgdvjdzrvmdyxy.supabase.co',mapKeyPresent:Boolean(cfg.mapsKeyId)};
@@ -102,8 +94,11 @@ try{
  }));
  console.log('ADD_SEARCH_DIAGNOSTICS',JSON.stringify({beforeStop,...status}));
  if(status.count<=beforeStop)throw Error('Search result +add did not increase actual itinerary visit count');
+ if(await page.locator('#search-screen').getAttribute('data-search-mode')!=='list')throw Error('Adding a place unexpectedly hid the search results and showed the map');
+ if(!(await page.locator('#quick-input').isVisible()))throw Error('Search input disappeared after adding a visit');
+
  console.log('PASS: only search-result buttons add places; map taps never select coordinates');
- // Successful +add intentionally switches to map preview; show results before measuring list geometry.
+ // Search remains in the result list after +add and is ready for another query.
  if(await page.locator('#search-screen').getAttribute('data-search-mode')==='map')await page.locator('#search-list-toggle').click();
  await page.setViewportSize({width:390,height:520});
  await page.waitForTimeout(350);
