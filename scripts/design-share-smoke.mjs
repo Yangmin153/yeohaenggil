@@ -102,6 +102,21 @@ try{
  console.log('MOBILE_VIEWPORT_DIAGNOSTIC',JSON.stringify(debug));
  if(!box||box.y+box.height>530)throw Error('Search results overflow mobile viewport');
  console.log('PASS: visit search and compact viewport result list');
+ // In STEP2 a confirmed starting point should automatically open destination
+ // search if no destination exists; it must not skip an already chosen destination.
+ await page.locator('#search-screen-back').click();
+ await page.evaluate(()=>{
+  const d=window.TripApp?.getDay?.();
+  if(d?.destination)d.destination.name='도착지 미설정';
+ });
+ await page.locator('#yg-origin-pick').click();
+ await page.locator('#quick-input').fill('경복궁');
+ await page.locator('#quick-input').press('Enter');
+ await page.locator('#quick-results .quick-direct-add').first().waitFor({timeout:25000});
+ await page.locator('#quick-results .quick-direct-add').first().click();
+ await page.waitForFunction(()=>window.YeoSearch?.isOpen?.()&&window.YeoSearch?.mode?.()==='destination',null,{timeout:12000});
+ if(!(await page.locator('#search-screen-region').textContent()).includes('도착지 검색'))throw Error('Destination search did not advance automatically');
+ console.log('PASS: STEP2 origin selection automatically advances to destination search');
 }catch(e){
  console.error('DESIGN_SMOKE_FAILED',e.stack||e.message);
  await page.screenshot({path:'/tmp/yg-design-smoke-error.png'}).catch(()=>{});
