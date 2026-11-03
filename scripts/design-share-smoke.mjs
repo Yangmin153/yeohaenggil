@@ -114,7 +114,16 @@ try{
  await page.locator('#quick-input').press('Enter');
  await page.locator('#quick-results .quick-direct-add').first().waitFor({timeout:25000});
  await page.locator('#quick-results .quick-direct-add').first().click();
- await page.waitForFunction(()=>window.YeoSearch?.isOpen?.()&&window.YeoSearch?.mode?.()==='destination',null,{timeout:12000});
+ await page.waitForTimeout(800);
+ console.log('ENDPOINT_AUTO_DIAGNOSTICS',JSON.stringify(await page.evaluate(()=>({
+  mode:window.YeoSearch?.mode?.(),open:window.YeoSearch?.isOpen?.(),
+  step:document.body.dataset.tripStep,origin:window.TripApp?.getDay?.()?.origin?.name,
+  destination:window.TripApp?.getDay?.()?.destination?.name,
+  heading:document.querySelector('#search-screen-region')?.textContent,
+  toast:document.querySelector('#toast')?.textContent,
+  history:history.state,hash:location.hash
+ }))));
+ await page.waitForFunction(()=>window.YeoSearch?.isOpen?.()&&window.YeoSearch?.mode?.()==='destination',null,{timeout:5000});
  if(!(await page.locator('#search-screen-region').textContent()).includes('도착지 검색'))throw Error('Destination search did not advance automatically');
  console.log('PASS: STEP2 origin selection automatically advances to destination search');
 }catch(e){
