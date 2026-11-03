@@ -130,8 +130,13 @@ try{
   const endpoint=window.YeoSearch.completeEndpoint;
   window.YeoSearch.completeEndpoint=(place)=>{
    window.__endpointTrace.events.push({event:'completeEndpoint',name:place?.name});
-   const ok=endpoint(place);window.__endpointTrace.events.push({event:'return',ok});
-   return ok;
+   try{
+    const ok=endpoint(place);window.__endpointTrace.events.push({event:'return',ok});
+    return ok;
+   }catch(error){
+    window.__endpointTrace.events.push({event:'error',message:error?.message,stack:String(error?.stack||'').slice(0,1500)});
+    throw error;
+   }
   };
   const preview=window.YeoSearch.preview;
   window.YeoSearch.preview=(place,...rest)=>{
