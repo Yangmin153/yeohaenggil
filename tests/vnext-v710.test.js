@@ -45,10 +45,10 @@ test('explicit region choice works only when deliberately supplied',async()=>{
 test('both itinerary and full-screen search initialize at neutral nationwide zoom and refresh asset cache',async()=>{
  const [app,search,html]=await Promise.all(['public/static/app.js','public/static/search-screen.js','public/index.html'].map(read));
  assert.match(app,/new naver\.maps\.LatLng\(36\.35,127\.9\),zoom:7/);
- assert.match(search,/zoom:mapStartZoom\(\)/);
+ assert.match(search,/zoom:selected\?13:mapStartZoom\(\)/);
  assert.match(search,/searchMap\.setZoom\(mapStartZoom\(\)\)/);
  assert.doesNotMatch(search,/return c\?\[c\.lat\(\),c\.lng\(\)\]/);
  assert.match(html,/app\.js\?v=7\.15\.0/);
- assert.match(html,/search-screen\.js\?v=7\.15\.0/);
+ assert.match(html,/search-screen\.js\?v=7\.16\.0/);
  assert.match(html,/id="quick-region-label" class="quick-region-label">전국/);
 });
