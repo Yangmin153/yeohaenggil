@@ -97,12 +97,12 @@ function openVisitPositionEditor(){
  selector.value=String(current);
  $('yg-position-place').textContent='선택한 장소: '+p.name;
  $('yg-position-warning').hidden=true;$('yg-position-warning').textContent='';
- dialog.hidden=false;document.body.classList.add('yg-position-open');
+ window.YGScrollLock?.lock('visit-position');dialog.hidden=false;document.body.classList.add('yg-position-open');
  selector.focus({preventScroll:true});
 }
 function closeVisitPositionEditor(){
  if($('yg-position-dialog').hidden)return;
- $('yg-position-dialog').hidden=true;document.body.classList.remove('yg-position-open');editingAdjustId=null;
+ $('yg-position-dialog').hidden=true;document.body.classList.remove('yg-position-open');window.YGScrollLock?.unlock('visit-position');editingAdjustId=null;
  $('yg-adjust-edit-selected').focus({preventScroll:true});
 }
 async function applyVisitPosition(){
@@ -154,7 +154,7 @@ function go(next){
  closeSheet();window.YeoSearch?.hide?.();
  currentStep=next;document.body.dataset.tripStep=String(next);
   const help=$('yg-progress-help');
-  if(help)help.textContent=next===3?'날짜나 방문지를 수정하려면 위의 ① 여행 일정 · ② 장소 담기를 눌러 이동하세요.':'위의 단계 이름을 누르면 언제든 해당 화면으로 이동할 수 있어요.';
+  if(help)help.textContent=next===3?'날짜나 장소를 바꾸려면 위의 단계를 누르세요.':'날짜 선택 → 장소 담기 → 동선 확인';
   
  document.querySelectorAll('[data-yg-step]').forEach(b=>b.setAttribute('aria-current',Number(b.dataset.ygStep)===next?'step':'false'));
  window.TripUX?.switchView?.(next===3?'map':'edit');
@@ -197,7 +197,7 @@ async function calculate(){
   counter.textContent=completed+' / '+full.length+'일 완료';
   message.textContent=completed===full.length?'계산 결과를 정리하고 있어요.':'날짜별 실제 자동차 이동 경로를 확인하고 있어요.';
  };
- overlay.hidden=false;progress();
+ window.YGScrollLock?.lock('calculation');overlay.hidden=false;progress();
  $('yg-calc-progress').hidden=false;
  $('yg-calc-progress').textContent='동선 계산 중 · 0 / '+full.length+'일 완료';
  try{
@@ -213,10 +213,10 @@ async function calculate(){
   if(snapshot!==latest)throw Error('계산 중 일정이 변경됐어요. 다시 계산해 주세요.');
   const ok=app.applyDailyRoutes(result);
   if(!ok)throw Error('계산 결과와 현재 방문지가 일치하지 않아요. 다시 계산해 주세요.');
-  lastWarnings=result.warnings||[];$('yg-calc-progress').hidden=true;go(3);
+  lastWarnings=result.warnings||[];$('yg-calc-progress').hidden=true;window.YGScrollLock?.unlock('calculation');go(3);
  }catch(e){app.toast('동선 계산 실패: '+e.message);$('yg-calc-progress').textContent=e.message;}
  finally{
-  overlay.hidden=true;busy=false;
+  overlay.hidden=true;busy=false;window.YGScrollLock?.unlock('calculation');
   if(completed===full.length)$('yg-calc-progress').hidden=true;
   for(const id of ['yg-calculate','yg-three-recalc'])$(id).disabled=false;
  }

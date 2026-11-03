@@ -45,7 +45,7 @@ function render(){const d=current();if(!d)return;
 function resize(){requestAnimationFrame(()=>{app()?.resizeMap();});}
 function fit(){app()?.fitMap(fitPadding());}
 function lock(next){window.__tripMapLocked=next;app()?.setMapLocked(next);render();}
-function expanded(next){fullscreen=next;document.body.classList.toggle('map-immersive',next);$('map-full-close').hidden=!next;if(next)sheetOpen=false;render();resize();setTimeout(fit,120);}
+function expanded(next){if(next)window.YGScrollLock?.lock('fullscreen-map');else window.YGScrollLock?.unlock('fullscreen-map');fullscreen=next;document.body.classList.toggle('map-immersive',next);$('map-full-close').hidden=!next;if(next)sheetOpen=false;render();resize();setTimeout(fit,120);}
 function mapPlace(id){sheetOpen=false;render();app()?.focusPlace(id);}
 function init(){if(!app())return;
  window.__tripMapLocked=false;app().setMapLocked(false);

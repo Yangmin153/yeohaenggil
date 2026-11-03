@@ -9,7 +9,7 @@ body[data-trip-step] {
  --trip-bg:#f7f9fa; --trip-white:#fff; --trip-ink:#172a35;
  --trip-muted:#72818c; --trip-line:#e9eef0; --trip-mint:#14b8a6;
  --trip-mint-dark:#008c7e; --trip-light:#e8faf6;
- --trip-radius:20px; --trip-shadow:0 5px 22px rgba(26,52,61,.045);
+ --trip-radius:20px; --trip-shadow:0 6px 22px rgba(26,52,61,.045);
  background:var(--trip-bg);color:var(--trip-ink);
  font-family:Pretendard,"Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;
  letter-spacing:-.03em;
@@ -20,7 +20,7 @@ body[data-trip-step] select,body[data-trip-step] textarea {
 }
 body[data-trip-step] button:focus-visible,body[data-trip-step] input:focus-visible,
 body[data-trip-step] select:focus-visible,body[data-trip-step] summary:focus-visible {
- outline:3px solid rgba(20,184,166,.35);outline-offset:2px;
+ outline:4px solid rgba(20,184,166,.35);outline-offset:2px;
 }
 body[data-trip-step] .app-shell{max-width:1040px;padding:0 20px 100px}
 body[data-trip-step] .site-header{
@@ -29,7 +29,7 @@ body[data-trip-step] .site-header{
 }
 body[data-trip-step] .brand{gap:10px}
 body[data-trip-step] .brand-symbol{
- display:grid;place-items:center;width:38px;height:38px;border-radius:13px;
+ display:grid;place-items:center;width:38px;height:38px;border-radius:14px;
  background:var(--trip-mint);color:white;font-size:24px;font-weight:800;
  box-shadow:0 6px 14px rgba(20,184,166,.15)
 }
@@ -44,17 +44,17 @@ body[data-trip-step] #account-button{background:#ecf8f5!important;color:var(--tr
 body[data-trip-step] #yg-progress{
  max-width:660px;gap:6px!important;margin:12px auto 14px!important;
  border:1px solid var(--trip-line);border-radius:16px;
- padding:5px;background:#fff;box-shadow:var(--trip-shadow)
+ padding:6px;background:#fff;box-shadow:var(--trip-shadow)
 }
 body[data-trip-step] #yg-progress>i{display:none}
 body[data-trip-step] #yg-progress>button{
  flex:1;justify-content:center;gap:6px;min-width:0;min-height:44px;
  color:#778892;font-size:12px!important;font-weight:700!important;
- padding:9px 6px!important;border-radius:12px;white-space:nowrap;
+ padding:10px 6px!important;border-radius:12px;white-space:nowrap;
 }
 body[data-trip-step] #yg-progress>button span{
- background:#f0f4f5;color:#7c9099;border-radius:9px;
- width:25px;height:25px;font-size:12px!important;font-weight:800
+ background:#f0f4f5;color:#7c9099;border-radius:10px;
+ width:26px;height:26px;font-size:12px!important;font-weight:800
 }
 body[data-trip-step] #yg-progress>button[aria-current="step"]{
  background:var(--trip-light);color:var(--trip-mint-dark)!important;
@@ -73,7 +73,7 @@ body[data-trip-step] .yg-step-intro>span{
 }
 body[data-trip-step] .yg-step-intro h1{
  color:var(--trip-ink);font-size:clamp(24px,3vw,32px)!important;
- line-height:1.5;letter-spacing:-.03em;margin:5px 0 0
+ line-height:1.5;letter-spacing:-.03em;margin:6px 0 0
 }
 body[data-trip-step] .yg-step-intro p{
  font-size:14px!important;line-height:1.5;color:var(--trip-muted)
@@ -82,13 +82,13 @@ body[data-trip-step] .yg-primary,
 body[data-trip-step] #yg-three-recalc,
 body[data-trip-step] #yg-nav-open{
  background:var(--trip-mint)!important;border-color:var(--trip-mint)!important;
- color:#fff!important;border-radius:15px!important;font-size:14px!important;
+ color:#fff!important;border-radius:16px!important;font-size:14px!important;
  font-weight:800!important;box-shadow:none
 }
 body[data-trip-step] .yg-secondary,
 body[data-trip-step] .yg-outline{
  background:#fff!important;color:#526b76!important;border:1px solid var(--trip-line)!important;
- border-radius:15px!important;font-size:14px!important
+ border-radius:16px!important;font-size:14px!important
 }
 
 /* STEP 1: travel-first explanation before the native, accessible date picker */
@@ -112,10 +112,10 @@ body[data-trip-step="1"] .yg-trip-showcase{
 body[data-trip-step="1"] .yg-showcase-copy{min-width:0}
 body[data-trip-step="1"] .yg-showcase-kicker{
  display:inline-flex;background:#fff;color:#008b79;
- border-radius:100px;padding:7px 12px;font-weight:800;font-size:12px
+ border-radius:100px;padding:8px 12px;font-weight:800;font-size:12px
 }
 body[data-trip-step="1"] .yg-showcase-copy strong{
- display:block;font-size:22px;line-height:1.5;color:#133c36;font-weight:850;margin:11px 0 6px
+ display:block;font-size:22px;line-height:1.5;color:#133c36;font-weight:850;margin:12px 0 6px
 }
 body[data-trip-step="1"] .yg-showcase-copy p{
  font-size:14px;line-height:1.5;color:#4e746d;margin:0;max-width:290px
@@ -125,23 +125,23 @@ body[data-trip-step="1"] .yg-showcase-art{
  display:flex;align-items:center;justify-content:center
 }
 body[data-trip-step="1"] .yg-showcase-art::before{
- content:"";position:absolute;inset:14px 9px;border-radius:22px;
- background:#fff;transform:rotate(-7deg);box-shadow:0 10px 25px #0b8c771b;
+ content:"";position:absolute;inset:14px 10px;border-radius:22px;
+ background:#fff;transform:rotate(-7deg);box-shadow:0 10px 26px #0b8c771b;
  z-index:-1
 }
 body[data-trip-step="1"] .yg-showcase-path{
  position:absolute;top:28px;left:38px;width:112px;height:60px;
- border:3px dashed #66c9b7;border-left:0;border-bottom:0;
+ border:4px dashed #66c9b7;border-left:0;border-bottom:0;
  border-radius:0 28px 0 0;transform:rotate(-7deg)
 }
 body[data-trip-step="1"] .yg-showcase-pin{
  display:grid;place-items:center;border-radius:50%;font-size:16px;font-weight:850;
  width:38px;height:38px;color:#fff;background:#14b8a6;position:absolute;
- border:4px solid #fff;box-shadow:0 5px 12px #066d5a20
+ border:4px solid #fff;box-shadow:0 6px 12px #066d5a20
 }
-body[data-trip-step="1"] .yg-showcase-pin:nth-of-type(2){left:22px;bottom:25px}
-body[data-trip-step="1"] .yg-showcase-pin:nth-of-type(3){left:76px;top:3px;background:#4a78c8}
-body[data-trip-step="1"] .yg-showcase-pin:nth-of-type(4){right:6px;bottom:23px;background:#ff9b7b}
+body[data-trip-step="1"] .yg-showcase-pin:nth-of-type(2){left:22px;bottom:26px}
+body[data-trip-step="1"] .yg-showcase-pin:nth-of-type(3){left:76px;top:4px;background:#4a78c8}
+body[data-trip-step="1"] .yg-showcase-pin:nth-of-type(4){right:6px;bottom:24px;background:#ff9b7b}
 body[data-trip-step="1"] #yg-step-one .yg-date-card{
  max-width:660px!important;width:100%;border:1px solid var(--trip-line);
  box-shadow:var(--trip-shadow);background:#fff;border-radius:20px!important;
@@ -149,24 +149,24 @@ body[data-trip-step="1"] #yg-step-one .yg-date-card{
 }
 body[data-trip-step="1"] .yg-date-card .yg-date-fields{gap:12px}
 body[data-trip-step="1"] .yg-date-card .yg-date-fields label{
- gap:9px;font-size:14px!important;font-weight:800;color:#334b53
+ gap:10px;font-size:14px!important;font-weight:800;color:#334b53
 }
 body[data-trip-step="1"] .yg-date-card .yg-date-fields input[type=date]{
  background:#f8faf9!important;border:1px solid #dfe9e6!important;
  min-height:54px!important;height:54px!important;
- border-radius:13px!important;padding:10px!important;color:#22373e;
+ border-radius:14px!important;padding:10px!important;color:#22373e;
  font-size:14px!important
 }
 body[data-trip-step="1"] #yg-duration{
  background:#ecf9f4;color:#008e76;font-size:14px!important;font-weight:800;
- border-radius:11px;min-height:40px;display:flex;align-items:center;
- padding:10px 14px;margin-top:13px
+ border-radius:12px;min-height:40px;display:flex;align-items:center;
+ padding:10px 14px;margin-top:14px
 }
 body[data-trip-step="1"] #yg-step-one .yg-step-actions{
  width:100%;max-width:660px;margin:16px auto 0!important
 }
 body[data-trip-step="1"] #yg-next-places{
- min-height:54px!important;border-radius:15px!important;letter-spacing:-.03em
+ min-height:54px!important;border-radius:16px!important;letter-spacing:-.03em
 }
 
 /* STEP 2: lightweight day selector, single clear search action, compact endpoints */
@@ -182,7 +182,7 @@ body[data-trip-step="2"] #yg-step-two-intro{margin-top:10px!important;margin-bot
 body[data-trip-step="2"] #yg-step-two-intro h1{font-size:28px!important}
 body[data-trip-step="2"] .yg-date-switch{
  padding:10px 12px;background:#fff;border:1px solid var(--trip-line);
- border-radius:13px;box-shadow:none;margin-bottom:17px!important
+ border-radius:14px;box-shadow:none;margin-bottom:18px!important
 }
 body[data-trip-step="2"] .yg-date-switch label{font-size:12px!important;color:#647981!important}
 body[data-trip-step="2"] #yg-active-date{
@@ -194,15 +194,15 @@ body[data-trip-step="2"] .yg-visit-editor{
  gap:12px!important;padding:0!important;background:none!important
 }
 body[data-trip-step="2"] #yg-add-visit{
- min-height:66px!important;border:1.5px solid #b8e9dc!important;border-radius:17px!important;
- background:#fff!important;color:#5d777c!important;padding:14px 17px!important;
+ min-height:66px!important;border:1.5px solid #b8e9dc!important;border-radius:18px!important;
+ background:#fff!important;color:#5d777c!important;padding:14px 18px!important;
  font-size:14px!important;box-shadow:var(--trip-shadow)!important;justify-content:flex-start
 }
 body[data-trip-step="2"] #yg-add-visit span:first-child{color:var(--trip-mint)!important;font-size:26px}
 body[data-trip-step="2"] #yg-add-visit span:last-child{margin-left:auto;color:#1da78f}
 body[data-trip-step="2"] #yg-open-stops{
  min-height:54px!important;background:#effaf6!important;border:1px solid #d8efe7!important;
- color:#087d70!important;font-size:14px!important;border-radius:15px!important;
+ color:#087d70!important;font-size:14px!important;border-radius:16px!important;
  padding:12px 16px!important
 }
 body[data-trip-step="2"] .yg-endpoint-section{
@@ -212,7 +212,7 @@ body[data-trip-step="2"] .yg-endpoint-section{
 }
 body[data-trip-step="2"] .yg-endpoint-section-title h2{
  font-size:18px!important;line-height:1.5!important;letter-spacing:-.03em!important;
- color:#20353c;margin:0 0 5px!important
+ color:#20353c;margin:0 0 6px!important
 }
 body[data-trip-step="2"] .yg-endpoint-section-title p{
  font-size:14px!important;line-height:1.5;color:#819095;margin:0 0 16px
@@ -232,7 +232,7 @@ body[data-trip-step="2"] .yg-endpoint-section .yg-pick-place strong{font-size:14
 body[data-trip-step="2"] .yg-endpoint-section .yg-pick-place small{font-size:12px!important;line-height:1.5;color:#8c9a9e}
 body[data-trip-step="2"] #yg-map-caption{margin-top:22px!important}
 body[data-trip-step="2"] #yg-map-caption strong{font-size:18px!important;color:#1e323b}
-body[data-trip-step="2"] #map-region{border:1px solid #e2ebe8!important;border-radius:19px!important;overflow:hidden}
+body[data-trip-step="2"] #map-region{border:1px solid #e2ebe8!important;border-radius:20px!important;overflow:hidden}
 body[data-trip-step="2"] #yg-step-two-actions{
  max-width:660px!important;margin:24px auto 10px!important
 }
@@ -240,7 +240,7 @@ body[data-trip-step="2"] #yg-step-two-actions>button{min-height:54px!important}
 
 /* Decorative result heading appears only after a successful step transition. */
 body[data-trip-step]:not([data-trip-step="3"]) .yg-trip-result-intro{display:none!important}
-/* Minimum legible type for itinerary labels (the older CSS used 10–11px). */
+/* Minimum legible type for itinerary labels (the older CSS used 10–12px). */
 body[data-trip-step] .app-shell small,
 body[data-trip-step] .yg-sheet-head p,
 body[data-trip-step] .yg-place-focus small,
@@ -260,10 +260,10 @@ body[data-trip-step="3"] .yg-trip-result-intro{
 body[data-trip-step="3"] .yg-trip-result-intro strong{
  font-size:26px;line-height:1.5;color:#183137
 }
-body[data-trip-step="3"] .yg-trip-result-intro p{font-size:14px;line-height:1.5;color:#758b8d;margin:3px 0 0}
+body[data-trip-step="3"] .yg-trip-result-intro p{font-size:14px;line-height:1.5;color:#758b8d;margin:4px 0 0}
 body[data-trip-step="3"] .yg-trip-result-chip{
  display:inline-flex;align-items:center;background:#e3f8f0;
- color:#05836f;border-radius:100px;padding:9px 12px;
+ color:#05836f;border-radius:100px;padding:10px 12px;
  font-size:12px;font-weight:800;white-space:nowrap
 }
 body[data-trip-step="3"] .view-panel{background:transparent!important;box-shadow:none!important;border:none!important}
@@ -275,7 +275,7 @@ body[data-trip-step="3"] #trip-workspace #map-region{
 body[data-trip-step="3"] #map-control-bar{margin-bottom:12px!important}
 body[data-trip-step="3"] #map-control-bar button{
  background:#fff!important;color:#35515a!important;
- border:1px solid #e5eceb!important;border-radius:11px!important;
+ border:1px solid #e5eceb!important;border-radius:12px!important;
  min-height:42px!important;font-size:12px!important
 }
 body[data-trip-step="3"] .yg-result-date{
@@ -313,7 +313,7 @@ body[data-trip-step="3"] #yg-nav-open{
  color:#fff!important;border:0!important;border-radius:12px!important;font-size:14px!important
 }
 body[data-trip-step="3"] .result-head h3{font-size:18px!important;color:#18373c}
-body[data-trip-step="3"] .timeline{border-radius:15px;background:#fff}
+body[data-trip-step="3"] .timeline{border-radius:16px;background:#fff}
 body[data-trip-step="3"] .timeline-entry{border-radius:14px!important;background:#fff!important}
 body[data-trip-step="3"] .timeline-entry .timeline-dot,
 body[data-trip-step="3"] .timeline-entry .timeline-rail{
@@ -328,7 +328,7 @@ body[data-trip-step="3"] #route-results #yg-live-controls{
  border-radius:16px!important
 }
 body[data-trip-step="3"] #route-results #yg-three-recalc{
- min-height:50px!important;background:var(--trip-mint)!important;border-radius:13px!important
+ min-height:50px!important;background:var(--trip-mint)!important;border-radius:14px!important
 }
 body[data-trip-step="3"] #yg-step-three-actions>button{
  min-height:50px!important;font-size:14px!important;font-weight:800!important
@@ -362,9 +362,9 @@ body[data-trip-step] .yg-nav-start{background:var(--trip-mint)!important}
 
 /* Small screens: protect tappable footer actions and large native date controls. */
 @media(max-width:768px){
- body[data-trip-step] .app-shell{padding:0 14px 115px!important}
- body[data-trip-step] .site-header{padding:12px 0 9px!important}
- body[data-trip-step] .header-right{gap:5px}
+ body[data-trip-step] .app-shell{padding:0 14px 116px!important}
+ body[data-trip-step] .site-header{padding:12px 0 10px!important}
+ body[data-trip-step] .header-right{gap:6px}
  body[data-trip-step] #yg-progress{gap:2px!important;margin:8px auto 12px!important;padding:4px}
  body[data-trip-step] #yg-progress>button{
   min-height:44px;font-size:12px!important;padding:8px 2px!important;gap:4px
@@ -374,24 +374,24 @@ body[data-trip-step] .yg-nav-start{background:var(--trip-mint)!important}
  }
  body[data-trip-step] .yg-progress-help{font-size:12px!important;margin:0 auto 14px!important}
  body[data-trip-step="1"] #yg-step-one{
-  padding:4px 0 calc(115px + env(safe-area-inset-bottom,0px))!important;
+  padding:4px 0 calc(116px + env(safe-area-inset-bottom,0px))!important;
   min-height:0!important
  }
  body[data-trip-step="1"] .yg-trip-showcase{
   padding:16px;grid-template-columns:minmax(0,1fr) 110px;
-  min-height:146px;border-radius:19px;margin:9px auto 12px
+  min-height:146px;border-radius:20px;margin:10px auto 12px
  }
- body[data-trip-step="1"] .yg-showcase-copy strong{font-size:18px;margin:7px 0 4px}
+ body[data-trip-step="1"] .yg-showcase-copy strong{font-size:18px;margin:8px 0 4px}
  body[data-trip-step="1"] .yg-showcase-copy p{font-size:12px}
  body[data-trip-step="1"] .yg-showcase-art{min-height:92px}
  body[data-trip-step="1"] .yg-showcase-art::before{inset:4px}
- body[data-trip-step="1"] .yg-showcase-path{left:19px;top:25px;width:66px;height:42px}
+ body[data-trip-step="1"] .yg-showcase-path{left:20px;top:26px;width:66px;height:42px}
  body[data-trip-step="1"] .yg-showcase-pin{width:32px;height:32px;font-size:14px}
  body[data-trip-step="1"] .yg-showcase-pin:nth-of-type(2){left:1px;bottom:8px}
- body[data-trip-step="1"] .yg-showcase-pin:nth-of-type(3){left:38px;top:-3px}
+ body[data-trip-step="1"] .yg-showcase-pin:nth-of-type(3){left:38px;top:-4px}
  body[data-trip-step="1"] .yg-showcase-pin:nth-of-type(4){right:0;bottom:6px}
  body[data-trip-step="1"] #yg-step-one .yg-date-card{
-  padding:16px!important;border-radius:17px!important;margin:5px auto 0!important
+  padding:16px!important;border-radius:18px!important;margin:6px auto 0!important
  }
  body[data-trip-step="1"] .yg-date-card .yg-date-fields{gap:8px}
  body[data-trip-step="1"] .yg-date-card .yg-date-fields label{font-size:12px!important}
@@ -399,23 +399,8 @@ body[data-trip-step] .yg-nav-start{background:var(--trip-mint)!important}
   min-height:48px!important;height:48px!important;
   font-size:14px!important;padding:8px!important
  }
- body[data-trip-step="1"] #yg-step-one .yg-step-actions{
-  position:fixed!important;bottom:0!important;left:50%!important;right:auto!important;
-  width:100%!important;max-width:none!important;transform:translateX(-50%)!important;
-  margin:0!important;z-index:100!important;
-  padding:11px 14px calc(11px + env(safe-area-inset-bottom,0px))!important;
-  background:rgba(255,255,255,.96)!important;border-top:1px solid #edf1ef;
-  box-shadow:0 -4px 18px #1d433313!important
- }
  body[data-trip-step="2"] .yg-endpoint-section{padding:16px!important}
  body[data-trip-step="2"] .yg-endpoint-pair{grid-template-columns:minmax(0,1fr)}
- body[data-trip-step="2"] #yg-step-two-actions{
-  position:fixed!important;bottom:0!important;left:50%!important;right:auto!important;
-  width:100%!important;max-width:none!important;transform:translateX(-50%)!important;
-  margin:0!important;padding:11px 14px calc(11px + env(safe-area-inset-bottom,0px))!important;
-  background:rgba(255,255,255,.96)!important;border-top:1px solid #edf1ef!important;
-  box-shadow:0 -4px 18px #1d433313!important;z-index:100!important
- }
  body[data-trip-step="2"] #yg-step-two-actions>button{min-height:50px!important}
  body[data-trip-step="2"] #yg-step-two-actions .yg-secondary{flex:0 0 auto}
  body[data-trip-step="2"] #yg-step-two-actions .yg-primary{flex:1 1 0}
@@ -425,14 +410,23 @@ body[data-trip-step] .yg-nav-start{background:var(--trip-mint)!important}
  body[data-trip-step="3"] .result-section{padding:16px!important;margin:14px 0!important}
  body[data-trip-step="3"] .yg-nav-entry{flex-wrap:wrap}
  body[data-trip-step="3"] .yg-nav-entry button{width:100%!important}
+ body[data-trip-step="1"] #yg-step-one .yg-step-actions,
+ body[data-trip-step="2"] #yg-step-two-actions,
  body[data-trip-step="3"] #yg-step-three-actions{
-  position:fixed!important;bottom:0!important;left:50%!important;right:auto!important;
-  transform:translateX(-50%)!important;width:100%!important;max-width:none!important;
-  margin:0!important;z-index:100!important;gap:10px!important;
-  padding:11px 14px calc(11px + env(safe-area-inset-bottom,0px))!important;
-  background:rgba(255,255,255,.96)!important;border-top:1px solid #edf1ef!important;
-  box-shadow:0 -4px 18px #1d433313!important
+  position:fixed!important;bottom:0!important;left:0!important;right:0!important;
+  transform:none!important;width:100%!important;max-width:none!important;
+  margin:0!important;z-index:100!important;gap:8px!important;
+  padding:12px max(16px,env(safe-area-inset-left,0px)) calc(12px + env(safe-area-inset-bottom,0px))!important;
+  background:#fff!important;border-top:1px solid #e9eef0!important;
+  box-shadow:0 -4px 18px #1d433313!important;display:flex;flex-wrap:wrap
  }
+ body[data-trip-step] .yg-step-actions>button{min-width:0;min-height:52px!important}
+ body[data-trip-step] .yg-step-actions>p{flex-basis:100%;margin:0;font-size:12px;line-height:1.5}
+ body[data-trip-step="1"] #yg-step-one{padding-bottom:0!important}
+ body[data-trip-step] .app-shell{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))!important}
+ body[data-trip-step] input:not([type=checkbox]):not([type=radio]),
+ body[data-trip-step] select,body[data-trip-step] textarea{font-size:16px!important}
+
 }
 @media(max-width:370px){
  body[data-trip-step] #yg-progress>button{font-size:12px!important}
@@ -446,4 +440,34 @@ body[data-trip-step] .yg-nav-start{background:var(--trip-mint)!important}
  body[data-trip-step] *,body[data-trip-step] *::before,body[data-trip-step] *::after{
   scroll-behavior:auto!important;transition-duration:0s!important;animation-duration:0s!important
  }
+}
+
+/* v7.19 shared layout ownership: old share handler remains for compatibility only. */
+body[data-trip-step] #btn-share{display:none!important}
+body[data-trip-step] .site-header{flex-wrap:wrap}
+body[data-trip-step] .header-right{flex-wrap:wrap;justify-content:flex-end}
+body[data-trip-step] .yg-step-intro h1{overflow-wrap:break-word}
+body[data-trip-step] .yg-sheet-head,body[data-trip-step] #yg-sheet-map{flex-shrink:0}
+body[data-trip-step] .yg-sheet-list{min-height:0!important}
+body[data-trip-step] .yg-nav-footer .yg-nav-disclaimer,
+body[data-trip-step] .yg-nav-footer .yg-nav-status:not([hidden]):not(:empty){font-size:12px;line-height:1.5}
+body[data-trip-step] .yg-nav-header,body[data-trip-step] .yg-nav-body,
+body[data-trip-step] .yg-nav-footer{padding-left:16px;padding-right:16px}
+body[data-trip-step] .yg-nav-panel,body[data-trip-step] .yg-sheet-panel{
+ max-height:calc(var(--yg-viewport-height,100dvh) - 16px)!important
+}
+body[data-trip-step] :is(.yg-nav-modal,.yg-place-sheet,.account-panel,.yg-share-panel,.yg-position-dialog,.modal-backdrop){
+ top:var(--yg-viewport-top,0px);bottom:auto;height:var(--yg-viewport-height,100dvh);
+ overscroll-behavior:none
+}
+body[data-trip-step] :is(.yg-share-card,.yg-position-card,.account-sheet,.modal){
+ max-height:calc(var(--yg-viewport-height,100dvh) - 16px)!important;
+ overscroll-behavior:contain
+}
+body[data-trip-step] .yg-position-card,body[data-trip-step] .yg-share-card{overflow-y:auto}
+@media(min-width:769px){
+ body[data-trip-step="1"] #yg-step-one{padding-bottom:24px!important}
+ body[data-trip-step] .app-shell{padding-bottom:40px}
+ body[data-trip-step] :is(.yg-share-panel,.yg-position-dialog,.account-panel,.yg-nav-modal){align-items:center}
+ body[data-trip-step] :is(.yg-share-card,.yg-position-card,.account-sheet,.yg-nav-panel){border-radius:24px!important}
 }

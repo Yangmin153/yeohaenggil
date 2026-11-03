@@ -21,9 +21,9 @@
   <link rel="stylesheet" href="/static/design-v54.css?v=5.4.0">
   <link rel="stylesheet" href="/static/vnext.css?v=7.9.0">
   <link rel="stylesheet" href="/static/route-pins.css?v=6.4.0">
-  <link rel="stylesheet" href="/static/triple-inspired.css?v=1.0.0">
+  <link rel="stylesheet" href="/static/triple-inspired.css?v=7.19.0">
   <link rel="stylesheet" href="/static/share-controls.css?v=1.0.0">
-  <link rel="stylesheet" href="/static/account-mint.css?v=1.0.0">
+  <link rel="stylesheet" href="/static/account-mint.css?v=7.19.0">
   <link rel="stylesheet" href="/static/flight-calendar.css?v=1.0.0">
   <link rel="stylesheet" href="/static/visit-edit.css?v=1.0.0">
   <link rel="stylesheet" href="/static/search-transition.css?v=1.0.0">
@@ -31,18 +31,18 @@
   <script defer src="/static/place-meta.js?v=4.3.0"></script>
   <script defer src="/static/route-pins.js?v=6.4.0"></script>
   <script defer src="/static/route-shape.js?v=6.4.0"></script>
-  <script defer src="/static/scroll-lock.js?v=7.0.0"></script>
+  <script defer src="/static/scroll-lock.js?v=7.19.0"></script>
   <script defer src="/static/app.js?v=7.17.0"></script>
   <script type="module" src="/static/mobile-ux.js?v=4.8.0"></script>
   <script type="module" src="/static/quick-add.js?v=7.18.0"></script>
   <script type="module" src="/static/search-screen.js?v=7.18.0"></script>
-  <script defer src="/static/map-workspace.js?v=6.7.1"></script>
+  <script defer src="/static/map-workspace.js?v=7.19.0"></script>
   <script type="module" src="/static/accounts.js?v=7.6.0"></script>
   <!-- Region onboarding removed from vNext daily planner; legacy nodes retained for compatibility. -->
-  <script defer src="/static/vnext.js?v=7.15.0"></script>
+  <script defer src="/static/vnext.js?v=7.19.0"></script>
   <script defer src="/static/navigation.js?v=7.6.0"></script>
   <script defer src="/static/live-route.js?v=7.5.0"></script>
-  <script type="module" src="/static/share-trip.js?v=3.0.0"></script>
+  <script type="module" src="/static/share-trip.js?v=7.19.0"></script>
   <script type="module" src="/static/date-range-picker.js?v=1.0.0"></script>
 </head>
 <body data-mobile-view="edit" data-trip-step="1" class="region-ready">
@@ -52,7 +52,7 @@
         <span class="brand-symbol" aria-hidden="true">↗</span>
         <div><strong>여행길</strong><small>나만의 여행 플래너</small></div>
       </div>
-      <div class="header-right"><span class="api-indicator" id="api-indicator"><i></i>지도 연결 확인 중</span><button class="header-action" id="btn-export" title="여행 일정을 파일로 저장">파일로 저장 <span>↓</span></button><button class="header-icon" id="btn-import" title="백업된 일정 불러오기" aria-label="일정 불러오기">↥</button><button class="header-share" id="btn-share" type="button">일정 공유</button><button class="account-header-button" id="cloud-save" type="button" hidden>클라우드 저장</button><button class="header-share-action" id="yg-share-open" type="button">일정 공유 <span aria-hidden="true">↗</span></button><button class="account-header-button" id="account-button" type="button">로그인</button></div>
+      <div class="header-right"><span class="api-indicator" id="api-indicator"><i></i>지도 연결 확인 중</span><button class="header-action" id="btn-export" title="여행 일정을 파일로 저장">파일로 저장 <span>↓</span></button><button class="header-icon" id="btn-import" title="백업된 일정 불러오기" aria-label="일정 불러오기">↥</button><button class="header-share" id="btn-share" type="button" hidden aria-hidden="true">일정 공유</button><button class="account-header-button" id="cloud-save" type="button" hidden>클라우드 저장</button><button class="header-share-action" id="yg-share-open" type="button">일정 공유 <span aria-hidden="true">↗</span></button><button class="account-header-button" id="account-button" type="button">로그인</button></div>
     </header>
 
     <nav class="mobile-view-tabs" id="mobile-view-tabs" aria-label="여행 계획 화면 선택">
@@ -64,7 +64,7 @@
       <div class="trip-meta"><div class="hero-orbit" aria-hidden="true"><span>1</span><i></i><span>2</span><i></i><span>3</span></div><span class="hero-orbit-caption">어디든, 가장 좋은 순서로</span></div>
     </section>
 
-    <nav id="yg-progress" class="yg-progress" aria-label="여행 계획 진행 단계. 각 단계를 눌러 이동할 수 있습니다"><button type="button" data-yg-step="1" aria-current="step"><span>1</span>여행 일정</button><i></i><button type="button" data-yg-step="2"><span>2</span>장소 담기</button><i></i><button type="button" data-yg-step="3"><span>3</span>나의 여행길</button></nav><p class="yg-progress-help" id="yg-progress-help">위의 단계를 누르면 원하는 화면으로 이동할 수 있어요.</p>
+    <nav id="yg-progress" class="yg-progress" aria-label="여행 계획 진행 단계. 각 단계를 눌러 이동할 수 있습니다"><button type="button" data-yg-step="1" aria-current="step"><span>1</span>여행 일정</button><i></i><button type="button" data-yg-step="2"><span>2</span>장소 담기</button><i></i><button type="button" data-yg-step="3"><span>3</span>나의 여행길</button></nav><p class="yg-progress-help" id="yg-progress-help">날짜 선택 → 장소 담기 → 동선 확인</p>
     <section id="yg-step-one" class="yg-step-one" aria-labelledby="yg-when-heading">
       <div class="yg-step-intro"><span>01 / 여행 일정</span><h1 id="yg-when-heading">이번 여행은<br>언제 떠나시나요?</h1></div>
       <div class="yg-trip-showcase" aria-label="여행길 서비스 소개">
@@ -81,7 +81,7 @@
         </div>
       </div>
       <div class="yg-date-card yg-calendar-card">
-        <span class="yg-calendar-eyebrow">TRAVEL DATES</span>
+        <span class="yg-calendar-eyebrow">여행 날짜</span>
         <button type="button" id="yg-date-range-open" class="yg-date-range-open" aria-expanded="false" aria-controls="yg-calendar">
           <span class="yg-date-half"><small>출발 날짜</small><strong id="yg-date-range-start">날짜 선택</strong></span>
           <span class="yg-calendar-arrow" aria-hidden="true">→</span>
@@ -126,7 +126,7 @@
       </div>
     </section>
     <section id="yg-endpoint-section" class="yg-endpoint-section" aria-label="날짜별 출발지와 도착지">
-      <div class="yg-endpoint-section-title"><h2>어디서 출발하고, 어디로 돌아가나요?</h2><p>출발할 곳과 마지막 도착 장소를 선택하세요.</p></div>
+      <div class="yg-endpoint-section-title"><h2>어디서 출발하고 마치나요?</h2><p>출발할 곳과 마지막 도착 장소를 선택하세요.</p></div>
       
       <div id="yg-current-endpoints" class="yg-current-endpoints">
         <div id="yg-day-inherit" class="yg-day-inherit" hidden>

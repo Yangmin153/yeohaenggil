@@ -63,7 +63,7 @@ test('new navigation popup supports only two choices and an uncomplicated next-g
 test('all four current dialogs use the common owner-based mobile-safe scroll lock',async()=>{
  const [html,lock,visit,search,auth,nav]=await Promise.all(
  ['public/index.html','public/static/scroll-lock.js','public/static/vnext.js','public/static/search-screen.js','public/static/accounts.js','public/static/navigation.js'].map(read));
- assert.match(html,/scroll-lock\.js\?v=7\.0\.0/);
+ assert.match(html,/scroll-lock\.js\?v=7\.19\.0/);
  assert.match(lock,/const owners=new Set\(\)/);
  for(const [s,owner] of [[visit,'visit-sheet'],[search,'search-screen'],[auth,'account'],[nav,'navigation']]){
   assert.ok(s.includes("YGScrollLock?.lock('"+owner+"')"));

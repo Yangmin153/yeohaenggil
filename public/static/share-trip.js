@@ -2,8 +2,8 @@ import {snapshotDays,encodeSnapshot,summaryText,getPreviewURL} from './shared-tr
 const $=id=>document.getElementById(id),panel=$('yg-share-panel'),notice=$('yg-share-feedback');
 let data=null,link='',busy=false;
 function msg(message){notice.hidden=false;notice.textContent=message;}
-function open(){panel.hidden=false;document.body.classList.add('yg-share-open');$('yg-share-close').focus({preventScroll:true});}
-function close(){panel.hidden=true;document.body.classList.remove('yg-share-open');notice.hidden=true;$('yg-share-open').focus({preventScroll:true});}
+function open(){window.YGScrollLock?.lock('share');panel.hidden=false;document.body.classList.add('yg-share-open');$('yg-share-close').focus({preventScroll:true});}
+function close(){panel.hidden=true;document.body.classList.remove('yg-share-open');window.YGScrollLock?.unlock('share');notice.hidden=true;$('yg-share-open').focus({preventScroll:true});}
 async function build(){
  data=snapshotDays(window.TripApp?.getDays?.()||[]);
  link=getPreviewURL(await encodeSnapshot(data),location.origin);

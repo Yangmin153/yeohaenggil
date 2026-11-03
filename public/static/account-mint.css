@@ -90,3 +90,5 @@ body[data-trip-step] #account-panel .account-trip-open small{
  color:#80928a!important;font-size:12px!important;line-height:1.5!important
 }
 body[data-trip-step] #account-panel .account-bottom{border-color:#e4efe8!important}
+
+@media(max-width:768px){body[data-trip-step] #account-panel .account-auth-view input{font-size:16px!important}}

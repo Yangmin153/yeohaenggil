@@ -5,7 +5,7 @@ const read=path=>readFile(new URL('../'+path,import.meta.url),'utf8');
 
 test('Triple-inspired theme applies after legacy styles without replacing core scripts',async()=>{
  const html=await read('public/index.html');
- assert.match(html,/\/static\/triple-inspired\.css\?v=1\.0\.0/);
+ assert.match(html,/\/static\/triple-inspired\.css\?v=7\.19\.0/);
  assert.ok(html.indexOf('route-pins.css')<html.indexOf('triple-inspired.css'));
  for(const script of ['app.js','quick-add.js','search-screen.js','vnext.js','accounts.js','navigation.js']){
   assert.match(html,new RegExp('src="/static/'+script.replace('.','\\.')+'\\?v='));
