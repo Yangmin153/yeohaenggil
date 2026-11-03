@@ -19,7 +19,6 @@ button,a{font:inherit;letter-spacing:-.03em}
 .sv-map-card,.sv-timeline-card{border:1px solid #e7eeea;background:#fff;border-radius:20px;padding:16px;margin-bottom:14px;box-shadow:0 5px 25px #143e2f08}
 .sv-map-head{display:grid;gap:5px;margin:0 0 12px}.sv-map-head strong{font-size:18px}.sv-map-head small{font-size:12px;line-height:1.5;color:#83908c}
 .sv-map{height:285px;position:relative;border-radius:15px;background:#e7f5ee;overflow:hidden}
-#sv-fallback-map{width:100%;height:100%;position:absolute;inset:0;z-index:1;pointer-events:none}
 .sv-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .sv-title-row h2{font-size:20px;margin:0}
 #sv-metrics{font-size:12px;line-height:1.5;color:#05846f;font-weight:750}
@@ -38,10 +37,8 @@ button,a{font:inherit;letter-spacing:-.03em}
 @media(max-width:375px){.sv-layout{padding:8px 12px 40px}.sv-head h1{font-size:26px}.sv-map{height:245px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important}}
 
-.sv-static-background{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:0}
 .sv-naver-pin{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#10ad99;color:white;border:3px solid white;box-shadow:0 2px 9px #174a3f33;font-weight:800;font-size:12px}
 .sv-stop-empty{padding:18px;color:#748d85;font-size:14px;line-height:1.5;list-style:none}
-.sv-map:has(.sv-static-background) #sv-fallback-map{background:none}
 
 .sv-map-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .sv-map-head>div{display:grid;gap:5px;min-width:0}
@@ -56,3 +53,12 @@ button,a{font:inherit;letter-spacing:-.03em}
 .sv-title-row h2{margin:0 0 5px}
 .sv-title-row small{font-size:12px;line-height:1.5;color:#66887a}
 @media(max-width:480px){.sv-map{height:275px}.sv-map-head button{font-size:12px}.sv-stop{gap:9px}.sv-stop-focus{padding:7px 8px!important}}
+
+/* One Naver Map SDK canvas; no raster map image or SVG route layer. */
+.sv-map-wrap{position:relative;isolation:isolate}
+.sv-map{width:100%;height:320px;overflow:hidden;background:#edf5f1;border-radius:15px}
+.sv-map-unavailable:not([hidden]){position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+ padding:20px;text-align:center;font-size:14px;line-height:1.5;color:#628477;background:#e9f5ef;border-radius:15px;z-index:2}
+.sv-naver-pin{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;border:3px solid #fff;
+ background:#10ad99;color:#fff;box-shadow:0 2px 8px #1449392f;font-size:12px;font-weight:850}
+@media(max-width:480px){.sv-map{height:275px}}
