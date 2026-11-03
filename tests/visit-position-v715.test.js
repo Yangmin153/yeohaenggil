@@ -48,9 +48,10 @@ test('search UI keeps search open after adding and does not enable map-based pla
  const quick=await read('public/static/quick-add.js');
  assert.match(search,/function addSuccess\(message,place=null\)/);
  const area=search.slice(search.indexOf('function addSuccess('),search.indexOf('function completeEndpoint('));
- assert.match(area,/showMode\('list'\)/);
- assert.match(area,/input\.focus\(\{preventScroll:true\}\)/);
- assert.doesNotMatch(area,/focusAdded\(place\)/);
+ assert.match(area,/if\(place\)focusAdded\(place\)/);
+ assert.match(search,/previewSource='added'/);
+ assert.match(search,/selectedMarker=mark\(selected,true\)/);
+ assert.match(search,/searchMap\.panTo\(new window\.naver\.maps\.LatLng/);
  assert.doesNotMatch(search,/maps\.Event\.addListener\(searchMap,'click'/);
  assert.doesNotMatch(search,/maps\.Event\.addListener\(m,'click'/);
  assert.match(quick,/YeoSearch\.completeEndpoint\(item\)/);
