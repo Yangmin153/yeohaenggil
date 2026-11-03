@@ -27,19 +27,21 @@
   <link rel="stylesheet" href="/static/flight-calendar.css?v=1.0.0">
   <link rel="stylesheet" href="/static/visit-edit.css?v=1.0.0">
   <link rel="stylesheet" href="/static/search-transition.css?v=1.0.0">
+  <link rel="stylesheet" href="/static/step2-unified.css?v=7.19.0">
   <script defer src="/static/search-utils.js?v=4.2.0"></script>
   <script defer src="/static/place-meta.js?v=4.3.0"></script>
   <script defer src="/static/route-pins.js?v=6.4.0"></script>
   <script defer src="/static/route-shape.js?v=6.4.0"></script>
   <script defer src="/static/scroll-lock.js?v=7.0.0"></script>
-  <script defer src="/static/app.js?v=7.17.0"></script>
+  <script defer src="/static/app.js?v=7.19.0"></script>
   <script type="module" src="/static/mobile-ux.js?v=4.8.0"></script>
-  <script type="module" src="/static/quick-add.js?v=7.18.0"></script>
-  <script type="module" src="/static/search-screen.js?v=7.18.0"></script>
+  <script type="module" src="/static/quick-add.js?v=7.19.0"></script>
+  <script type="module" src="/static/search-screen.js?v=7.19.0"></script>
+  <script type="module" src="/static/step2-static-map.js?v=7.19.0"></script>
   <script defer src="/static/map-workspace.js?v=6.7.1"></script>
   <script type="module" src="/static/accounts.js?v=7.6.0"></script>
   <!-- Region onboarding removed from vNext daily planner; legacy nodes retained for compatibility. -->
-  <script defer src="/static/vnext.js?v=7.15.0"></script>
+  <script defer src="/static/vnext.js?v=7.19.0"></script>
   <script defer src="/static/navigation.js?v=7.6.0"></script>
   <script defer src="/static/live-route.js?v=7.5.0"></script>
   <script type="module" src="/static/share-trip.js?v=3.0.0"></script>
@@ -110,12 +112,14 @@
       <div class="yg-step-actions"><button type="button" id="yg-next-places" class="yg-primary">장소 담으러 가기 <span>→</span></button></div>
     </section>
     <div class="region-onboarding" aria-label="여행 지역 고르기"><div class="onboarding-step"><span class="onboarding-step-number">1</span><div><strong>어디로 떠나시나요?</strong><small>먼저 지역을 선택하면 지도가 그곳으로 이동해요.</small></div></div><div class="trip-region-row"><label for="trip-region">직접 입력</label><input id="trip-region" list="trip-region-options" type="text" maxlength="28" value="" autocomplete="off" aria-label="여행 지역 선택" placeholder="제주, 부산, 인천처럼 직접 입력하세요"><datalist id="trip-region-options"><option value="제주"><option value="서울"><option value="부산"><option value="인천"><option value="대전"><option value="대구"><option value="광주"><option value="울산"><option value="세종"><option value="수원"><option value="용인"><option value="고양"><option value="성남"><option value="춘천"><option value="원주"><option value="강릉"><option value="경주"><option value="속초"><option value="여수"><option value="전주"><option value="동해"><option value="양양"><option value="평창"><option value="청주"><option value="충주"><option value="단양"><option value="제천"><option value="천안"><option value="아산"><option value="보령"><option value="태안"><option value="공주"><option value="군산"><option value="익산"><option value="남원"><option value="무주"><option value="순천"><option value="광양"><option value="목포"><option value="담양"><option value="해남"><option value="완도"><option value="포항"><option value="안동"><option value="구미"><option value="영주"><option value="문경"><option value="울진"><option value="창원"><option value="김해"><option value="진주"><option value="통영"><option value="거제"><option value="남해"><option value="밀양"><option value="제주시"><option value="서귀포"><option value="강화"><option value="가평"><option value="양평"><option value="파주"><option value="의정부"><option value="화성"><option value="안산"><option value="김포"><option value="평택"><option value="이천"><option value="양산"><option value="울릉"></datalist><small>나중에 바꿔도 괜찮아요</small></div><div class="region-shortcuts" id="region-shortcuts" aria-label="인기 여행 지역 바로 선택"><span>인기 여행지</span><button type="button" data-region-choice="제주">제주</button><button type="button" data-region-choice="부산">부산</button><button type="button" data-region-choice="강릉">강릉</button><button type="button" data-region-choice="경주">경주</button><button type="button" data-region-choice="서울">서울</button><button type="button" data-region-choice="여수">여수</button></div><div class="region-confirm-row"><button type="button" id="region-confirm" class="region-confirm">이 지역으로 여행 시작하기 <span aria-hidden="true">→</span></button><span id="region-selection-state" role="status" aria-live="polite">① 지역을 먼저 골라주세요.</span></div></div>
+    <div id="yg-step-two-hub" class="yg-step-two-hub" aria-label="날짜별 방문지와 출발·도착 통합 설정">
     <div id="yg-plan-date" class="yg-plan-date"><div class="yg-date-switch"><label for="yg-active-date">여행 날짜</label><select id="yg-active-date" aria-label="계획할 여행 날짜 선택"></select></div></div>
-    <div id="yg-step-two-intro" class="yg-step-intro"><span>02 / 방문 장소</span><h1>가고 싶은 곳을<br>하나씩 담아보세요.</h1><p>순서가 달라도 괜찮아요. 여행길이 동선을 정리해요.</p></div>
+    <div id="yg-step-two-intro" class="yg-step-intro"><span>02 / 여행 장소 정하기</span><h1>방문지와 출발·도착을 한 번에</h1><p>원하는 순서대로 설정하고, 지도에서 위치를 확인하세요.</p></div>
     <section id="yg-daily-editor" class="yg-daily-editor" aria-label="가고 싶은 방문지 담기">
       <div class="yg-visit-editor">
-        <button type="button" id="yg-add-visit" class="yg-add-visit yg-search-open" aria-label="장소명 또는 주소 검색"><span aria-hidden="true">⌕</span> 장소명 또는 주소 검색 <span aria-hidden="true">→</span></button>
-        <button type="button" id="yg-open-stops" class="yg-open-stops">담은 장소 <strong id="yg-stop-count">0곳</strong> <span aria-hidden="true">›</span></button>
+        <button type="button" id="yg-add-visit" class="yg-add-visit yg-search-open" aria-label="방문지 장소 검색"><span aria-hidden="true">⌕</span> 방문지 검색하고 추가하기 <span aria-hidden="true">→</span></button>
+        <button type="button" id="yg-open-stops" class="yg-open-stops" aria-expanded="false" aria-controls="yg-inline-stops">담은 방문지 <strong id="yg-stop-count">0곳</strong> <span class="yg-inline-chevron" aria-hidden="true">⌄</span></button>
+        <div id="yg-inline-stops" class="yg-inline-stops" aria-label="선택한 날짜의 방문지 목록" hidden></div>
         <p id="yg-day-stop-sub" class="yg-collection-hint"></p>
         <div id="yg-legacy-stops" class="yg-legacy-stops" hidden>
           <strong>이전에 담은 미배정 장소 <span id="yg-legacy-count">0</span>곳</strong>
@@ -126,7 +130,7 @@
       </div>
     </section>
     <section id="yg-endpoint-section" class="yg-endpoint-section" aria-label="날짜별 출발지와 도착지">
-      <div class="yg-endpoint-section-title"><h2>어디서 출발하고, 어디로 돌아가나요?</h2><p>출발할 곳과 마지막 도착 장소를 선택하세요.</p></div>
+      <div class="yg-endpoint-section-title"><h2>출발지 · 도착지</h2><p>각각 선택하거나 언제든 변경할 수 있어요.</p></div>
       
       <div id="yg-current-endpoints" class="yg-current-endpoints">
         <div id="yg-day-inherit" class="yg-day-inherit" hidden>
@@ -139,6 +143,7 @@
         </div>
       </div>
     </section>
+    </div><!-- /yg-step-two-hub -->
     <div id="yg-map-caption" class="yg-section-caption"><strong>내 장소 지도</strong><button type="button" id="yg-fit-all">전체 장소 보기 <span aria-hidden="true">⌗</span></button></div>
     <div class="yg-trip-result-intro" aria-label="동선 결과 제목">
       <div><strong>나의 여행길</strong><p>지도와 방문 순서를 한눈에 확인해요.</p></div>
@@ -240,7 +245,7 @@
         </div>
       </section>
     </div>
-    <div id="yg-step-two-actions" class="yg-step-actions"><button type="button" id="yg-back-dates" class="yg-secondary">← 날짜 수정</button><button type="button" id="yg-calculate" class="yg-primary">내 여행 동선 만들기 <span>→</span></button><p id="yg-calc-progress" role="status" hidden>여행 날짜별 동선을 계산하고 있어요…</p></div>
+    <div id="yg-step-two-actions" class="yg-step-actions"><button type="button" id="yg-back-dates" class="yg-secondary">← 날짜 수정</button><button type="button" id="yg-calculate" class="yg-primary" disabled>동선 확인하기 <span>→</span></button><p id="yg-step-two-status" role="status" aria-live="polite">방문지를 1곳 이상 담아 주세요.</p><p id="yg-calc-progress" role="status" hidden>여행 날짜별 동선을 계산하고 있어요…</p></div>
     <div id="yg-assign-warning" role="status" aria-live="polite"></div>
     <div id="yg-calc-overlay" class="yg-calc-overlay" role="status" aria-live="polite" hidden>
       <section class="yg-calc-card" aria-label="동선 계산 진행 상황">
