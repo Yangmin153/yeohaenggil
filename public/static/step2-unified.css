@@ -108,4 +108,4 @@ body[data-trip-step="2"] .yg-step2-static-pin{
 body[data-trip-step="2"] .yg-step2-static-pin.is-origin{background:#1669bd}
 body[data-trip-step="2"] .yg-step2-static-pin.is-destination{background:#d67b3e}
 body[data-trip-step="2"] .yg-step2-static-pin.is-focused{min-width:38px;height:38px;border-width:3px;z-index:3}
-body[data-trip-step="2"] #map-region:has(#yg-step2-static-map:not([hidden])){min-height:240px!important;height:clamp(240px,31dvh,300px)!important}
+body[data-trip-step="2"] #map-region{min-height:240px!important;height:clamp(240px,31dvh,300px)!important}
