@@ -29,11 +29,11 @@ test('v5.3 removes date, departure-time, bag mode and manual order UX',async()=>
  assert.match(html,/id="btn-route"/);
 });
 
-test('v5.3 map search has map, toggleable large list, visible pin and continuous add',async()=>{
+test('v5.3 map search has map, toggleable large list, visible pin and planner return',async()=>{
  const [html,js,quick]=await Promise.all(['public/index.html','public/static/search-screen.js','public/static/quick-add.js'].map(read));
  for(const id of ['search-naver-map','search-map-stage','search-screen-results-mount','search-list-toggle','search-picked','search-picked-add'])
   assert.match(html,new RegExp('id="'+id+'"'));
- for(const token of ['new maps.Map','YeoPins?.marker','function onResults(next)',"function preview(item,source='result')",'function showMode(next)','function addSuccess(message,place=null)'])
+ for(const token of ['new maps.Map','YeoPins?.marker','function onResults(next)',"function preview(item,source='result')",'function showMode(next)','function addSuccess(message,place=null,addedId=null)'])
   assert.ok(js.includes(token),token);
  assert.match(quick,/window\.YeoSearch\?\.onResults\?\.\(next\)/);
  assert.match(quick,/if\(duplicate\)\{feedback/);
