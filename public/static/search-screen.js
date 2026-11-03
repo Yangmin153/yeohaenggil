@@ -118,7 +118,7 @@ function refreshSavedMarkers(){
  for(const group of grouped.values()){
   const {place,kind}=group[0],count=group.length;
   // A search selection uses the higher-priority highlighted pin at this location.
-  if(selected&&count===1&&Number(selected.lat)===Number(place.lat)&&Number(selected.lng)===Number(place.lng))continue;
+  if(selected&&Number(selected.lat).toFixed(5)===Number(place.lat).toFixed(5)&&Number(selected.lng).toFixed(5)===Number(place.lng).toFixed(5))continue;
   const pin=window.YeoPins?.marker?.(searchMap,place,{kind:count>1?'cluster':kind,count,zIndex:600});
   if(!pin)continue;
   // Saved marker is view-only inside the search screen. Search results
