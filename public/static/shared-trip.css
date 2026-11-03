@@ -42,3 +42,17 @@ button,a{font:inherit;letter-spacing:-.03em}
 .sv-naver-pin{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:#10ad99;color:white;border:3px solid white;box-shadow:0 2px 9px #174a3f33;font-weight:800;font-size:12px}
 .sv-stop-empty{padding:18px;color:#748d85;font-size:14px;line-height:1.5;list-style:none}
 .sv-map:has(.sv-static-background) #sv-fallback-map{background:none}
+
+.sv-map-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.sv-map-head>div{display:grid;gap:5px;min-width:0}
+.sv-map-head button{min-height:42px;flex:0 0 auto;padding:9px 11px;border:1px solid #cce9dc;border-radius:11px;background:#ebfaf4;color:#0a8871;font-size:12px;font-weight:800}
+.sv-map{height:320px}
+.sv-map-caption{font-size:12px;line-height:1.5;color:#708b80;margin:10px 4px 1px}
+.sv-timeline .sv-stop-focus{margin-left:auto;flex:0 0 auto;min-height:40px;padding:8px 10px;border:1px solid #d2eee3;border-radius:10px;background:#effaf5;color:#0c8e73;font-size:12px;font-weight:800}
+.sv-stop.is-focused{border-radius:12px;background:#edf9f3;padding:11px 8px}
+.sv-stop-text{flex:1 1 0}
+.sv-stop-s .sv-number{background:#0b9e88;color:#fff}
+.sv-stop-e .sv-number{background:#e98e6a;color:#fff}
+.sv-title-row h2{margin:0 0 5px}
+.sv-title-row small{font-size:12px;line-height:1.5;color:#66887a}
+@media(max-width:480px){.sv-map{height:275px}.sv-map-head button{font-size:12px}.sv-stop{gap:9px}.sv-stop-focus{padding:7px 8px!important}}
