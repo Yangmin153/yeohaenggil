@@ -1,3 +1,4 @@
+import {focusedStaticMapLayout} from './static-map-layout.js';
 /** v5.3 Mobile-first full-screen Naver map search. Reuses the existing /api/places search and list DOM. */
 const $=id=>document.getElementById(id);
 const screen=$('search-screen'),form=$('quick-form'),results=$('quick-results'),input=$('quick-input'),original=$('mobile-bottom-actions');
@@ -6,7 +7,7 @@ const feedback=$('search-screen-feedback'),picked=$('search-picked');
 const centers={제주:[33.489,126.498],서울:[37.5665,126.978],부산:[35.1796,129.0756],강릉:[37.7519,128.8761],경주:[35.8562,129.2247],속초:[38.207,128.5918],여수:[34.7604,127.6622],전주:[35.8242,127.148],인천:[37.4563,126.7052],서귀포:[33.254,126.559]};
 let opened=false,historyEntry=false,previousFocus=null,previousScroll=0,searchKind='stop',returnStep=2,searchDayId=null;
 let mode='map',selected=null,items=[],searchMap=null,markers=[],selectedMarker=null,savedMarkers=[],savedSignature='',isSavedSelection=false,previewCamera=null,previewSource=null;
-let feedbackTimer=null,transitionTimer=null,lastChosenRegion='',backgroundInert=[];
+let feedbackTimer=null,transitionTimer=null,lastChosenRegion='',backgroundInert=[],staticSignature='',staticFocus=null;
 function lockBackground(){
  backgroundInert=[];
  for(const node of document.body.children){
@@ -54,12 +55,81 @@ function mapViewKey(){
  const d=window.TripApp?.getDay?.(),place=chosenPlace();
  return [d?.id||'',place?.id||'',place?.lat||'',place?.lng||'',window.YeoNext?.searchRegion?.()||''].join('|');
 }
+/** Dynamic Maps on a new Vercel Preview hostname may fail Naver's referer check.
+ * The same-origin Static Map endpoint can still provide a genuine Naver map.
+ * This fallback is view-only: map touches and marker touches NEVER add places.
+ */
+function hideStaticFallback(){
+ staticSignature='';staticFocus=null;
+ $('search-static-fallback').hidden=true;
+ $('search-static-markers').replaceChildren();
+ $('search-static-image').onload=null;
+ $('search-static-image').onerror=null;
+}
+function renderStaticFallback(){
+ if(!opened||mode!=='map'||searchMap)return;
+ const d=window.TripApp?.getDay?.();
+ const target=selected||d?.stops?.at(-1)||
+  (!/미설정/.test(String(d?.origin?.name||''))?d?.origin:null)||
+  (!/미설정/.test(String(d?.destination?.name||''))?d?.destination:null);
+ if(!target||!Number.isFinite(Number(target.lat))||!Number.isFinite(Number(target.lng)))return;
+ const width=Math.max(320,Math.min(1024,Math.round(mapStage.clientWidth||390)));
+ const height=Math.max(240,Math.min(1024,Math.round(mapStage.clientHeight||500)));
+ const focus={x:Number(target.lat),y:Number(target.lng)},saved=existingPlaces();
+ const points=[{place:target,kind:'focused',label:''}];
+ const seen=new Set([focus.x.toFixed(5)+':'+focus.y.toFixed(5)]);
+ const stopIndex=d?.stops?.findIndex(p=>Math.abs(Number(p.lat)-focus.x)<.00003&&Math.abs(Number(p.lng)-focus.y)<.00003)??-1;
+ points[0].label=stopIndex>=0?String(stopIndex+1):searchKind==='origin'?'S':searchKind==='destination'?'E':'●';
+ for(const entry of saved){
+  const place=entry.place,x=Number(place?.lat),y=Number(place?.lng);
+  if(!Number.isFinite(x)||!Number.isFinite(y))continue;
+  const key=x.toFixed(5)+':'+y.toFixed(5);
+  if(seen.has(key))continue;
+  seen.add(key);
+  const i=d?.stops?.findIndex(p=>p.id===place.id)??-1;
+  points.push({place,kind:entry.kind,label:entry.kind==='origin'?'S':entry.kind==='destination'?'E':String(i+1)});
+ }
+ const coords=points.map(e=>({x:Number(e.place.lat),y:Number(e.place.lng)}));
+ const layout=focusedStaticMapLayout(coords,focus,width,height,13);
+ if(!layout)return;
+ const signature=[width,height,focus.x.toFixed(6),focus.y.toFixed(6),...coords.map(p=>p.x.toFixed(6)+':'+p.y.toFixed(6))].join('|');
+ if(signature===staticSignature)return;
+ staticSignature=signature;staticFocus=focus;
+ const root=$('search-static-fallback'),markers=$('search-static-markers'),image=$('search-static-image');
+ root.hidden=true;markers.replaceChildren();
+ points.forEach((entry,i)=>{
+  const pt=layout.pixels[i];
+  if(pt.x<0||pt.x>width||pt.y<0||pt.y>height)return;
+  const el=document.createElement('span');
+  el.className='search-static-pin'+(i===0?' is-focused':entry.kind==='origin'?' is-origin':entry.kind==='destination'?' is-destination':'');
+  el.textContent=entry.label;
+  el.style.left=(pt.x/width*100)+'%';el.style.top=(pt.y/height*100)+'%';
+  el.title=entry.place.name||'방문지';
+  markers.append(el);
+ });
+ const query=new URLSearchParams({
+  p:coords.map(p=>p.x.toFixed(6)+','+p.y.toFixed(6)).join(';'),
+  f:focus.x.toFixed(6)+','+focus.y.toFixed(6),
+  w:String(width),h:String(height),z:'13'
+ });
+ image.onload=()=>{
+  if(staticSignature!==signature||!opened||mode!=='map'||searchMap)return;
+  root.hidden=false;$('search-map-message').hidden=true;
+ };
+ image.onerror=()=>{
+  if(staticSignature!==signature)return;
+  root.hidden=true;$('search-map-message').hidden=false;
+  $('search-map-message').textContent='네이버 지도 미리보기를 불러오지 못했어요. 검색 결과에서 장소를 계속 추가할 수 있어요.';
+ };
+ image.src='/api/static-map?'+query;
+}
 function maybeMap(){
  if(!opened)return;
  if(searchMap){updateSize();paintMarkers();return;}
  const maps=window.naver?.maps;
  if(!maps?.Map||!mapNode?.clientWidth||mapNode.clientHeight<80){
-  $('search-map-message').textContent='지도를 불러올 수 없다면 목록에서 장소를 선택할 수 있어요.';
+  renderStaticFallback();
+  $('search-map-message').textContent='네이버 지도 위치를 준비하고 있어요.';
   return;
  }
  try{
@@ -68,6 +138,7 @@ function maybeMap(){
   const c=selected&&Number.isFinite(Number(selected.lat))&&Number.isFinite(Number(selected.lng))
    ?[Number(selected.lat),Number(selected.lng)]:mapCenter();
   searchMap=new maps.Map(mapNode,{center:new maps.LatLng(c[0],c[1]),zoom:selected?13:mapStartZoom(),minZoom:6,maxZoom:20,zoomControl:false,mapDataControl:false,scaleControl:false,logoControl:true});
+  hideStaticFallback();
   $('search-map-message').hidden=true;
   // Map is for browsing only: selecting arbitrary coordinates is disabled.
   // Places and endpoints are selected from verified search results.
@@ -131,7 +202,7 @@ function mark(item,pickedOne=false){
 }
 function paintMarkers(){
  clearMarkers();
- if(!searchMap)return;
+ if(!searchMap){renderStaticFallback();return;}
  if(selected){
   // Retain saved visits/endpoints; hide only unselected SEARCH result candidates.
   refreshSavedMarkers();selectedMarker=mark(selected,true);
@@ -148,6 +219,7 @@ function paintMarkers(){
 }
 function showMode(next){
  mode=next==='list'?'list':'map';
+ if(mode==='list')hideStaticFallback();
  mapStage.hidden=mode!=='map';
  resultMount.hidden=mode!=='list';
  $('search-list-toggle').textContent=mode==='list'?'지도 보기':'검색 결과 보기';
@@ -263,7 +335,7 @@ function show(kind='stop',options={}){
 function hide(fromPopstate=false){
  if(!opened)return;
  clearPreview({restoreCamera:false});
- opened=false;items=[];searchKind='stop';clearMarkers();clearSavedMarkers();savedSignature='';input.blur();
+ opened=false;items=[];searchKind='stop';clearMarkers();clearSavedMarkers();hideStaticFallback();savedSignature='';input.blur();
  original.insertBefore(results,original.firstChild);original.insertBefore(form,$('quick-feedback'));
  screen.hidden=true;mapStage.hidden=false;resultMount.hidden=true;results.hidden=true;
  document.body.classList.remove('search-open');unlockBackground();window.YGScrollLock?.unlock('search-screen');
@@ -360,6 +432,11 @@ window.YeoSearch={show,hide,isOpen:()=>opened,returnStep:()=>returnStep,mode:()=
  getMapDiagnostics:()=>({
   viewMode:mode,stage:searchKind,selectedName:selected?.name||null,
   saved: savedMarkers.length,candidates:markers.length,focused:!!selectedMarker,
-  center:searchMap?.getCenter?.()?{lat:searchMap.getCenter().lat(),lng:searchMap.getCenter().lng()}:null
+  center:searchMap?.getCenter?.()?{lat:searchMap.getCenter().lat(),lng:searchMap.getCenter().lng()}:staticFocus,
+  source:searchMap?'dynamic':!$('search-static-fallback').hidden?'static':'none',
+  ...(searchMap?{}:{
+   saved:[...$('search-static-markers').children].filter(p=>!p.classList.contains('is-focused')).length,
+   focused:!$('search-static-fallback').hidden&&!!$('search-static-markers .is-focused')
+  })
  })
 };
