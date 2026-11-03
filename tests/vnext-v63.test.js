@@ -48,7 +48,7 @@ test('STEP2 search preview displays selected marker only while saved markers rea
  const js=await read('public/static/search-screen.js');
  assert.match(js,/if\(selected\)\{[\s\S]*clearSavedMarkers\(\)/);
  assert.match(js,/selectedMarker=mark\(selected,true\)/);
- assert.match(js,/items=\[\];clearMarkers\(\)/);
+ assert.match(js,/if\(id\)requestAnimationFrame\(\(\)=>window\.TripApp\?\.focusPlace\?\.\(id\)\)/);
  assert.match(js,/showMode\('list'\)/);
  assert.match(js,/picked.hidden=false;showMode\('map'\);paintMarkers\(\)/);
  assert.match(js,/document\.addEventListener\('trip:stops-changed'/);

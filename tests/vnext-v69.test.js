@@ -62,6 +62,6 @@ test('selected search candidate hides competing search-result markers while pres
  const start=src.indexOf('function paintMarkers(){'),end=src.indexOf('function showMode(next){',start),block=src.slice(start,end);
  assert.match(block,/if\(selected\)\{/);
  assert.match(block,/refreshSavedMarkers\(\);selectedMarker=mark\(selected,true\);/);
- assert.match(block,/for\(const item of items.slice\(0,15\)\)/);
- assert.ok(block.indexOf('if(selected)')<block.indexOf('for(const item of items.slice(0,15))'));
+ assert.doesNotMatch(block,/for\(const item of items.slice\(0,15\)\)/);
+ assert.match(block,/Search result candidates never become map markers/);
 });

@@ -27,7 +27,7 @@ test('search results add only by button, then Naver map preview contains saved a
  const [screen,html,css,quick]=await Promise.all(['public/static/search-screen.js','public/index.html','public/static/search-transition.css','public/static/quick-add.js'].map(read));
  assert.match(quick,/YeoSearch\?\.addSuccess\?\.\(item\.name/);
  assert.match(screen,/if\(id\)requestAnimationFrame\(\(\)=>window\.TripApp\?\.focusPlace\?\.\(id\)\)/);
- assert.match(screen,/items=\[\];clearMarkers\(\)/);
+ assert.match(screen,/const id=place\?window\.TripApp/);
  assert.match(screen,/selectedMarker=mark\(selected,true\)/);
  assert.match(screen,/refreshSavedMarkers\(\);selectedMarker=mark\(selected,true\)/);
  assert.match(screen,/getMapDiagnostics:/);

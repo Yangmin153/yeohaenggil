@@ -62,8 +62,8 @@ test('endpoint search uses exact same full-screen screen and retains saved visit
  assert.match(screen,/refreshSavedMarkers\(\);selectedMarker=mark\(selected,true\)/);
  assert.match(screen,/function completeEndpoint\(item\)/);
  assert.match(quick,/window\.YeoSearch\.preview\(item\)/);
- assert.match(vnext,/window\.YeoSearch\.show\('origin'\)/);
- assert.match(vnext,/window\.YeoSearch\.show\('destination'\)/);
+ assert.match(vnext,/openSearch\('origin'\)/);
+ assert.match(vnext,/openSearch\('destination'\)/);
  assert.match(app,/function setEndpointFromSearch\(kind,item\)/);
  assert.match(app,/if\(kind==='destination'\)syncLinkedOrigins\(state\.active\+1\)/);
 });
