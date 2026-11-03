@@ -19,10 +19,10 @@ test('검색 입력 응답은 취소와 재사용 캐시로 최적화',async()=>
  assert.match(quick,/TTL=45000,LIMIT=36/);assert.match(quick,/AbortController/);
  assert.match(quick,/cache\.set\(path/);assert.match(quick,/current!==sequence/);
 });
-test('장소 추가 중복을 확인하고 전체화면 검색은 유지',async()=>{
+test('장소 중복 추가를 막고 검색 선택 후 STEP 2로 돌아옴',async()=>{
  const quick=await read('public/static/quick-add.js'),search=await read('public/static/search-screen.js');
  assert.match(quick,/if\(duplicate\)\{feedback/);
  assert.match(quick,/return true;/);
- assert.match(search,/function addSuccess\(message,place=null\)/);
+ assert.match(search,/function addSuccess\(message,place=null,addedId=null\)/);
  assert.match(search,/function showMode\(next\)/);
 });
