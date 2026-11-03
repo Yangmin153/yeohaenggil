@@ -6,7 +6,7 @@ const feedback=$('search-screen-feedback'),picked=$('search-picked');
 const centers={제주:[33.489,126.498],서울:[37.5665,126.978],부산:[35.1796,129.0756],강릉:[37.7519,128.8761],경주:[35.8562,129.2247],속초:[38.207,128.5918],여수:[34.7604,127.6622],전주:[35.8242,127.148],인천:[37.4563,126.7052],서귀포:[33.254,126.559]};
 let opened=false,historyEntry=false,previousFocus=null,previousScroll=0,searchKind='stop',returnStep=2,searchDayId=null;
 let mode='map',selected=null,items=[],searchMap=null,markers=[],selectedMarker=null,savedMarkers=[],savedSignature='',isSavedSelection=false,previewCamera=null,previewSource=null;
-let feedbackTimer=null, lastChosenRegion='',backgroundInert=[];
+let feedbackTimer=null,transitionTimer=null,lastChosenRegion='',backgroundInert=[];
 function lockBackground(){
  backgroundInert=[];
  for(const node of document.body.children){
@@ -63,8 +63,11 @@ function maybeMap(){
   return;
  }
  try{
-  const c=mapCenter();
-  searchMap=new maps.Map(mapNode,{center:new maps.LatLng(c[0],c[1]),zoom:mapStartZoom(),minZoom:6,maxZoom:20,zoomControl:false,mapDataControl:false,scaleControl:false,logoControl:true});
+  // If an added place is waiting for its map preview, initialize at that exact
+  // coordinate rather than the first previously saved visit.
+  const c=selected&&Number.isFinite(Number(selected.lat))&&Number.isFinite(Number(selected.lng))
+   ?[Number(selected.lat),Number(selected.lng)]:mapCenter();
+  searchMap=new maps.Map(mapNode,{center:new maps.LatLng(c[0],c[1]),zoom:selected?13:mapStartZoom(),minZoom:6,maxZoom:20,zoomControl:false,mapDataControl:false,scaleControl:false,logoControl:true});
   $('search-map-message').hidden=true;
   // Map is for browsing only: selecting arbitrary coordinates is disabled.
   // Places and endpoints are selected from verified search results.
@@ -193,7 +196,9 @@ function preview(item,source='result'){
  input.blur();
 }
 function focusAdded(item){
- if(!item||!opened)return;
+ if(!item||!opened||searchKind!=='stop')return;
+ // The stop is already saved by TripApp.addQuickStop. This is a *view-only*
+ // focus, not another add operation or a coordinate-picking interaction.
  rememberCamera();
  selected=item;previewSource='added';isSavedSelection=true;
  $('search-picked-name').textContent=String(item.name||'추가한 장소');
@@ -201,24 +206,45 @@ function focusAdded(item){
  $('search-picked-add').disabled=true;$('search-picked-add').textContent='담았어요';
  $('search-picked-cancel').textContent='닫기';
  picked.hidden=false;showMode('map');paintMarkers();
- if(searchMap)searchMap.panTo(new window.naver.maps.LatLng(Number(item.lat),Number(item.lng)));
+ // showMode may first create an SDK map on the next animation frame. Pan after
+ // the map becomes visible, including when adding a second/third stop.
+ requestAnimationFrame(()=>{
+  if(!opened||selected!==item||mode!=='map')return;
+  maybeMap();
+  if(searchMap&&window.naver?.maps?.LatLng){
+   window.naver.maps.Event?.trigger?.(searchMap,'resize');
+   searchMap.panTo(new window.naver.maps.LatLng(Number(item.lat),Number(item.lng)));
+   if((searchMap.getZoom?.()||0)<12)searchMap.setZoom(13);
+   paintMarkers();
+  }
+ });
  input.blur();
 }
 
-function show(kind='stop'){
+function show(kind='stop',options={}){
  if(opened)return;
  searchKind=['origin','destination'].includes(kind)?kind:'stop';
  returnStep=Number(document.body.dataset.tripStep)===3?3:2;
  searchDayId=window.TripApp?.getDay?.()?.id||null;
  $('search-list-toggle').hidden=true;
  $('search-global-results').hidden=true;
-  $('search-scope-note').textContent='장소 이름이나 주소를 검색해 결과에서 추가해 주세요. 지도는 위치 확인용이에요.';
+  $('search-scope-note').textContent=searchKind==='origin'
+   ?'↗ 오늘 여행을 시작할 장소를 검색 결과에서 선택해 주세요.'
+   :searchKind==='destination'
+    ?'⌖ 하루를 마칠 도착지를 검색 결과에서 선택해 주세요.'
+    :'장소 이름이나 주소를 검색해 결과에서 추가해 주세요. 지도는 위치 확인용이에요.';
+ screen.dataset.searchKind=searchKind;
  input.placeholder=searchKind==='origin'?'오늘의 출발지를 검색하세요':searchKind==='destination'?'마지막 도착지를 검색하세요':'가고 싶은 장소명이나 주소 검색';
  input.setAttribute('aria-label',searchKind==='origin'?'출발지 장소 검색':searchKind==='destination'?'도착지 장소 검색':'방문지 장소 검색');
  if(window.YeoRegion&&!window.YeoRegion.ensureSelected())return;
  opened=true;historyEntry=true;previousFocus=document.activeElement;previousScroll=window.scrollY;
  feedback.hidden=true;clearPreview({restoreCamera:false});items=[];input.value='';results.replaceChildren();results.hidden=true;
- $('search-screen-region').textContent=(window.YeoNext?.dateLabel?.()||'오늘')+' · '+(searchKind==='origin'?'출발지 검색':searchKind==='destination'?'도착지 검색':'방문지 추가');
+ $('search-screen-region').textContent=(window.YeoNext?.dateLabel?.()||'오늘')+' · '+(searchKind==='origin'?'↗ 출발지 선택':searchKind==='destination'?'⌖ 도착지 선택':'방문지 추가');
+ $('search-stage-icon').textContent=searchKind==='origin'?'↗':searchKind==='destination'?'⌖':'⌕';
+ $('search-stage-label').textContent=searchKind==='origin'?'첫 번째 · 출발지':searchKind==='destination'?'두 번째 · 도착지':'방문지 검색';
+ $('search-stage-help').textContent=searchKind==='origin'
+  ?'어디서 출발하시나요?'
+  :searchKind==='destination'?'어디에서 여행을 마치시나요?':'검색 결과에서 가고 싶은 장소를 담아 주세요.';
  updateSavedButton();
  screen.hidden=false;screen.querySelector('#search-screen-form-mount').append(form);resultMount.append(results);
  window.YGScrollLock?.lock('search-screen');document.body.classList.add('search-open');lockBackground();
@@ -232,6 +258,7 @@ function show(kind='stop'){
  lastChosenRegion=viewKey;
  history.pushState({...history.state,yeohaenggilSearch:true},'',location.href);
  requestAnimationFrame(()=>input.focus({preventScroll:true}));
+ if(options.transitionMessage)showTransition(options.transitionMessage);
 }
 function hide(fromPopstate=false){
  if(!opened)return;
@@ -240,7 +267,7 @@ function hide(fromPopstate=false){
  original.insertBefore(results,original.firstChild);original.insertBefore(form,$('quick-feedback'));
  screen.hidden=true;mapStage.hidden=false;resultMount.hidden=true;results.hidden=true;
  document.body.classList.remove('search-open');unlockBackground();window.YGScrollLock?.unlock('search-screen');
- clearTimeout(feedbackTimer);feedback.hidden=true;picked.hidden=true;
+ clearTimeout(feedbackTimer);clearTimeout(transitionTimer);feedback.hidden=true;picked.hidden=true;$('search-transition-toast').hidden=true;
  if(!fromPopstate&&historyEntry&&history.state?.yeohaenggilSearch)history.back();
  historyEntry=false;
  // Search is a standalone overlay. Never navigate the itinerary just to close it.
@@ -254,11 +281,17 @@ function addSuccess(message,place=null){
  updateSavedButton();
  feedback.textContent=message;feedback.hidden=false;
  clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>feedback.hidden=true,2100);
- // Keep the real search field and result list on screen after adding a visit.
- // Only a search-result row may explicitly open the map preview.
- clearPreview({restoreCamera:false});
- showMode('list');
- requestAnimationFrame(()=>{if(opened&&searchKind==='stop')input.focus({preventScroll:true});});
+ // The user asked to inspect the newly added stop immediately on Naver Maps.
+ // All saved visits remain, and candidate result markers are removed.
+ if(place)focusAdded(place);
+ else {clearPreview({restoreCamera:false});showMode('list');}
+}
+function showTransition(message){
+ const notice=$('search-transition-toast');
+ clearTimeout(transitionTimer);
+ notice.textContent=message;
+ notice.hidden=false;
+ transitionTimer=setTimeout(()=>{notice.hidden=true;},2300);
 }
 function completeEndpoint(item){
  const kind=searchKind;
@@ -277,12 +310,17 @@ function completeEndpoint(item){
    history.replaceState({...history.state,yeohaenggilSearch:false},'',location.href);
   }
  }else hide();
- window.TripApp?.toast?.((kind==='origin'?'출발지':'도착지')+'를 설정했어요.');
+ const hasOrigin=Boolean(current?.origin&&!/미설정/.test(String(current.origin.name||'')));
+ if(!nextIsDestination){
+  window.TripApp?.toast?.(kind==='destination'&&hasOrigin
+   ?'출발지와 도착지를 설정했어요.'
+   :(kind==='origin'?'출발지를 설정했어요.':'도착지를 설정했어요.'));
+ }
  if(nextIsDestination){
   requestAnimationFrame(()=>{
    if(!opened&&document.body.dataset.tripStep==='2'&&window.TripApp?.getDay?.()?.id===dayId){
     $('yg-dest-pick')?.scrollIntoView?.({behavior:'smooth',block:'center'});
-    show('destination');
+    show('destination',{transitionMessage:'출발지를 설정했어요. 이제 도착지를 선택해 주세요.'});
    }
   });
  }
