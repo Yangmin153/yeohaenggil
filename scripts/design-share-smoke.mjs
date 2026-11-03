@@ -1,7 +1,7 @@
 /* Browser smoke for design-only Preview; sample trips are synthetic test data. */
 import {chromium} from 'playwright';
 import {encodeSnapshot,snapshotDays} from '../public/static/shared-trip-core.js';
-const base=process.env.YG_PREVIEW_URL||'https://yeohaenggil-lir84pkqw-travel-alex.vercel.app';
+const base=process.env.YG_PREVIEW_URL||'https://yeohaenggil-orodk51j3-travel-alex.vercel.app';
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 const ctx=await browser.newContext({viewport:{width:390,height:780},deviceScaleFactor:1,acceptDownloads:true,locale:'ko-KR'});
 const page=await ctx.newPage();page.setDefaultTimeout(18000);
@@ -70,6 +70,18 @@ try{
  await page.locator('#quick-input').fill('경복궁');
  await page.locator('#quick-input').press('Enter');
  await page.locator('#quick-results .quick-result-row').first().waitFor({timeout:25000});
+ // The map may be viewed, but no click on it can create a manual coordinate.
+ const beforeStop=await page.locator('#yg-stop-count').textContent();
+ await page.locator('#search-list-toggle').click();
+ await page.locator('#search-map-stage').waitFor({state:'visible'});
+ await page.locator('#search-naver-map').click({position:{x:75,y:65},force:true});
+ if(await page.locator('#search-picked').isVisible())throw Error('Map tap created a manually selected place');
+ await page.locator('#search-list-toggle').click();
+ // A verified result button must still add a place immediately.
+ await page.locator('#quick-results .quick-direct-add').first().click();
+ const afterStop=await page.locator('#yg-stop-count').textContent();
+ if(beforeStop===afterStop)throw Error('Search result +add did not increase visit count');
+ console.log('PASS: only search-result buttons add places; map taps never select coordinates');
  await page.setViewportSize({width:390,height:520});
  await page.waitForTimeout(350);
  const box=await page.locator('.search-screen-results-mount').boundingBox();
