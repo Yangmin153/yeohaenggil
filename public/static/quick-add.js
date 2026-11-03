@@ -108,7 +108,7 @@ async function search(force=false,all=false){
  finally{if(current===sequence)abort=null;}
 }
 
-function feedback(msg){const el=$('quick-feedback');el.hidden=false;el.textContent=msg;clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>el.hidden=true,2300);app.toast(msg);}
+function feedback(msg){const el=$('quick-feedback');el.hidden=false;el.textContent=msg;clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>el.hidden=true,2300);if(window.YeoSearch?.isOpen?.())window.YeoSearch?.notify?.(msg);else app.toast(msg);}
 function add(item,button=null){
  if(window.YeoSearch?.isOpen?.()&&window.YeoSearch?.isEndpointMode?.()){
   // A tap on a verified search result immediately sets the endpoint; the map
