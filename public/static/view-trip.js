@@ -1,5 +1,4 @@
 import {decodeSnapshot} from './shared-trip-core.js';
-import {buildTripCard,downloadBlob,shareImage} from './trip-card.js';
 import {staticMapLayout} from './static-map-layout.js';
 const $=id=>document.getElementById(id);
 let snapshot=null,index=0,map=null,markers=[],staticBackground=null;
@@ -14,25 +13,26 @@ function placeLine(day){
   const item=el('li','sv-stop'),badge=el('span','sv-number',role(day,i)==='S'?'출발':role(day,i)==='E'?'도착':markerLabel(day,i));
   const text=el('div','sv-stop-text');text.append(el('strong','',p.n));
   if(p.a)text.append(el('small','',p.a));
-  item.append(badge,text);root.append(item);
+  const focus=el('button','sv-stop-focus','지도에서 보기');focus.type='button';focus.dataset.focusIndex=String(i);focus.setAttribute('aria-label',p.n+' 위치 지도에서 보기');
+  item.append(badge,text,focus);root.append(item);
  });
 }
 function svgMap(day){
  const svg=$('sv-fallback-map');svg.replaceChildren();
  const bg=document.createElementNS(svgNS,'rect');
- Object.entries({x:0,y:0,width:500,height:260,fill:'#e9f8f2'}).forEach(([k,v])=>bg.setAttribute(k,v));svg.append(bg);
+ Object.entries({x:0,y:0,width:904,height:285,fill:'#e9f8f2'}).forEach(([k,v])=>bg.setAttribute(k,v));svg.append(bg);
  const layout=staticMapLayout(day.p,904,285);
- const coords=layout?.pixels.map(p=>({x:p.x/904*500,y:p.y/285*260}))||[];
+ const coords=layout?.pixels||[];
  if(!coords.length){
   const t=document.createElementNS(svgNS,'text');
-  Object.entries({x:250,y:130,fill:'#66887f','font-size':'16','text-anchor':'middle'}).forEach(([k,v])=>t.setAttribute(k,v));
+  Object.entries({x:452,y:144,fill:'#66887f','font-size':'16','text-anchor':'middle'}).forEach(([k,v])=>t.setAttribute(k,v));
   t.textContent='방문지를 추가하면 위치를 확인할 수 있어요.';svg.append(t);
  }
  coords.forEach((p,i)=>{
   const c=document.createElementNS(svgNS,'circle');
-  Object.entries({cx:p.x,cy:p.y,r:15,fill:role(day,i)==='S'?'#008b78':role(day,i)==='E'?'#e98f6b':'#23b1a0'}).forEach(([k,v])=>c.setAttribute(k,v));svg.append(c);
+  Object.entries({cx:p.x,cy:p.y,r:16,fill:role(day,i)==='S'?'#008b78':role(day,i)==='E'?'#e98f6b':'#23b1a0'}).forEach(([k,v])=>c.setAttribute(k,v));svg.append(c);
   const t=document.createElementNS(svgNS,'text');
-  Object.entries({x:p.x,y:p.y+5,fill:'#fff','font-size':'13','font-weight':'800','text-anchor':'middle'}).forEach(([k,v])=>t.setAttribute(k,v));t.textContent=markerLabel(day,i);svg.append(t);
+  Object.entries({x:p.x,y:p.y+5,fill:'#fff','font-size':'14','font-weight':'800','text-anchor':'middle'}).forEach(([k,v])=>t.setAttribute(k,v));t.textContent=markerLabel(day,i);svg.append(t);
  });
  svg.hidden=false;
 }
@@ -41,14 +41,15 @@ function renderStaticMap(day){
  const layout=staticMapLayout(day.p);if(!layout||map)return;
  const img=document.createElement('img');img.className='sv-static-background';img.alt='네이버 지도 배경';
  img.decoding='async';img.src='/api/static-map?p='+encodeURIComponent(day.p.map(p=>p.x.toFixed(6)+','+p.y.toFixed(6)).join(';'));
- img.addEventListener('error',()=>{img.remove();staticBackground=null;});
+ img.addEventListener('error',()=>{img.remove();staticBackground=null;$('sv-map-caption').textContent='지도 배경을 불러오지 못했어요. 장소 위치는 아래 목록에서 확인할 수 있어요.';});
+ img.addEventListener('load',()=>{$('sv-map-caption').textContent='네이버 지도 · 방문지 위치 표시 · 실제 도로 경로선은 포함하지 않아요.';});
  const root=$('sv-map');root.insertBefore(img,root.firstChild);staticBackground=img;
 }
 function drawRealMap(day){
  if(!map||!window.naver?.maps){svgMap(day);renderStaticMap(day);return;}
  markers.forEach(m=>m.setMap(null));markers=[];
  const maps=window.naver.maps,pts=day.p.map(p=>new maps.LatLng(p.x,p.y));
- if(!pts.length){$('sv-fallback-map').hidden=true;return;}
+ if(!pts.length){$('sv-fallback-map').hidden=false;$('sv-map-caption').textContent='아직 표시할 장소가 없어요.';return;}
  const bounds=new maps.LatLngBounds();
  pts.forEach((latlng,i)=>{
   bounds.extend(latlng);
@@ -57,9 +58,10 @@ function drawRealMap(day){
   markers.push(new maps.Marker({map,position:latlng,title:day.p[i].n,icon}));
  });
  if(pts.length===1){map.setCenter(pts[0]);map.setZoom(13);}
- else map.fitBounds(bounds,{top:38,right:32,bottom:44,left:32,maxZoom:14});
+ else map.fitBounds(bounds,{top:44,right:45,bottom:50,left:45,maxZoom:14});
  staticBackground?.remove();staticBackground=null;
  $('sv-fallback-map').hidden=true;
+ $('sv-map-caption').textContent='네이버 지도에서 원하는 장소를 눌러 위치를 확인해 보세요.';
 }
 
 async function initMap(){
@@ -86,23 +88,37 @@ function paint(){
   b.type='button';b.setAttribute('aria-pressed',String(index===i));
   b.addEventListener('click',()=>{index=i;paint()});tabs.append(b);
  });
- $('sv-metrics').textContent=(day.m!==null?'차량 이동 약 '+day.m+'분':'이동시간 미표시')+(day.k!==null?' · '+(day.k/1000).toFixed(1)+'km':'');
+ $('sv-day-status').textContent=day.w==='optimized'?'동선 계산 완료':'여행 계획 중 · 방문 순서는 바뀔 수 있어요';
+ $('sv-metrics').textContent=(day.m!==null?'차량 이동 약 '+day.m+'분':'장소 '+day.p.length+'곳')+(day.k!==null?' · '+(day.k/1000).toFixed(1)+'km':'');
  placeLine(day);svgMap(day);if(map)drawRealMap(day);else renderStaticMap(day);
 }
-async function act(kind){
- try{
-  const day=snapshot.d[index],blob=await buildTripCard(day);
-  if(kind==='save')await downloadBlob(blob,'여행길-'+day.t+'.png');
-  else if(!await shareImage(blob,day))notice('이미지를 저장했어요. 카카오톡에서 사진을 첨부해 보내주세요.');
- }catch(e){if(e.name!=='AbortError')notice(e.message);}
+function focusPlace(i){
+ const day=snapshot?.d?.[index],p=day?.p?.[i];if(!p)return;
+ if(map&&window.naver?.maps){
+  map.panTo(new window.naver.maps.LatLng(p.x,p.y));map.setZoom(14);
+ }
+ $('sv-map-caption').textContent=p.n+' · '+(p.a||'위치를 지도에서 확인하고 있어요.');
+ $('sv-timeline').querySelectorAll('.sv-stop').forEach((row,j)=>row.classList.toggle('is-focused',j===i));
+ if(!map){
+  const svg=$('sv-fallback-map');svg.querySelectorAll('circle').forEach((c,j)=>{
+   c.setAttribute('stroke',j===i?'#143f39':'#ffffff');c.setAttribute('stroke-width',j===i?'6':'2');
+  });
+ }
+ $('sv-map').scrollIntoView({behavior:'smooth',block:'center'});
 }
+function fitAll(){
+ const day=snapshot?.d?.[index];if(!day)return;
+ $('sv-timeline').querySelectorAll('.sv-stop').forEach(row=>row.classList.remove('is-focused'));
+ if(map)drawRealMap(day);else {svgMap(day);renderStaticMap(day);}
+}
+
 function notice(m){const n=$('sv-error');n.hidden=false;n.textContent=m;}
 (async()=>{
  try{
   const code=location.hash.startsWith('#trip=')?location.hash.slice(6):'';
   snapshot=await decodeSnapshot(code);
   $('sv-content').hidden=false;paint();void initMap();
-  $('sv-save-card').addEventListener('click',()=>act('save'));
-  $('sv-share-card').addEventListener('click',()=>act('share'));
+  $('sv-map-fit').addEventListener('click',fitAll);
+  $('sv-timeline').addEventListener('click',e=>{const button=e.target.closest('[data-focus-index]');if(button)focusPlace(Number(button.dataset.focusIndex));});
  }catch(e){notice(e.message||'공유 링크를 열 수 없습니다.');}
 })();
