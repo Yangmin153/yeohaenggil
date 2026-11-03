@@ -70,14 +70,13 @@ test('all four current dialogs use the common owner-based mobile-safe scroll loc
   assert.ok(s.includes("YGScrollLock?.unlock('"+owner+"')"));
  }
 });
-test('legacy place editor unlocks scrolling while selecting a map point, relocks on return',async()=>{
+test('legacy place editor keeps scroll lock but direct map picking is disabled',async()=>{
  const app=await read('public/static/app.js');
  assert.match(app,/YGScrollLock\?\.lock\('place-editor'\)/);
  assert.match(app,/YGScrollLock\?\.unlock\('place-editor'\)/);
  const picking=app.slice(app.indexOf('function startMapPick()'),app.indexOf('// — 지도 —'));
- assert.match(picking,/mapPicking=true/);
- assert.match(picking,/unlock\('place-editor'\)/);
- assert.match(picking,/lock\('place-editor'\)/);
+ assert.match(picking,/장소 검색 결과에서 방문지를 선택해 주세요/);
+ assert.doesNotMatch(picking,/mapPicking=true/);
 });
 test('step2 headings share same typographic scale and each task has one short helper',async()=>{
  const [html,css]=await Promise.all([read('public/index.html'),read('public/static/vnext.css')]);
