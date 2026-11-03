@@ -46,15 +46,19 @@ test('search selection is text-results-only, never a map click or map marker sel
  assert.ok(app.includes("startMapPick(){toast('장소 검색 결과에서 방문지를 선택해 주세요.');}"));
  assert.ok(search.includes("show('destination')"));
 });
-test('STEP3 explicitly locks the displayed visit number and removes the places-list action',async()=>{
- const [html,js]=await Promise.all(['public/index.html','public/static/vnext.js'].map(read));
- assert.ok(html.includes('이 순서로 고정'));
+test('STEP3 selects one visit and edits its exact visit number, without arrows or lock actions',async()=>{
+ const [html,js,app]=await Promise.all(['public/index.html','public/static/vnext.js','public/static/app.js'].map(read));
+ assert.ok(html.includes('id="yg-adjust-edit-selected"'));
+ assert.ok(html.includes('id="yg-position-select"'));
+ assert.ok(html.includes('id="yg-position-apply"'));
  assert.ok(!html.includes('id="yg-three-list"'));
- assert.ok(!js.includes("$('yg-three-list').addEventListener"));
- assert.ok(js.includes('yg-adjust-lock-button'));
- assert.ok(js.includes("i+1)+'번째로 고정'"));
- assert.ok(js.includes('app.setRouteStopLocked(button.dataset.routeLock,next)'));
- assert.ok(js.includes('app.moveRouteStop(up.dataset.routeUp,-1)'));
+ assert.ok(!js.includes("data-route-up="));
+ assert.ok(!js.includes("data-route-down="));
+ assert.ok(!js.includes("data-route-lock="));
+ assert.ok(js.includes('data-adjust-select'));
+ assert.ok(js.includes('app.setRouteStopPosition(id,Number(selected))'));
+ assert.ok(app.includes('function setRouteStopPosition(id,position)'));
+ assert.ok(js.includes('await calculate()'));
 });
 test('sharing offers only link/text and viewer map has real tiles with aligned transparent markers',async()=>{
  const [html,view,viewer,share]=await Promise.all(['public/index.html','public/view.html','public/static/view-trip.js','public/static/share-trip.js'].map(read));
@@ -64,8 +68,11 @@ test('sharing offers only link/text and viewer map has real tiles with aligned t
  assert.ok(!html.includes('data-share-action="image"'));
  assert.ok(!view.includes('id="sv-save-card"'));
  assert.ok(!view.includes('id="sv-share-card"'));
- assert.ok(viewer.includes("fill:'transparent'"));
- assert.ok(viewer.includes('renderStaticMap(day)'));
+ assert.ok(!viewer.includes('sv-fallback-map'));
+ assert.ok(viewer.includes('drawMap()'));
+ assert.ok(!viewer.includes('sv-static-background'));
+ assert.ok(!view.includes('<svg'));
+ assert.ok(!view.includes('sv-static-background'));
  assert.ok(viewer.includes('function focusPlace(i)'));
  assert.ok(!viewer.includes('new maps.Polyline'));
  assert.ok(!share.includes('buildTripCard'));
