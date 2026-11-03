@@ -208,13 +208,8 @@ function paintMarkers(){
   refreshSavedMarkers();selectedMarker=mark(selected,true);
   return;
  }
- // While browsing without a selected preview, all collected places stay visible.
- for(const item of items.slice(0,15)){
-  const m=mark(item);
-  if(!m)continue;
-  markers.push(m);
-  // Result marker is visual only: the corresponding search result remains clickable.
- }
+  // Search candidates never appear as map pins. Only stored places remain.
+  refreshSavedMarkers();
  refreshSavedMarkers();
 }
 function showMode(next){
@@ -313,7 +308,7 @@ function show(kind='stop',options={}){
  feedback.hidden=true;clearPreview({restoreCamera:false});items=[];input.value='';results.replaceChildren();results.hidden=true;
  $('search-screen-region').textContent=(window.YeoNext?.dateLabel?.()||'오늘')+' · '+(searchKind==='origin'?'↗ 출발지 선택':searchKind==='destination'?'⌖ 도착지 선택':'방문지 추가');
  $('search-stage-icon').textContent=searchKind==='origin'?'↗':searchKind==='destination'?'⌖':'⌕';
- $('search-stage-label').textContent=searchKind==='origin'?'첫 번째 · 출발지':searchKind==='destination'?'두 번째 · 도착지':'방문지 검색';
+ $('search-stage-label').textContent=searchKind==='origin'?'출발지 검색':searchKind==='destination'?'도착지 검색':'방문지 검색';
  $('search-stage-help').textContent=searchKind==='origin'
   ?'어디서 출발하시나요?'
   :searchKind==='destination'?'마지막 도착지는 어디인가요?':'검색 결과에서 가고 싶은 장소를 담아 주세요.';
@@ -352,15 +347,24 @@ function notify(message){
  feedback.textContent=message;feedback.hidden=false;
  clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>feedback.hidden=true,2100);
 }
-function addSuccess(message,place=null){
+function focusPlannerPlace(id){
+ if(!id)return;
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  window.TripApp?.resizeMap?.();
+  window.TripApp?.refreshMap?.();
+  window.TripApp?.focusPlace?.(id);
+  if(returnStep===2&&document.body.dataset.tripStep==='2'){
+   $('map-region')?.scrollIntoView?.({behavior:'smooth',block:'center'});
+  }
+ }));
+}
+function addSuccess(message,place=null,addedId=null){
  if(!opened)return;
- items=[];clearMarkers();
  updateSavedButton();
- notify(message);
- // The user asked to inspect the newly added stop immediately on Naver Maps.
- // All saved visits remain, and candidate result markers are removed.
- if(place)focusAdded(place);
- else {clearPreview({restoreCamera:false});showMode('list');}
+ // TripQuickAdd saved the stop already. Close and focus the actual saved ID.
+ hide();
+ window.TripApp?.toast?.(message);
+ focusPlannerPlace(addedId);
 }
 function showTransition(message){
  const notice=$('search-transition-toast');
@@ -371,35 +375,13 @@ function showTransition(message){
 }
 function completeEndpoint(item){
  const kind=searchKind;
- if(!endpointMode())return false;
+ if(!endpointMode()||!opened)return false;
  if(!window.TripApp?.setEndpointFromSearch?.(kind,item))return false;
- const current=window.TripApp?.getDay?.();
- const dayId=current?.id,destination=current?.destination;
- const filled=destination&&Number.isFinite(Number(destination.lat))&&Number.isFinite(Number(destination.lng))&&
-  !/미설정/.test(String(destination.name||''));
- const nextIsDestination=kind==='origin'&&document.body.dataset.tripStep==='2'&&!filled;
- if(nextIsDestination){
-  // Avoid history.back() from the first search racing with the next search's
-  // new pushState and unexpectedly dismissing the destination picker.
-  hide(true);
-  if(history.state?.yeohaenggilSearch){
-   history.replaceState({...history.state,yeohaenggilSearch:false},'',location.href);
-  }
- }else hide();
- const hasOrigin=Boolean(current?.origin&&!/미설정/.test(String(current.origin.name||'')));
- if(!nextIsDestination){
-  window.TripApp?.toast?.(kind==='destination'&&hasOrigin
-   ?'출발지와 도착지를 설정했어요.'
-   :(kind==='origin'?'출발지를 설정했어요.':'도착지를 설정했어요.'));
- }
- if(nextIsDestination){
-  requestAnimationFrame(()=>{
-   if(!opened&&document.body.dataset.tripStep==='2'&&window.TripApp?.getDay?.()?.id===dayId){
-    $('yg-dest-pick')?.scrollIntoView?.({behavior:'smooth',block:'center'});
-    show('destination',{transitionMessage:'출발지를 설정했어요. 이제 도착지를 선택해 주세요.'});
-   }
-  });
- }
+ const id=window.TripApp?.getDay?.()?.[kind]?.id;
+ hide();
+ window.TripApp?.toast?.(kind==='origin'?'출발지를 설정했어요.':'도착지를 설정했어요.');
+ focusPlannerPlace(id);
+ // Independent selections: never automatically open the other endpoint.
  return true;
 }
 function chooseAdd(){
