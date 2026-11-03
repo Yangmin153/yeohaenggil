@@ -14,7 +14,7 @@ test('fullscreen search toolbar is between form and map, never floating over the
  assert.doesNotMatch(css,/\.search-list-toggle\{position:absolute/);
  assert.doesNotMatch(css,/padding-top:48px!important/);
 });
-test('one cancellable preview works for search results, map taps, and saved markers',async()=>{
+test('one cancellable preview works for search results while map tapping never selects a place',async()=>{
  const [html,script]=await Promise.all(['public/index.html','public/static/search-screen.js'].map(read));
  assert.match(html,/id="search-picked-cancel"/);
  assert.match(script,/function clearPreview\(\{restoreCamera=true\}/);
@@ -22,7 +22,8 @@ test('one cancellable preview works for search results, map taps, and saved mark
  assert.match(script,/if\(opened\)paintMarkers\(\)/);
  assert.match(script,/selectedMarker=mark\(selected,true\)/);
  assert.match(script,/\$\('search-picked-cancel'\)\.addEventListener\('click',\(\)=>clearPreview\(\)\)/);
- assert.match(script,/preview\(\{id:'manual-'/);
+ assert.doesNotMatch(script,/preview\(\{id:'manual-'/);
+ assert.doesNotMatch(script,/maps\.Event\.addListener\(searchMap,'click'/);
  assert.match(script,/clearPreview\(\{restoreCamera:false\}\)/);
 });
 test('add click gives map focus, shows highlighted marker and does not close the search screen',async()=>{
@@ -35,11 +36,12 @@ test('add click gives map focus, shows highlighted marker and does not close the
  assert.match(screen,/if\(returnStep===3/);
  assert.match(quick,/app\.previewPlace\(item\)/);
 });
-test('endpoint result selection previews the location before confirming it',async()=>{
+test('endpoint search result instantly sets endpoint without choosing map coordinates',async()=>{
  const [quick,screen]=await Promise.all(['public/static/quick-add.js','public/static/search-screen.js'].map(read));
- assert.match(quick,/YeoSearch\.preview\(item\)/);
+ assert.match(quick,/YeoSearch\.completeEndpoint\(item\)/);
  assert.match(screen,/function completeEndpoint\(item\)/);
  assert.match(screen,/setEndpointFromSearch\?\.\(kind,item\)/);
+ assert.match(screen,/show\('destination'\)/);
 });
 test('popup and result mode preserve background lock and keyboard-friendly scrolling',async()=>{
  const [screen,style]=await Promise.all(['public/static/search-screen.js','public/static/vnext.css'].map(read));
