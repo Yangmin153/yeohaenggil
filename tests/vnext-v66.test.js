@@ -12,7 +12,7 @@ test('STEP2 selected date is a single top-level control and the bottom card has 
 });
 test('STEP2 selected day receives new places; duplicate checks do not cross dates',async()=>{
  const [app,quick,search]=await Promise.all([read('public/static/app.js'),read('public/static/quick-add.js'),read('public/static/search-screen.js')]);
- assert.match(app,/const duplicate=d\.stops\.some/);
+ assert.match(app,/const duplicate=\[\.\.\.d\.stops,d\.origin,d\.destination\]\.some/);
  assert.match(app,/d\.stops\.push\(stop\)/);
  assert.match(quick,/app\.getDay\(\)\.stops\.some/);
  assert.match(search,/window\.TripApp\?\.getDay\?\.\(\)\?\.stops/);

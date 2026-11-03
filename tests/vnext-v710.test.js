@@ -48,7 +48,7 @@ test('both itinerary and full-screen search initialize at neutral nationwide zoo
  assert.match(search,/zoom:selected\?13:mapStartZoom\(\)/);
  assert.match(search,/searchMap\.setZoom\(mapStartZoom\(\)\)/);
  assert.doesNotMatch(search,/return c\?\[c\.lat\(\),c\.lng\(\)\]/);
- assert.match(html,/app\.js\?v=8\.0\.0/);
- assert.match(html,/search-screen\.js\?v=8\.0\.0/);
+ assert.match(html,/app\.js\?v=8\.1\.0/);
+ assert.match(html,/search-screen\.js\?v=8\.1\.0/);
  assert.match(html,/id="quick-region-label" class="quick-region-label">전국/);
 });

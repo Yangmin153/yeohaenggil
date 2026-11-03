@@ -62,9 +62,9 @@ test('endpoint search uses exact same full-screen screen and retains saved visit
  assert.match(screen,/refreshSavedMarkers\(\);selectedMarker=mark\(selected,true\)/);
  assert.match(screen,/function completeEndpoint\(item\)/);
  assert.match(quick,/window\.YeoSearch\.preview\(item\)/);
- assert.match(vnext,/openSearch\('origin'\)/);
- assert.match(vnext,/openSearch\('destination'\)/);
- assert.match(app,/function setEndpointFromSearch\(kind,item\)/);
+ assert.match(vnext,/data-assign-role/);
+ assert.match(screen,/function chooseRole\(kind\)/);
+ assert.match(app,/function setCollectedRoleFromSearch\(item,role\)/);
  assert.match(app,/if\(kind==='destination'\)syncLinkedOrigins\(state\.active\+1\)/);
 });
 test('navigation chooser is present and Kakao JS key is optional, never server REST API key',async()=>{

@@ -17,7 +17,7 @@ test('STEP2 puts one day selector at top, prior to heading and add search',async
 });
 test('STEP2 adds into active days[].stops and same-day duplicates are prevented',async()=>{
  const [app,quick]=await Promise.all([read('public/static/app.js'),read('public/static/quick-add.js')]);
- assert.match(app,/const d=day\(\);[\s\S]*const duplicate=d\.stops\.some/);
+ assert.match(app,/const duplicate=\[\.\.\.d\.stops,d\.origin,d\.destination\]\.some/);
  assert.match(app,/d\.stops\.push\(stop\)/);
  assert.match(app,/fixedDate:d\.date\|\|null/);
  assert.match(quick,/app\.getDay\(\)\.stops\.some/);
