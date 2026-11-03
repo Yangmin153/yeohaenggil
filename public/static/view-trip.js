@@ -10,7 +10,7 @@ function placeLine(day){
  const root=$('sv-timeline');root.replaceChildren();
  if(!day.p.length){root.append(el('li','sv-stop-empty','아직 담은 장소가 없어요. 일정을 만드는 중이에요.'));return;}
  day.p.forEach((p,i)=>{
-  const item=el('li','sv-stop'),badge=el('span','sv-number',role(day,i)==='S'?'출발':role(day,i)==='E'?'도착':markerLabel(day,i));
+  const item=el('li','sv-stop sv-stop-'+role(day,i).toLowerCase()),badge=el('span','sv-number',role(day,i)==='S'?'출발':role(day,i)==='E'?'도착':markerLabel(day,i));
   const text=el('div','sv-stop-text');text.append(el('strong','',p.n));
   if(p.a)text.append(el('small','',p.a));
   const focus=el('button','sv-stop-focus','지도에서 보기');focus.type='button';focus.dataset.focusIndex=String(i);focus.setAttribute('aria-label',p.n+' 위치 지도에서 보기');
@@ -20,7 +20,7 @@ function placeLine(day){
 function svgMap(day){
  const svg=$('sv-fallback-map');svg.replaceChildren();
  const bg=document.createElementNS(svgNS,'rect');
- Object.entries({x:0,y:0,width:904,height:285,fill:'#e9f8f2'}).forEach(([k,v])=>bg.setAttribute(k,v));svg.append(bg);
+ Object.entries({x:0,y:0,width:904,height:285,fill:'transparent'}).forEach(([k,v])=>bg.setAttribute(k,v));svg.append(bg);
  const layout=staticMapLayout(day.p,904,285);
  const coords=layout?.pixels||[];
  if(!coords.length){
