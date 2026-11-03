@@ -25,19 +25,20 @@
   <link rel="stylesheet" href="/static/share-controls.css?v=1.0.0">
   <link rel="stylesheet" href="/static/account-mint.css?v=1.0.0">
   <link rel="stylesheet" href="/static/flight-calendar.css?v=1.0.0">
+  <link rel="stylesheet" href="/static/visit-edit.css?v=1.0.0">
   <script defer src="/static/search-utils.js?v=4.2.0"></script>
   <script defer src="/static/place-meta.js?v=4.3.0"></script>
   <script defer src="/static/route-pins.js?v=6.4.0"></script>
   <script defer src="/static/route-shape.js?v=6.4.0"></script>
   <script defer src="/static/scroll-lock.js?v=7.0.0"></script>
-  <script defer src="/static/app.js?v=7.12.0"></script>
+  <script defer src="/static/app.js?v=7.15.0"></script>
   <script type="module" src="/static/mobile-ux.js?v=4.8.0"></script>
-  <script type="module" src="/static/quick-add.js?v=7.12.0"></script>
-  <script type="module" src="/static/search-screen.js?v=7.12.0"></script>
+  <script type="module" src="/static/quick-add.js?v=7.15.0"></script>
+  <script type="module" src="/static/search-screen.js?v=7.15.0"></script>
   <script defer src="/static/map-workspace.js?v=6.7.1"></script>
   <script type="module" src="/static/accounts.js?v=7.6.0"></script>
   <!-- Region onboarding removed from vNext daily planner; legacy nodes retained for compatibility. -->
-  <script defer src="/static/vnext.js?v=7.12.0"></script>
+  <script defer src="/static/vnext.js?v=7.15.0"></script>
   <script defer src="/static/navigation.js?v=7.6.0"></script>
   <script defer src="/static/live-route.js?v=7.5.0"></script>
   <script type="module" src="/static/share-trip.js?v=3.0.0"></script>
@@ -200,14 +201,35 @@
           <details id="yg-route-adjust" class="yg-route-adjust">
             <summary>방문지 상세 조정 <span aria-hidden="true">⌄</span></summary>
             <div class="yg-adjust-content">
-              <p>방문지를 위아래로 움직인 다음, 꼭 지킬 순서만 <strong>“이 순서로 고정”</strong>하세요. 나머지는 이동 시간이 짧아지도록 정리해요.</p>
+              <p>방문 순서를 바꾸고 싶은 장소를 체크한 다음 <strong>방문지 수정</strong>을 누르세요. 선택한 순서는 유지하고 나머지 장소만 다시 최적화해요.</p>
               <label class="yg-mode-row" for="yg-route-mode">경로 계산 방식
                 <select id="yg-route-mode" aria-label="경로 계산 방식"><option value="auto">자동 최적화</option><option value="manual">내 순서 유지</option></select>
               </label>
-              <div id="yg-adjust-list" aria-label="방문지 순서와 고정 설정"></div>
+              <div id="yg-adjust-list" aria-label="순서를 변경할 방문지 선택"></div>
+              <div class="yg-adjust-select-actions">
+                <p id="yg-adjust-selection-note" role="status" aria-live="polite">수정할 방문지 한 곳을 체크해 주세요.</p>
+                <button type="button" id="yg-adjust-edit-selected" disabled>방문지 수정</button>
+              </div>
             
             </div>
           </details>
+      <div id="yg-position-dialog" class="yg-position-dialog" role="dialog" aria-modal="true" aria-labelledby="yg-position-title" hidden>
+        <section class="yg-position-card">
+          <div class="yg-position-card-head">
+            <div><span>방문지 수정</span><h2 id="yg-position-title">방문 순서 바꾸기</h2></div>
+            <button type="button" id="yg-position-close" aria-label="방문지 수정 닫기">×</button>
+          </div>
+          <p id="yg-position-place"></p>
+          <label for="yg-position-select">몇 번째로 방문하고 싶으세요?</label>
+          <select id="yg-position-select" aria-label="방문할 순서"></select>
+          <p class="yg-position-description">선택한 장소의 방문 순서는 유지하고, 나머지는 자동차 이동시간 기준으로 다시 최적화합니다.</p>
+          <p id="yg-position-warning" role="status" aria-live="polite" hidden></p>
+          <div class="yg-position-actions">
+            <button type="button" id="yg-position-cancel">취소</button>
+            <button type="button" id="yg-position-apply">순서 변경하고 다시 계산</button>
+          </div>
+        </section>
+      </div>
           <section id="yg-live-controls" class="yg-live-controls" aria-label="여행 동선 재계산">
             <h3>동선 다시 계산하기</h3><p>방문지 상세 조정 후 경로를 다시 계산하거나, 현재 위치부터 새 동선을 만들 수 있어요.</p>
             <button type="button" id="yg-three-recalc" class="yg-recalculate-button">↻ 다시 최적화</button>
