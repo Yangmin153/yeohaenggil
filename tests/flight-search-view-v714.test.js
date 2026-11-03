@@ -43,7 +43,7 @@ test('search selection is text-results-only, never a map click or map marker sel
  assert.ok(search.includes("completeEndpoint(item)"));
  assert.ok(quick.includes("window.YeoSearch.completeEndpoint(item)"));
  assert.ok(html.includes('id="btn-pick-map-primary" hidden disabled'));
- assert.ok(app.includes("toast('장소 검색 결과에서 방문지를 선택해 주세요.');return;"));
+ assert.ok(app.includes("startMapPick(){toast('장소 검색 결과에서 방문지를 선택해 주세요.');}"));
  assert.ok(search.includes("show('destination')"));
 });
 test('STEP3 explicitly locks the displayed visit number and removes the places-list action',async()=>{
