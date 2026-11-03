@@ -33,7 +33,7 @@ test('map mode styles are scoped to bottom dock, never full-screen search',async
  assert.match(css,/body\.search-open #search-screen #search-screen-results-mount #quick-results/);
  assert.match(css,/display:block!important;position:static!important/);
  assert.match(css,/overflow-y:auto!important;overflow-x:hidden!important/);
- assert.match(html,/quick-add\.js\?v=7\.15\.0/);
+ assert.match(html,/quick-add\.js\?v=7\.16\.0/);
 });
 test('full screen search freezes unrelated underlying UI and restores previous inert state',async()=>{
  const js=await read('public/static/search-screen.js');
