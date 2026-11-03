@@ -43,12 +43,12 @@ test('editing a preferred stop never silently displaces another preferred stop',
  assert.deepEqual(d.stops.map(x=>x.id),['c','b','a','d']);
  assert.equal(d.stops[1].locked,true);
 });
-test('search UI keeps search open after adding and does not enable map-based place selection',async()=>{
+test('search UI returns after adding and does not enable map-based place selection',async()=>{
  const search=await read('public/static/search-screen.js');
  const quick=await read('public/static/quick-add.js');
- assert.match(search,/function addSuccess\(message,place=null\)/);
+ assert.match(search,/function addSuccess\(message,place=null,addedId=null\)/);
  const area=search.slice(search.indexOf('function addSuccess('),search.indexOf('function completeEndpoint('));
- assert.match(area,/if\(place\)focusAdded\(place\)/);
+ assert.match(area,/focusPlannerPlace\(addedId\)/);
  assert.match(search,/previewSource='added'/);
  assert.match(search,/selectedMarker=mark\(selected,true\)/);
  assert.match(search,/searchMap\.panTo\(new window\.naver\.maps\.LatLng/);
