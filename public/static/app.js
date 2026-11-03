@@ -539,7 +539,20 @@ function bootNaverMap(key){
  document.head.append(script);
  timer=setTimeout(()=>{if(!sdkReady&&!authFailed)mapStatus('지도 연결이 지연되고 있어요','Dynamic Map 권한과 Preview 도메인을 확인해 주세요.',true);},14000);
 }
-function clearMap(){markers.forEach(x=>x.setMap(null));paths.forEach(x=>x.setMap(null));markers=[];paths=[];markerInfo?.close();}
+function clearMap(){
+ // Some Naver Map SDK marker variants can throw while unlinking an overlay.
+ // Keep the itinerary state update and automatic endpoint handoff alive.
+ const dispose=overlay=>{
+  if(!overlay)return;
+  try{overlay.setMap(null);}
+  catch(error){
+   try{overlay.setVisible?.(false);}catch{}
+   console.warn('[여행길] 지도 표시 갱신 중 이전 마커 해제 실패',error?.message||error);
+  }
+ };
+ markers.forEach(dispose);paths.forEach(dispose);markers=[];paths=[];
+ try{markerInfo?.close();}catch{}
+}
 function centerMapAtRegion(place){
  if(!validMapPlace(place))return false;
  pendingRegionFocus={lat:place.lat,lng:place.lng,zoom:11};
