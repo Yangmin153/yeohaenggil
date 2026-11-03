@@ -472,10 +472,10 @@ async function searchPlaces(nextPage=false){
  finally{if(seq===placeSeq){$('btn-search-place').disabled=false;placeAbort=null;}}
 }
 async function searchAddress(){const query=$('address-query').value.trim();if(query.length<2)return toast('검색할 도로명·지번 주소를 입력해 주세요.');$('address-results').textContent='주소 검색 중…';
- try{const r=await fetch(`/api/geocode?q=${encodeURIComponent(query)}`),data=await r.json();if(!r.ok)throw new Error(data?.detail||'검색 실패');geocoderResults=data.results||[];const el=$('address-results');el.innerHTML=geocoderResults.length?geocoderResults.map((x,i)=>`<button class="address-result" data-address-index="${i}">${esc(x.address)} <span>↗</span></button>`).join(''):'검색 결과가 없습니다. 정확한 주소로 다시 검색하거나 지도에서 장소를 골라주세요.'}
+ try{const r=await fetch(`/api/geocode?q=${encodeURIComponent(query)}`),data=await r.json();if(!r.ok)throw new Error(data?.detail||'검색 실패');geocoderResults=data.results||[];const el=$('address-results');el.innerHTML=geocoderResults.length?geocoderResults.map((x,i)=>`<button class="address-result" data-address-index="${i}">${esc(x.address)} <span>↗</span></button>`).join(''):'검색 결과가 없습니다. 정확한 장소명이나 주소로 다시 검색해 주세요.'}
  catch(err){$('address-results').textContent=`주소 검색 불가: ${err.message}`}
 }
-function startMapPick(){toast('장소 검색 결과에서 방문지를 선택해 주세요.');return;window.TripUX?.switchView?.('map');if(!map){toast('네이버 지도를 연결한 뒤 이용할 수 있습니다.');return}state.mapPicking=true;$('place-modal').classList.add('hidden');$('place-modal').setAttribute('aria-hidden','true');window.YGScrollLock?.unlock('place-editor');$('map-select-notice').classList.remove('hidden');$('map-region').scrollIntoView({behavior:'smooth',block:'center'});toast('지도 위 원하는 위치를 눌러 선택하세요.')}
+function startMapPick(){toast('장소 검색 결과에서 방문지를 선택해 주세요.');}
 function cancelMapPick(){state.mapPicking=false;$('map-select-notice').classList.add('hidden');if(state.modal){$('place-modal').classList.remove('hidden');$('place-modal').setAttribute('aria-hidden','false');window.YGScrollLock?.lock('place-editor')}}
 // — 지도 —
 function mapHasArea(){const a=$('map')?.getBoundingClientRect(),b=$('map-region')?.getBoundingClientRect();return Boolean(a&&b&&a.width>96&&a.height>140&&b.width>96&&b.height>140);}
