@@ -1,0 +1,94 @@
+/* v8.0: one compact STEP 2 editor for visits, departure and arrival. */
+body[data-trip-step="2"] #yg-step-two-intro,
+body[data-trip-step="2"] #yg-plan-date,
+body[data-trip-step="2"] #yg-daily-editor,
+body[data-trip-step="2"] #yg-map-caption,
+body[data-trip-step="2"] #trip-workspace{width:100%!important;max-width:660px!important;margin-left:auto!important;margin-right:auto!important}
+body[data-trip-step="2"] #yg-step-two-intro{margin-top:6px!important;margin-bottom:10px!important}
+body[data-trip-step="2"] #yg-step-two-intro h1{font-size:22px!important;line-height:1.2!important;margin:2px 0!important}
+body[data-trip-step="2"] #yg-step-two-intro p{font-size:12px!important;line-height:1.5!important}
+body[data-trip-step="2"] .yg-date-switch{margin-bottom:10px!important}
+body[data-trip-step="2"] #yg-daily-editor{
+ display:block!important;border:1px solid #e2ebe8!important;border-radius:20px!important;
+ padding:14px!important;background:#fff!important;box-shadow:0 4px 18px #153f3510!important
+}
+body[data-trip-step="2"] #yg-daily-editor .yg-visit-editor{gap:8px!important}
+body[data-trip-step="2"] #yg-add-visit{
+ min-height:56px!important;padding:10px 14px!important;
+ border-radius:14px!important;font-size:14px!important
+}
+body[data-trip-step="2"] #yg-open-stops{
+ min-height:46px!important;border-radius:12px!important;padding:8px 12px!important;
+ font-size:14px!important
+}
+body[data-trip-step="2"] #yg-open-stops span{font-size:16px!important}
+body[data-trip-step="2"] .yg-inline-stops{
+ min-height:0;max-height:228px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+ border:1px solid #e8eeeb;border-radius:12px;padding:4px 10px;background:#fafcfb
+}
+body[data-trip-step="2"] .yg-inline-stops[hidden]{display:none!important}
+body[data-trip-step="2"] .yg-inline-stops .yg-place-row{min-height:52px;padding:6px 0}
+body[data-trip-step="2"] .yg-inline-stops .yg-place-focus{min-height:44px;display:grid;align-content:center;gap:2px}
+body[data-trip-step="2"] .yg-inline-stops .yg-place-focus strong{font-size:14px!important}
+body[data-trip-step="2"] .yg-inline-stops .yg-place-focus small{font-size:12px!important}
+body[data-trip-step="2"] .yg-inline-stops .yg-place-remove{width:44px;height:44px;flex-basis:44px}
+body[data-trip-step="2"] #yg-endpoint-section{
+ display:block!important;margin:12px 0 0!important;padding:14px 0 0!important;
+ max-width:none!important;border:0!important;border-top:1px solid #e7eeeb!important;
+ border-radius:0!important;box-shadow:none!important;background:transparent!important
+}
+body[data-trip-step="2"] .yg-endpoint-section-title h2{font-size:16px!important;line-height:1.5!important;margin:0!important}
+body[data-trip-step="2"] .yg-endpoint-section-title p{font-size:12px!important;line-height:1.5!important;margin:2px 0 10px!important}
+body[data-trip-step="2"] .yg-endpoint-section .yg-endpoint-pair{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important
+}
+body[data-trip-step="2"] .yg-endpoint-compact{min-width:0;gap:4px!important}
+body[data-trip-step="2"] .yg-endpoint-compact>span{display:flex;align-items:center;gap:6px;font-size:12px!important}
+body[data-trip-step="2"] .yg-endpoint-compact>span i{
+ display:inline-grid;place-items:center;min-width:36px;height:24px;border-radius:7px;font-size:12px!important;font-style:normal
+}
+body[data-trip-step="2"] .yg-endpoint-section .yg-pick-place{
+ min-height:66px!important;padding:9px 10px!important;border-radius:12px!important;
+ background:#fafcfb!important
+}
+body[data-trip-step="2"] .yg-endpoint-section .yg-pick-place strong{font-size:14px!important}
+body[data-trip-step="2"] .yg-endpoint-section .yg-pick-place small{font-size:12px!important}
+body[data-trip-step="2"] .yg-day-inherit{gap:6px 12px!important;padding:0!important;margin:0 0 10px!important}
+body[data-trip-step="2"] .yg-day-inherit label{min-height:36px!important;font-size:12px!important}
+body[data-trip-step="2"] .yg-day-inherit input{width:18px;height:18px}
+body[data-trip-step="2"] #yg-map-caption{margin-top:12px!important;margin-bottom:4px!important}
+body[data-trip-step="2"] #yg-map-caption strong{font-size:16px!important}
+body[data-trip-step="2"] #map-region{height:clamp(200px,29dvh,270px)!important;min-height:200px!important}
+body[data-trip-step="2"] .app-shell{padding-bottom:154px!important}
+body[data-trip-step="2"] #yg-step-two-actions{
+ width:100%!important;max-width:660px!important;display:flex!important;flex-wrap:wrap!important;
+ row-gap:4px!important;column-gap:10px!important;
+ padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px))!important
+}
+body[data-trip-step="2"] #yg-step-two-actions .yg-secondary{min-height:46px!important;font-size:12px!important}
+body[data-trip-step="2"] #yg-step-two-actions .yg-primary{min-height:46px!important;font-size:14px!important}
+body[data-trip-step="2"] #yg-step-two-actions .yg-primary:disabled{
+ opacity:1!important;background:#dce4e3!important;color:#637470!important;cursor:not-allowed
+}
+body[data-trip-step="2"] #yg-step-two-actions .yg-step2-readiness{
+ order:3;flex:0 0 100%;margin:0!important;min-height:18px;text-align:center;
+ color:#677b76;font-size:12px;line-height:1.5;letter-spacing:-.03em
+}
+body[data-trip-step="2"] #yg-step-two-actions #yg-calc-progress[hidden]{display:none!important}
+body[data-trip-step="2"] #yg-step-two-actions #yg-calc-progress:not([hidden]){order:4;flex-basis:100%;font-size:12px}
+body[data-trip-step="2"] #yg-daily-editor,
+body[data-trip-step="2"] #yg-step-two-actions,
+body[data-trip-step="2"] #yg-inline-stops,
+body[data-trip-step="2"] #yg-daily-editor button{
+ font-family:Pretendard,"Pretendard Variable",sans-serif;letter-spacing:-.03em
+}
+body[data-trip-step="2"] #yg-daily-editor button:focus-visible,
+body[data-trip-step="2"] #yg-step-two-actions button:focus-visible{outline:2px solid #009a85;outline-offset:2px}
+@media(max-width:370px){
+ body[data-trip-step="2"] #yg-daily-editor{padding:10px!important}
+ body[data-trip-step="2"] .yg-endpoint-section .yg-endpoint-pair{grid-template-columns:minmax(0,1fr)!important}
+}
+@media(min-width:769px){
+ body[data-trip-step="2"] #yg-daily-editor{padding:18px!important}
+ body[data-trip-step="2"] #yg-step-two-actions{position:sticky!important;bottom:0!important;transform:none!important;left:auto!important;margin:12px auto!important}
+}

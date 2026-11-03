@@ -5,7 +5,7 @@
 const app=window.TripApp,$=id=>document.getElementById(id);
 if(!app||!$('yg-step-one'))return;
 const MS=86400000,MAX_DAYS=10,escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-let currentStep=1,busy=false,sheetOpen=false,sheetFreeze=null,lastWarnings=[],dragStartY=0,selectedAdjustId=null,editingAdjustId=null;
+let currentStep=1,busy=false,sheetOpen=false,inlineExpanded=false,sheetFreeze=null,lastWarnings=[],dragStartY=0,selectedAdjustId=null,editingAdjustId=null;
 const days=()=>app.getDays(),day=()=>app.getDay(),stops=()=>day().stops;
 function ms(value){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return NaN;
@@ -61,7 +61,7 @@ function renderDaily(){
  $('yg-route-mode').value=d.mode==='manual'?'manual':'auto';
  $('yg-origin-pick').classList.toggle('is-configured',configured(d.origin));
  $('yg-dest-pick').classList.toggle('is-configured',configured(d.destination));
- renderAdjustment();if(sheetOpen)renderSheet();
+ renderAdjustment();renderSheet();renderInlineStops();updateReadiness();
 }
 function renderAdjustment(){
  const d=day(),ids=d.result?.orderIds||d.stops.map(p=>p.id),byId=new Map(d.stops.map(p=>[p.id,p])),ordered=ids.map(id=>byId.get(id)).filter(Boolean);
@@ -135,6 +135,34 @@ function renderSheet(){
    '<button type="button" class="yg-place-remove" data-remove-place="'+escape(p.id)+'" aria-label="'+name+' 삭제">×</button></div>';
  }).join(''):'<div class="yg-empty-sheet"><strong>아직 담은 장소가 없어요.</strong><p>가고 싶은 장소를 검색해서 추가해 보세요.</p></div>';
 }
+function renderInlineStops(){
+ const list=$('yg-inline-stops');
+ if(!list)return;
+ list.hidden=!inlineExpanded;
+ $('yg-open-stops').setAttribute('aria-expanded',String(inlineExpanded));
+ $('yg-open-stops').querySelector('span:last-child').textContent=inlineExpanded?'⌃':'⌄';
+ if(inlineExpanded)list.innerHTML=$('yg-sheet-list').innerHTML;
+}
+function readiness(){
+ const missing=[];
+ days().forEach(d=>{
+  const fields=[];
+  if(!d.stops.length)fields.push('방문지');
+  if(!configured(d.origin))fields.push('출발지');
+  if(!configured(d.destination))fields.push('도착지');
+  if(fields.length)missing.push(dateText(d.date,{short:true})+' · '+fields.join('·'));
+ });
+ const pending=app.unassignedStops().length;
+ if(pending)missing.push('날짜 미배정 방문지 '+pending+'곳');
+ return {ready:!missing.length,message:missing[0]||''};
+}
+function updateReadiness(){
+ const state=readiness(),button=$('yg-calculate'),hint=$('yg-step2-readiness');
+ button.disabled=busy||!state.ready;
+ button.title=state.ready?'전체 날짜의 최적 동선을 계산해요.':state.message+' 설정이 필요해요.';
+ if(hint)hint.textContent=state.ready?'모든 날짜 준비 완료 · 동선을 확인할 수 있어요.':state.message+' 설정이 필요해요.';
+ return state;
+}
 function openSheet(){
  if(sheetOpen)return;
  document.activeElement?.blur?.();
@@ -173,6 +201,9 @@ function renderWarnings(){
 }
 async function calculate(){
  if(busy)return;
+ if(document.body.dataset.tripStep==='2'){
+  const check=updateReadiness();if(!check.ready){app.toast(check.message+' 설정이 필요해요.');return;}
+ }
  const arranged=days(),pending=app.unassignedStops(),full=arranged.map((d,i)=>({d,i})).filter(({d})=>configured(d.origin)&&configured(d.destination));
  const incomplete=arranged.find(d=>d.stops.length&&(!configured(d.origin)||!configured(d.destination)));
  if(incomplete){app.setActive(arranged.indexOf(incomplete));go(2);app.toast(dateText(incomplete.date)+' 출발지와 도착지를 먼저 설정해 주세요.');return;}
@@ -218,12 +249,12 @@ async function calculate(){
  finally{
   overlay.hidden=true;busy=false;
   if(completed===full.length)$('yg-calc-progress').hidden=true;
-  for(const id of ['yg-calculate','yg-three-recalc'])$(id).disabled=false;
+  $('yg-three-recalc').disabled=false;updateReadiness();
  }
 }
-function openSearch(){
+function openSearch(kind='stop'){
  if(!days().every(d=>d.date)){app.toast('여행 날짜를 먼저 선택해 주세요.');return;}
- if(window.YeoSearch)window.YeoSearch.show();else app.openModal('stop');
+ if(window.YeoSearch)window.YeoSearch.show(kind);else app.openModal(kind);
 }
 // STEP 1: The native calendar is date-only, no endpoint inputs here.
 $('yg-start-date').addEventListener('change',()=>{
@@ -232,13 +263,13 @@ $('yg-start-date').addEventListener('change',()=>{
 });
 $('yg-end-date').addEventListener('change',syncDateRange);
 // STEP 2: Selecting a date never recreates/stomps another day's stops.
-$('yg-active-date').addEventListener('change',e=>app.setActive(Number(e.target.value)));
-$('yg-origin-pick').addEventListener('click',()=>{if(window.YeoSearch)window.YeoSearch.show('origin');else app.openModal('origin');});
-$('yg-dest-pick').addEventListener('click',()=>{if(window.YeoSearch)window.YeoSearch.show('destination');else app.openModal('destination');});
+$('yg-active-date').addEventListener('change',e=>{inlineExpanded=false;app.setActive(Number(e.target.value));});
+$('yg-origin-pick').addEventListener('click',()=>openSearch('origin'));
+$('yg-dest-pick').addEventListener('click',()=>openSearch('destination'));
 document.querySelectorAll('[name="yg-origin-choice"]').forEach(radio=>radio.addEventListener('change',()=>{
  if(!radio.checked)return;
  app.setDayOriginMode(app.getActive(),radio.value);
- if(radio.value==='custom'){if(window.YeoSearch)window.YeoSearch.show('origin');else app.openModal('origin');}
+ if(radio.value==='custom')openSearch('origin');
 }));
 $('yg-add-visit').addEventListener('click',openSearch);
 $('yg-fit-all').addEventListener('click',()=>{app.fitMap();app.resizeMap();});
@@ -256,7 +287,13 @@ $('yg-back-places').addEventListener('click',()=>go(2));
 $('yg-calculate').addEventListener('click',calculate);
 $('yg-three-recalc').addEventListener('click',calculate);
 $('yg-three-add').addEventListener('click',()=>openSearch());
-$('yg-open-stops').addEventListener('click',openSheet);
+$('yg-open-stops').addEventListener('click',()=>{inlineExpanded=!inlineExpanded;renderInlineStops();});
+$('yg-inline-stops').addEventListener('click',e=>{
+ const remove=e.target.closest('[data-remove-place]');
+ if(remove){if(app.removeStop(remove.dataset.removePlace))app.toast('방문지를 삭제했어요.');return;}
+ const focus=e.target.closest('[data-focus-place]');
+ if(focus){app.focusPlace(focus.dataset.focusPlace);$('map-region').scrollIntoView({behavior:'smooth',block:'center'});}
+});
 $('yg-route-mode').addEventListener('change',e=>{
  app.setRouteMode(e.target.value);renderDaily();app.toast('계산 방식을 변경했어요. 다시 계산해 주세요.');
 });
