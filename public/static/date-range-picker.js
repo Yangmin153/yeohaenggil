@@ -23,9 +23,11 @@ function syncLabels(){
  if(!opened&&rangeStart&&rangeEnd)opener.setAttribute('aria-label',fmt(rangeStart)+'부터 '+fmt(rangeEnd)+'까지, 날짜 바꾸기');
 }
 function writeDates(){
+ // Only commit the range once BOTH dates are chosen. A first click must not
+ // overwrite an existing itinerary or trigger the old native-date listener.
+ if(!rangeStart||!rangeEnd)return;
  start.value=rangeStart;end.value=rangeEnd;
- if(rangeEnd)end.dispatchEvent(new Event('change',{bubbles:true}));
- else start.dispatchEvent(new Event('change',{bubbles:true}));
+ end.dispatchEvent(new Event('change',{bubbles:true}));
 }
 function setOpen(value){
  opened=Boolean(value);panel.hidden=!opened;syncLabels();
