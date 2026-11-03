@@ -66,10 +66,8 @@ function maybeMap(){
   const c=mapCenter();
   searchMap=new maps.Map(mapNode,{center:new maps.LatLng(c[0],c[1]),zoom:mapStartZoom(),minZoom:6,maxZoom:20,zoomControl:false,mapDataControl:false,scaleControl:false,logoControl:true});
   $('search-map-message').hidden=true;
-  maps.Event.addListener(searchMap,'click',e=>{
-   const latitude=e.coord.lat(),longitude=e.coord.lng();
-   preview({id:'manual-'+latitude.toFixed(6)+'-'+longitude.toFixed(6),name:'지도에서 선택한 위치',address:'지도에서 선택한 위치',lat:latitude,lng:longitude,category:'장소'},'map');
-  });
+  // Map is for browsing only: selecting arbitrary coordinates is disabled.
+  // Places and endpoints are selected from verified search results.
   savedSignature='';paintMarkers();
  }catch(e){console.warn('장소 검색 지도 초기화 실패',e);$('search-map-message').hidden=false;$('search-map-message').textContent='지도를 열지 못했어요. 목록 검색은 사용할 수 있어요.';}
 }
@@ -161,7 +159,7 @@ function searchStarted(){if(!opened)return;showMode('list');}
 function onResults(next){
  items=Array.isArray(next)?next:[];
  paintMarkers();
- if(opened&&input.value.trim().length>=2)showMode('list');
+ if(opened&&input.value.trim().length>=2&&!selected)showMode('list');
 }
 function rememberCamera(){
  if(previewCamera||!searchMap)return;
@@ -216,7 +214,7 @@ function show(kind='stop'){
  searchDayId=window.TripApp?.getDay?.()?.id||null;
  $('search-list-toggle').hidden=true;
   $('search-global-results').hidden=true;
-  $('search-scope-note').textContent='전국에서 검색하고, 방문지 주변 결과를 우선 보여줘요. 다른 지역도 검색할 수 있어요.';
+  $('search-scope-note').textContent='검색 결과에서 장소를 선택해 주세요. 지도는 위치 확인용이에요.';
  if(window.YeoRegion&&!window.YeoRegion.ensureSelected())return;
  opened=true;historyEntry=true;previousFocus=document.activeElement;previousScroll=window.scrollY;
  feedback.hidden=true;clearPreview({restoreCamera:false});items=[];input.value='';results.replaceChildren();results.hidden=true;
@@ -224,7 +222,7 @@ function show(kind='stop'){
  updateSavedButton();
  screen.hidden=false;screen.querySelector('#search-screen-form-mount').append(form);resultMount.append(results);
  window.YGScrollLock?.lock('search-screen');document.body.classList.add('search-open');lockBackground();
- updateSize();showMode('map');
+ updateSize();showMode('list');
  const viewKey=mapViewKey();
  if(searchMap&&lastChosenRegion!==viewKey){
   const [lat,lng]=mapCenter();
@@ -263,7 +261,21 @@ function completeEndpoint(item){
  const kind=searchKind;
  if(!endpointMode())return false;
  if(!window.TripApp?.setEndpointFromSearch?.(kind,item))return false;
- hide();window.TripApp?.toast?.((kind==='origin'?'출발지':'도착지')+'를 설정했어요.');
+ const dayId=window.TripApp?.getDay?.()?.id;
+ const destination=window.TripApp?.getDay?.()?.destination;
+ const needsDestination=kind==='origin'&&document.body.dataset.tripStep==='2'&&
+  (!destination||!/[^ ]/.test(destination.name||'')||/미설정/.test(destination.name||''));
+ hide();
+ window.TripApp?.toast?.((kind==='origin'?'출발지':'도착지')+'를 설정했어요.');
+ if(needsDestination){
+  // Let the search History popstate settle before opening the next full-screen search.
+  setTimeout(()=>{
+   if(!opened&&document.body.dataset.tripStep==='2'&&window.TripApp?.getDay?.()?.id===dayId){
+    $('yg-dest-pick')?.scrollIntoView?.({behavior:'smooth',block:'center'});
+    show('destination');
+   }
+  },280);
+ }
  return true;
 }
 function chooseAdd(){
