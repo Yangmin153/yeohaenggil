@@ -71,7 +71,7 @@ try{
  await page.locator('#quick-input').press('Enter');
  await page.locator('#quick-results .quick-result-row').first().waitFor({timeout:25000});
  // The map may be viewed, but no click on it can create a manual coordinate.
- const beforeStop=await page.locator('#yg-stop-count').textContent();
+ const beforeStop=await page.evaluate(()=>window.TripApp?.getDay?.()?.stops?.length||0);
  await page.locator('#search-list-toggle').click();
  await page.locator('#search-map-stage').waitFor({state:'visible'});
  await page.locator('#search-naver-map').click({position:{x:75,y:65},force:true});
@@ -79,8 +79,17 @@ try{
  await page.locator('#search-list-toggle').click();
  // A verified result button must still add a place immediately.
  await page.locator('#quick-results .quick-direct-add').first().click();
- const afterStop=await page.locator('#yg-stop-count').textContent();
- if(beforeStop===afterStop)throw Error('Search result +add did not increase visit count');
+ await page.waitForTimeout(550);
+ const status=await page.evaluate(()=>({
+  count:window.TripApp?.getDay?.()?.stops?.length||0,
+  names:window.TripApp?.getDay?.()?.stops?.map(p=>p.name)||[],
+  quickFeedback:document.querySelector('#quick-feedback')?.textContent,
+  screenFeedback:document.querySelector('#search-screen-feedback')?.textContent,
+  region:window.TripApp?.getRegion?.(),
+  selected:document.querySelector('#search-picked-name')?.textContent
+ }));
+ console.log('ADD_SEARCH_DIAGNOSTICS',JSON.stringify({beforeStop,...status}));
+ if(status.count<=beforeStop)throw Error('Search result +add did not increase actual itinerary visit count');
  console.log('PASS: only search-result buttons add places; map taps never select coordinates');
  await page.setViewportSize({width:390,height:520});
  await page.waitForTimeout(350);
