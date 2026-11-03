@@ -615,7 +615,27 @@ function previewPlace(place){if(!validMapPlace(place))return false;previewSelect
  previewMarker=new naver.maps.Marker({map,position:new naver.maps.LatLng(place.lat,place.lng),zIndex:1800,title:place.name,icon:{content:'<div style="background:#2469d9;color:#fff;border:3px solid white;border-radius:50%;height:18px;width:18px;box-shadow:0 2px 9px #12294366"></div>',anchor:new naver.maps.Point(10,10)}});
  map.panTo(new naver.maps.LatLng(place.lat,place.lng));if(map.getZoom()<12)map.setZoom(12);return true;}
 function clearPlacePreview(){previewSelected=null;$('map-place-preview').hidden=true;if(previewMarker){previewMarker.setMap(null);previewMarker=null;}}
-function focusPlace(id){if(!map)return;const item=routePlaces().find(p=>p.id===id);if(!item)return;selectedMapStop=id;renderMap();const point=new naver.maps.LatLng(item.lat,item.lng);if(!map.getBounds()?.hasLatLng?.(point))map.panTo(point);const marker=markers.find(x=>x.__placeIds?.includes(id));if(marker&&markerInfo){const idx=routePlaces().findIndex(x=>x.id===id);markerInfo.setContent(selectedStopDetails(item,idx,item.id===day().origin.id?'origin':item.id===day().destination.id?'destination':'stop'));markerInfo.open(map,marker);}}
+function focusPlace(id){
+ const item=routePlaces().find(p=>p.id===id);
+ if(!item)return false;
+ selectedMapStop=id;
+ // Expose the same selection to the read-only static-map fallback on Preview hosts.
+ document.dispatchEvent(new CustomEvent('trip:planner-focus',{detail:{id}}));
+ if(!map)return true;
+ mapFitQueued=false;
+ renderMap();
+ const point=new naver.maps.LatLng(item.lat,item.lng);
+ // Even when the point was in the old viewport, center the newly chosen location.
+ map.panTo(point);
+ if(document.body.dataset.tripStep==='2'&&map.getZoom()<13)map.setZoom(13);
+ const marker=markers.find(x=>x.__placeIds?.includes(id));
+ if(marker&&markerInfo){
+  const idx=routePlaces().findIndex(x=>x.id===id);
+  markerInfo.setContent(selectedStopDetails(item,idx,item.id===day().origin.id?'origin':item.id===day().destination.id?'destination':'stop'));
+  markerInfo.open(map,marker);
+ }
+ return true;
+}
 function setMapLocked(next){mapLocked=Boolean(next);if(map)map.setOptions({draggable:!mapLocked,pinchZoom:!mapLocked,scrollWheel:!mapLocked,keyboardShortcuts:!mapLocked,disableDoubleTapZoom:mapLocked,disableDoubleClickZoom:mapLocked,disableTwoFingerTapZoom:mapLocked});}
 function renderMap(){if(!map)return;const d=day(),places=routePlaces();const r=d.result;const routePanelVisible=!matchMedia('(max-width:768px)').matches||document.body.dataset.mobileView==='map';const signature=JSON.stringify([document.body.dataset.tripStep,d.id,routePanelVisible,map.getZoom(),...places.map(x=>[x.id,x.name,x.lat,x.lng,x.category])]);if(signature===sceneSignature&&r===sceneResult){if(mapFitQueued)resizeMapStable();return;}sceneSignature=signature;sceneResult=r;overlayRenderCount++;clearMap();if(!places.length)return;
  // YeoPins owns the shared 44px presentation and the real-coordinate anchor (22,52).
