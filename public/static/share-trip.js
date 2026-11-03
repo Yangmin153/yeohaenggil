@@ -1,5 +1,4 @@
 import {snapshotDays,encodeSnapshot,summaryText,getPreviewURL} from './shared-trip-core.js';
-import {buildTripCard,downloadBlob,shareImage} from './trip-card.js';
 const $=id=>document.getElementById(id),panel=$('yg-share-panel'),notice=$('yg-share-feedback');
 let data=null,link='',busy=false;
 function msg(message){notice.hidden=false;notice.textContent=message;}
@@ -33,15 +32,6 @@ async function act(action){
     try{await navigator.share({title:'여행길 · 함께 보는 여행 일정',text});msg('공유 메뉴에서 카카오톡을 선택할 수 있어요.');}
     catch(e){if(e.name!=='AbortError')throw e;}
    }else{await copy(text);msg('일정과 링크를 복사했어요. 카카오톡에 붙여 넣어 보내세요.');}
-  }else if(action==='save'||action==='image'){
-   const chosen=day();if(!chosen)throw Error('저장할 여행 날짜가 없어요.');
-   msg('방문 순서 이미지를 만들고 있어요…');
-   const blob=await buildTripCard(chosen);
-   if(action==='save'){await downloadBlob(blob,'여행길-'+chosen.t+'.png');msg('이 날짜의 PNG 이미지를 저장했어요.');}
-   else{
-    const sent=await shareImage(blob,chosen);
-    msg(sent?'공유 메뉴에서 카카오톡을 선택할 수 있어요.':'PNG를 저장했어요. 카카오톡에서 사진을 첨부해 주세요.');
-   }
   }
  }catch(e){if(e.name!=='AbortError')msg(e.message||'공유 중 문제가 발생했어요.');}
  finally{busy=false;panel.querySelectorAll('button').forEach(b=>b.disabled=false);}
