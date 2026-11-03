@@ -17,7 +17,10 @@ export async function GET(request){
   if(!/^\d{1,2}\.\d{1,6},\d{2,3}\.\d{1,6}$/.test(item))return fail('장소 좌표를 확인해 주세요.',422);
   const [x,y]=item.split(',').map(Number);points.push({x,y});
  }
- const standard=staticMapLayout(points);
+ const width=Number(url.searchParams.get('w')||904),height=Number(url.searchParams.get('h')||285);
+ if(!Number.isInteger(width)||width<320||width>1024||!Number.isInteger(height)||height<240||height>1024)
+  return fail('지도 크기 범위를 확인해 주세요.',422);
+ const standard=staticMapLayout(points,width,height);
  if(!standard||points.length!==standard.pixels.length)return fail('대한민국 지도 범위의 장소를 선택해 주세요.',422);
  const focusValue=url.searchParams.get('f')||'';
  let map=standard;
