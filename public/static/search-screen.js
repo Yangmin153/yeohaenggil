@@ -152,13 +152,24 @@ function clearMarkers(){
 }
 function clearSavedMarkers(){for(const marker of savedMarkers)try{marker.setMap(null);}catch(error){console.warn('저장된 장소 마커 정리 중 오류',error?.message||error);}savedMarkers=[];}
 function savedPlaces(){return window.TripApp?.getDay?.()?.stops||[];}
-function updateSavedButton(){const n=savedPlaces().length;const button=$('search-screen-count');button.textContent='담은 장소 보기';button.setAttribute('aria-label','담은 장소 '+n+'곳 보기');}
+function updateSavedButton(){
+ const d=window.TripApp?.getDay?.(),items=[...(d?.stops||[]),d?.origin,d?.destination].filter(window.YGPlaceRoles?.configured||(()=>false));
+ const unique=[];
+ for(const p of items)if(!unique.some(q=>window.YGPlaceRoles?.same?.(p,q)))unique.push(p);
+ const n=unique.length,button=$('search-screen-count');
+ button.textContent='담은 장소 '+n+'곳';
+ button.setAttribute('aria-label','담은 장소 '+n+'곳과 출발·도착 설정 보기');
+}
 function existingPlaces(){
  const d=window.TripApp?.getDay?.();if(!d)return [];
  return [...savedPlaces().map(place=>({place,kind:'pending'})),
   ...(['origin','destination'].filter(kind=>d[kind]&&Number.isFinite(d[kind].lat)&&Number.isFinite(d[kind].lng)&&!/미설정/.test(d[kind].name||'')).map(kind=>({place:d[kind],kind})))];
 }
 function endpointMode(){return searchKind==='origin'||searchKind==='destination';}
+function showRoleOptions(){
+ const available=!endpointMode()&&opened;
+ for(const id of ['search-picked-origin','search-picked-destination'])$(id).hidden=!available;
+}
 function actionText(){return searchKind==='origin'?'출발지로 설정':searchKind==='destination'?'도착지로 설정':'+ 방문지 추가';}
 function showSaved(place){
  rememberCamera();selected=place;previewSource='saved';isSavedSelection=true;
@@ -167,7 +178,7 @@ function showSaved(place){
  $('search-picked-address').textContent=(place.address||'')+' · 이미 담은 장소';
  $('search-picked-add').textContent=endpointMode()?actionText():'이미 추가됨';
  $('search-picked-add').disabled=!endpointMode();
- picked.hidden=false;showMode('map');paintMarkers();
+ picked.hidden=false;showRoleOptions();showMode('map');paintMarkers();
  if(searchMap)searchMap.panTo(new window.naver.maps.LatLng(place.lat,place.lng));
 }
 /**
@@ -237,6 +248,7 @@ function clearPreview({restoreCamera=true}={}){
  const hadSelection=Boolean(selected);
  selected=null;previewSource=null;isSavedSelection=false;
  picked.hidden=true;
+ $('search-picked-origin').hidden=true;$('search-picked-destination').hidden=true;
  $('search-picked-add').disabled=false;
  $('search-picked-cancel').textContent='취소';
  if(hadSelection&&restoreCamera&&previewCamera&&searchMap){
@@ -254,7 +266,7 @@ function preview(item,source='result'){
  $('search-picked-add').disabled=false;$('search-picked-add').textContent=actionText();
  $('search-picked-name').textContent=String(item.name||'선택한 위치');
  $('search-picked-address').textContent=String(item.address||'지도에서 선택한 장소');
- picked.hidden=false;
+ picked.hidden=false;showRoleOptions();
  showMode('map');
  if(!searchMap)maybeMap();
  paintMarkers();
@@ -310,7 +322,7 @@ function show(kind='stop',options={}){
  $('search-stage-label').textContent=searchKind==='origin'?'출발지 검색':searchKind==='destination'?'도착지 검색':'방문지 검색';
  $('search-stage-help').textContent=searchKind==='origin'
   ?'어디서 출발하시나요?'
-  :searchKind==='destination'?'마지막 도착지는 어디인가요?':'검색 결과에서 가고 싶은 장소를 담아 주세요.';
+  :searchKind==='destination'?'마지막 도착지는 어디인가요?':'장소를 담거나 바로 출발·도착으로 지정할 수 있어요.';
  updateSavedButton();
  screen.hidden=false;screen.querySelector('#search-screen-form-mount').append(form);resultMount.append(results);
  window.YGScrollLock?.lock('search-screen');document.body.classList.add('search-open');lockBackground();
@@ -370,6 +382,14 @@ function completeEndpoint(item){
  if(placeId)requestAnimationFrame(()=>window.TripApp?.focusPlace?.(placeId));
  return true;
 }
+function chooseRole(kind){
+ if(!selected||endpointMode())return;
+ const result=window.TripApp?.setCollectedRoleFromSearch?.(selected,kind);
+ if(!result?.ok)return notify(result?.error||'역할을 지정하지 못했어요.');
+ hide();
+ window.TripApp?.toast?.(kind==='origin'?'출발지로 지정했어요.':'도착지로 지정했어요.');
+ if(result.id)requestAnimationFrame(()=>window.TripApp?.focusPlace?.(result.id));
+}
 function chooseAdd(){
  if(!selected||(!endpointMode()&&isSavedSelection))return;
  const ok=endpointMode()?completeEndpoint(selected):window.TripQuickAdd?.addPlace?.(selected);
@@ -378,6 +398,8 @@ function chooseAdd(){
 $('search-screen-back').addEventListener('click',()=>hide());
 $('search-list-toggle').addEventListener('click',()=>showMode(mode==='list'?'map':'list'));
 $('search-picked-add').addEventListener('click',chooseAdd);
+$('search-picked-origin').addEventListener('click',()=>chooseRole('origin'));
+$('search-picked-destination').addEventListener('click',()=>chooseRole('destination'));
 $('search-picked-cancel').addEventListener('click',()=>clearPreview());
 // The saved-place list can be opened without changing the current step.
 input.addEventListener('input',()=>{if(opened)clearPreview({restoreCamera:false});});
@@ -400,7 +422,7 @@ document.addEventListener('trip:endpoint-changed',()=>{if(opened)paintMarkers();
 document.addEventListener('trip:stops-changed',()=>{if(opened){paintMarkers();updateSavedButton();}});
 document.addEventListener('trip:day-changed',()=>{if(opened){clearPreview({restoreCamera:false});paintMarkers();updateSavedButton();}});
 window.addEventListener('resize',()=>{if(opened&&mode==='map')paintMarkers();});
-$('search-screen-count').addEventListener('click',()=>window.YeoNext?.openSheet?.());
+$('search-screen-count').addEventListener('click',()=>{hide();window.YeoNext?.expandPlaceList?.();});
 window.YeoSearch={show,hide,isOpen:()=>opened,returnStep:()=>returnStep,mode:()=>searchKind,isEndpointMode:endpointMode,completeEndpoint,preview,clearPreview,focusAdded,showSavedPlace:showSaved,searchStarted,onResults,notify,addSuccess,refreshSavedMarkers,
  getMapDiagnostics:()=>({
   viewMode:mode,stage:searchKind,selectedName:selected?.name||null,

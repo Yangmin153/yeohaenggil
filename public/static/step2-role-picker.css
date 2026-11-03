@@ -1,0 +1,127 @@
+/* v8.1 — one saved-place list, with departure/arrival role selectors. */
+body[data-trip-step="2"] #yg-endpoint-section{display:none!important}
+body[data-trip-step="2"] #yg-step-two-intro h1{font-size:22px!important;line-height:1.25!important}
+body[data-trip-step="2"] #yg-step-two-intro p{font-size:12px!important;line-height:1.5!important}
+body[data-trip-step="2"] #yg-daily-editor{display:block!important}
+body[data-trip-step="2"] #yg-day-stop-sub{font-size:12px!important;line-height:1.5!important;color:#678078!important}
+body[data-trip-step="2"] #yg-role-status{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:2px 0;
+}
+body[data-trip-step="2"] #yg-role-status>div{
+ display:flex;align-items:center;min-width:0;gap:6px;
+ border:1px solid #e3eeeb;background:#f8fbfa;border-radius:12px;padding:8px 10px;
+}
+body[data-trip-step="2"] #yg-role-status strong{
+ overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0;
+ color:#28423d;font-size:12px!important;line-height:1.5;font-weight:750;
+}
+body[data-trip-step="2"] .yg-role-status-tag{
+ flex:0 0 auto;display:inline-grid;place-items:center;
+ border-radius:7px;min-width:34px;height:25px;padding:0 4px;
+ font-size:12px;font-weight:800;color:#fff;line-height:1
+}
+body[data-trip-step="2"] .yg-role-status-tag.is-start{background:#2172ca}
+body[data-trip-step="2"] .yg-role-status-tag.is-end{background:#d37e45}
+body[data-trip-step="2"] #yg-day-inherit{
+ display:flex!important;flex-wrap:wrap;gap:6px 12px;
+ margin:6px 0 2px!important;padding:0 0 8px;
+ border-bottom:1px solid #e7efeb;
+}
+body[data-trip-step="2"] #yg-day-inherit[hidden]{display:none!important}
+body[data-trip-step="2"] #yg-day-inherit label{
+ display:flex;align-items:center;gap:6px;font-size:12px!important;
+ line-height:1.5;min-height:36px;color:#45625a
+}
+body[data-trip-step="2"] #yg-open-stops{margin-top:6px!important}
+body[data-trip-step="2"] #yg-inline-stops{
+ display:block;min-height:0;max-height:min(370px,46dvh);padding:6px 10px!important;
+ overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;
+ background:#fff;border:1px solid #e6eeeb;border-radius:14px;
+}
+body[data-trip-step="2"] #yg-inline-stops[hidden]{display:none!important}
+body[data-trip-step="2"] .yg-role-empty{
+ padding:28px 10px;text-align:center;color:#748981;
+ font-size:12px;line-height:1.5
+}
+body[data-trip-step="2"] .yg-role-place{padding:10px 0;border-bottom:1px solid #edf1ef}
+body[data-trip-step="2"] .yg-role-place:last-child{border-bottom:0}
+body[data-trip-step="2"] .yg-role-place-main{
+ display:flex;align-items:center;gap:8px;min-width:0;
+}
+body[data-trip-step="2"] .yg-role-place-icon{
+ display:grid;place-items:center;flex:0 0 32px;height:32px;
+ border-radius:10px;background:#e7f7f1;color:#008d79
+}
+body[data-trip-step="2"] .yg-role-place-icon svg{width:20px;height:20px}
+body[data-trip-step="2"] .yg-role-place-focus{
+ border:0;background:transparent;display:grid;align-content:center;
+ flex:1;min-width:0;gap:2px;padding:0;min-height:44px;text-align:left
+}
+body[data-trip-step="2"] .yg-role-place-focus strong{
+ font-size:14px!important;line-height:1.5!important;color:#253d37;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+body[data-trip-step="2"] .yg-role-place-focus small{
+ font-size:12px!important;line-height:1.5!important;color:#81918c;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+body[data-trip-step="2"] .yg-role-place-delete{
+ flex:0 0 40px;width:40px;min-height:44px;border:0!important;
+ border-radius:10px;background:#f4f6f5!important;color:#7e8c89!important;
+ font-size:20px!important
+}
+body[data-trip-step="2"] .yg-role-place-delete:disabled{opacity:.3}
+body[data-trip-step="2"] .yg-place-role-actions{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;
+ margin:6px 0 0 40px;
+}
+body[data-trip-step="2"] .yg-place-role-actions button{
+ min-height:40px!important;padding:5px 8px!important;border-radius:9px!important;
+ border:1px solid #dfe9e5!important;background:#f9fbfa!important;
+ font-size:12px!important;color:#647c72!important;font-weight:800;line-height:1.5
+}
+body[data-trip-step="2"] .yg-place-role-actions button.is-active.is-stop{
+ border-color:#10a58a!important;background:#e4f8f1!important;color:#007f6c!important
+}
+body[data-trip-step="2"] .yg-place-role-actions button.is-active.is-origin{
+ border-color:#2172ca!important;background:#e9f2ff!important;color:#155eab!important
+}
+body[data-trip-step="2"] .yg-place-role-actions button.is-active.is-destination{
+ border-color:#d37e45!important;background:#fff3e9!important;color:#ad6233!important
+}
+body[data-trip-step="2"] .yg-role-inherited{
+ display:block;margin:6px 0 2px 40px;font-size:12px;line-height:1.5;color:#507266;
+}
+body[data-trip-step="2"] .yg-role-place button:focus-visible{
+ outline:2px solid #008d79;outline-offset:2px
+}
+#search-screen .yg-search-role-choice[hidden]{display:none!important}
+#search-screen .search-picked-actions{
+ display:grid!important;grid-template-columns:1fr 1.8fr!important;
+ gap:7px!important;width:100%;min-width:0
+}
+#search-screen .search-picked-actions>button{
+ flex:none!important;min-height:44px!important;font-size:12px!important;
+ padding:8px 10px!important;line-height:1.5!important
+}
+#search-screen #search-picked-cancel{grid-column:1;grid-row:1}
+#search-screen #search-picked-add{grid-column:2;grid-row:1}
+#search-screen #search-picked-origin{
+ grid-column:1;grid-row:2;background:#e8f2ff!important;color:#1b64b7!important;
+ border:1px solid #c8ddfa!important
+}
+#search-screen #search-picked-destination{
+ grid-column:2;grid-row:2;background:#fff3e8!important;color:#ad622d!important;
+ border:1px solid #f3dac2!important
+}
+body[data-trip-step="2"] #yg-daily-editor,
+body[data-trip-step="2"] #yg-daily-editor *,
+#search-screen .search-picked-actions button{
+ font-family:Pretendard,"Pretendard Variable",sans-serif;letter-spacing:-.03em
+}
+@media(max-width:370px){
+ body[data-trip-step="2"] #yg-daily-editor{padding:10px!important}
+ body[data-trip-step="2"] .yg-place-role-actions{margin-left:0}
+ body[data-trip-step="2"] #yg-role-status{gap:5px}
+ body[data-trip-step="2"] #yg-role-status>div{padding:7px 6px}
+}

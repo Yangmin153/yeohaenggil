@@ -68,11 +68,40 @@ function setEndpointFromSearch(kind,item){
  document.dispatchEvent(new Event('trip:endpoint-changed'));
  return true;
 }
+function setCollectedRole(id,role){
+ const result=window.YGPlaceRoles?.select?.(day(),state.active,id,role,uid);
+ if(!result?.ok)return result||{ok:false,error:'장소를 변경할 수 없어요.'};
+ if(!result.changed)return result;
+ syncLinkedOrigins(state.active+1);
+ invalidateRoutes();selectedMapStop=null;refresh();
+ document.dispatchEvent(new Event('trip:stops-changed'));
+ document.dispatchEvent(new Event('trip:endpoint-changed'));
+ return result;
+}
+function removeCollectedPlace(id){
+ const result=window.YGPlaceRoles?.remove?.(day(),state.active,id,uid);
+ if(!result?.ok)return result||{ok:false,error:'장소를 삭제할 수 없어요.'};
+ syncLinkedOrigins(state.active+1);
+ invalidateRoutes();selectedMapStop=null;refresh();
+ document.dispatchEvent(new Event('trip:stops-changed'));
+ document.dispatchEvent(new Event('trip:endpoint-changed'));
+ return result;
+}
+function setCollectedRoleFromSearch(item,role){
+ if(!['origin','destination'].includes(role)||!validPlace(item))return {ok:false,error:'장소를 확인해 주세요.'};
+ const same=window.YGPlaceRoles?.same;
+ const existing=[...day().stops,day().origin,day().destination].find(p=>window.YGPlaceRoles?.configured?.(p)&&same?.(p,{...item,sourceId:String(item.id||item.sourceId||'')}));
+ if(existing)return setCollectedRole(existing.id,role);
+ const added=addQuickStop(item,false);
+ if(!added.ok)return {ok:false,error:added.error||'장소를 담지 못했어요.'};
+ return setCollectedRole(added.stop.id,role);
+}
 function addQuickStop(item,allowDuplicate=false){
  if(!validPlace(item))return {ok:false,error:'올바른 장소를 선택해 주세요.'};
  const d=day();
  if(d.stops.length>=30)return {ok:false,error:'하루에 최대 30곳까지 담을 수 있어요.'};
- const duplicate=d.stops.some(x=>(Boolean(x.sourceId)&&x.sourceId===String(item.id))||(Math.abs(x.lat-item.lat)<0.00003&&Math.abs(x.lng-item.lng)<0.00003&&x.name===item.name));
+ const incoming={...item,sourceId:String(item.id||item.sourceId||'')};
+ const duplicate=[...d.stops,d.origin,d.destination].some(x=>window.YGPlaceRoles?.configured?.(x)&&window.YGPlaceRoles?.same?.(x,incoming));
  if(duplicate&&!allowDuplicate)return {ok:false,duplicate:true};
  const stop={id:uid(),name:String(item.name).slice(0,100),lat:Number(item.lat),lng:Number(item.lng),address:String(item.address||'').slice(0,250),category:TripMeta.infer({categoryName:item.category,name:item.name}),sourceId:String(item.id||''),locked:false,fixedDate:d.date||null};
  d.stops.push(stop);if(d.result)state.dirtyDayIds.add(d.id);d.result=null;
@@ -234,6 +263,13 @@ function setRouteMode(mode,index=state.active){
 function setDayOriginMode(index,mode){
  const d=state.days[index];if(index===0||!d||!['inherit','custom'].includes(mode))return false;
  if(mode==='inherit'){
+  if(d.originMode==='custom'&&window.YGPlaceRoles?.configured?.(d.origin)){
+   const prev=state.days[index-1]?.destination;
+   if(!window.YGPlaceRoles?.same?.(d.origin,prev)){
+    const moved=window.YGPlaceRoles?.select?.(d,index,d.origin.id,'stop',uid);
+    if(!moved?.ok){toast(moved?.error||'이전 출발지를 보관하지 못했어요.');return false;}
+   }
+  }
   d.originMode='inherit';syncLinkedOrigins(index);
  }else{
   if(d.originMode!=='custom')d.origin=p('출발지 미설정',d.origin.lat,d.origin.lng);
@@ -727,6 +763,6 @@ window.TripApp = Object.freeze({
  importDays(days){if(!validDays(days))return false;clearTimeout(pendingCalc);liveRoutes.clear();state.days=normalizeDays(days);state.active=0;state.dirtyDayIds.clear();refresh();document.dispatchEvent(new Event('trip:days-imported'));return true},
  refresh, calculateRoute, openModal, toast, markDirty,applyLiveRoute,restorePlannedRoute,exportCloudDays,
  resizeMap:()=>resizeMapStable({fit:mapFitQueued}),refreshMap:renderMap,getMap:()=>map,fitMap,focusPlace,setMapLocked,
- setDayCount,setTravelDates,syncLinkedOrigins,setStopFixedDate,allStops,unassignedStops,moveUnassignedToActive,removeStop,clearComputed,applyMultiRoutes,applyDailyRoutes,setRouteMode,setDayOriginMode,reorderStop,setRouteStopLocked,moveRouteStop,setRouteStopPosition,centerMapAtRegion,getMapDiagnostics:()=>({created:mapCreateCount,resizes:mapResizeCount,overlays:overlayRenderCount,ready:!!map,visible:mapHasArea()}),getRegion:currentRegion,setRegion,addQuickStop,setEndpointFromSearch,previewPlace,clearPlacePreview,
+ setDayCount,setTravelDates,syncLinkedOrigins,setStopFixedDate,allStops,unassignedStops,moveUnassignedToActive,removeStop,removeCollectedPlace,setCollectedRole,setCollectedRoleFromSearch,clearComputed,applyMultiRoutes,applyDailyRoutes,setRouteMode,setDayOriginMode,reorderStop,setRouteStopLocked,moveRouteStop,setRouteStopPosition,centerMapAtRegion,getMapDiagnostics:()=>({created:mapCreateCount,resizes:mapResizeCount,overlays:overlayRenderCount,ready:!!map,visible:mapHasArea()}),getRegion:currentRegion,setRegion,addQuickStop,setEndpointFromSearch,previewPlace,clearPlacePreview,
 });
 boot();

@@ -5,7 +5,7 @@
 const app=window.TripApp,$=id=>document.getElementById(id);
 if(!app||!$('yg-step-one'))return;
 const MS=86400000,MAX_DAYS=10,escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-let currentStep=1,busy=false,sheetOpen=false,inlineExpanded=false,sheetFreeze=null,lastWarnings=[],dragStartY=0,selectedAdjustId=null,editingAdjustId=null;
+let currentStep=1,busy=false,sheetOpen=false,inlineExpanded=true,sheetFreeze=null,lastWarnings=[],dragStartY=0,selectedAdjustId=null,editingAdjustId=null;
 const days=()=>app.getDays(),day=()=>app.getDay(),stops=()=>day().stops;
 function ms(value){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return NaN;
@@ -20,6 +20,12 @@ function dateText(value,{short=false}={}){
 }
 function duration(start,end){const a=ms(start),b=ms(end);return Number.isFinite(a)&&Number.isFinite(b)?Math.round((b-a)/MS)+1:0;}
 function configured(p){return p&&!/미설정/.test(p.name||'')&&Number.isFinite(p.lat)&&Number.isFinite(p.lng);}
+function uniquePlaces(d){
+ const all=[d.origin,...d.stops,d.destination].filter(configured);
+ const distinct=[];
+ for(const p of all)if(!distinct.some(q=>window.YGPlaceRoles?.same?.(p,q)))distinct.push(p);
+ return distinct;
+}
 function error(message){$('yg-stage-one-error').textContent=message;$('yg-stage-one-error').hidden=!message;}
 function renderDates(){/* Date cards were removed from STEP 1; only the duration is visible. */}
 function syncDateRange(){
@@ -51,9 +57,11 @@ function renderDaily(){
  $('yg-origin-pick').disabled=inherit;
  $('yg-dest-display').textContent=configured(d.destination)?d.destination.name:'마지막으로 어디에 도착하나요?';
  $('yg-dest-sub').textContent=d.destination.address||'숙소, 공항 등 하루를 마치는 장소';
- const count=d.stops.length,pending=app.unassignedStops().length;
+ const count=uniquePlaces(d).length,pending=app.unassignedStops().length;
  $('yg-day-stop-count').textContent=count+'곳';
- $('yg-day-stop-sub').textContent='';
+ $('yg-day-stop-sub').textContent='장소를 담고 목록에서 출발·도착을 골라 주세요.';
+ $('yg-role-status-origin').textContent=configured(d.origin)?d.origin.name:'아직 미지정';
+ $('yg-role-status-destination').textContent=configured(d.destination)?d.destination.name:'아직 미지정';
  $('yg-empty-inline').hidden=count!==0;
  $('yg-stop-count').textContent=count+'곳';
  $('yg-legacy-stops').hidden=!pending;
@@ -124,7 +132,7 @@ async function applyVisitPosition(){
 function renderSheet(){
  const d=day(),items=d.stops;
  $('yg-sheet-count').textContent=String(items.length);
- $('yg-stop-count').textContent=items.length+'곳';
+ $('yg-stop-count').textContent=uniquePlaces(d).length+'곳';
  $('yg-sheet-date').textContent=dateText(d.date,{short:true})+' · 이 날짜에 담은 장소';
  $('yg-sheet-list').innerHTML=items.length?items.map(p=>{
   const name=escape(p.name),cat=window.TripMeta?.meta?.(p)?.label||p.category||'장소';
@@ -136,18 +144,48 @@ function renderSheet(){
  }).join(''):'<div class="yg-empty-sheet"><strong>아직 담은 장소가 없어요.</strong><p>가고 싶은 장소를 검색해서 추가해 보세요.</p></div>';
 }
 function renderInlineStops(){
- const list=$('yg-inline-stops');
- if(!list)return;
- list.hidden=!inlineExpanded;
+ const el=$('yg-inline-stops'),d=day();
+ if(!el||!d)return;
+ el.hidden=!inlineExpanded;
  $('yg-open-stops').setAttribute('aria-expanded',String(inlineExpanded));
  $('yg-open-stops').querySelector('span:last-child').textContent=inlineExpanded?'⌃':'⌄';
- if(inlineExpanded)list.innerHTML=$('yg-sheet-list').innerHTML;
+ if(!inlineExpanded)return;
+ const inherited=app.getActive()>0&&d.originMode!=='custom';
+ const raw=[
+  ...(configured(d.origin)?[{p:d.origin,role:'origin',inherited}]:[]),
+  ...d.stops.map(p=>({p,role:'stop',inherited:false})),
+  ...(configured(d.destination)?[{p:d.destination,role:'destination',inherited:false}]:[])
+ ];
+ const locations=[];
+ for(const item of raw){
+  const same=locations.find(entry=>window.YGPlaceRoles?.same?.(entry.p,item.p));
+  if(same){same.roles.add(item.role);continue;}
+  locations.push({...item,roles:new Set([item.role])});
+ }
+ if(!locations.length){
+  el.innerHTML='<div class="yg-role-empty">장소를 검색해서 추가해 주세요.</div>';
+  return;
+ }
+ el.innerHTML=locations.map(({p,role,roles,inherited:locked})=>{
+  const id=escape(p.id),name=escape(p.name),detail=escape(p.address||window.TripMeta?.meta?.(p)?.label||'저장한 장소');
+  const icon=window.TripMeta?.icon?.(p,18)||'•';
+  const controls=locked?'<span class="yg-role-inherited">전날 도착지에서 출발</span>':
+   '<div class="yg-place-role-actions" role="group" aria-label="'+name+' 역할">'+
+   [['stop','방문지'],['origin','출발'],['destination','도착']].map(([kind,label])=>
+    '<button type="button" data-assign-role="'+kind+'" data-role-place="'+id+'" aria-pressed="'+(roles.has(kind))+'" class="'+(roles.has(kind)?'is-active is-'+kind:'')+'">'+label+'</button>'
+   ).join('')+'</div>';
+  return '<article class="yg-role-place" data-place-id="'+id+'"><div class="yg-role-place-main">'+
+   '<span class="yg-role-place-icon" aria-hidden="true">'+icon+'</span>'+
+   '<button type="button" class="yg-role-place-focus" data-focus-place="'+id+'"><strong>'+name+'</strong><small>'+detail+'</small></button>'+
+   '<button type="button" class="yg-role-place-delete" data-remove-place="'+id+'" '+(locked?'disabled':'')+' aria-label="'+name+' 삭제">×</button>'+
+   '</div>'+controls+'</article>';
+ }).join('');
 }
 function readiness(){
  const missing=[];
  days().forEach(d=>{
   const fields=[];
-  if(!d.stops.length)fields.push('방문지');
+  if(!d.stops.length&&configured(d.origin)&&configured(d.destination)&&Math.abs(d.origin.lat-d.destination.lat)<0.00003&&Math.abs(d.origin.lng-d.destination.lng)<0.00003)fields.push('방문지');
   if(!configured(d.origin))fields.push('출발지');
   if(!configured(d.destination))fields.push('도착지');
   if(fields.length)missing.push(dateText(d.date,{short:true})+' · '+fields.join('·'));
@@ -263,15 +301,15 @@ $('yg-start-date').addEventListener('change',()=>{
 });
 $('yg-end-date').addEventListener('change',syncDateRange);
 // STEP 2: Selecting a date never recreates/stomps another day's stops.
-$('yg-active-date').addEventListener('change',e=>{inlineExpanded=false;app.setActive(Number(e.target.value));});
-$('yg-origin-pick').addEventListener('click',()=>openSearch('origin'));
-$('yg-dest-pick').addEventListener('click',()=>openSearch('destination'));
+$('yg-active-date').addEventListener('change',e=>{inlineExpanded=true;app.setActive(Number(e.target.value));});
+$('yg-origin-pick').addEventListener('click',()=>{inlineExpanded=true;renderInlineStops();});
+$('yg-dest-pick').addEventListener('click',()=>{inlineExpanded=true;renderInlineStops();});
 document.querySelectorAll('[name="yg-origin-choice"]').forEach(radio=>radio.addEventListener('change',()=>{
  if(!radio.checked)return;
  app.setDayOriginMode(app.getActive(),radio.value);
- if(radio.value==='custom')openSearch('origin');
+ if(radio.value==='custom'){inlineExpanded=true;renderInlineStops();}
 }));
-$('yg-add-visit').addEventListener('click',openSearch);
+$('yg-add-visit').addEventListener('click',()=>openSearch());
 $('yg-fit-all').addEventListener('click',()=>{app.fitMap();app.resizeMap();});
 $('yg-legacy-assign').addEventListener('click',()=>{
  const count=app.unassignedStops().length,chosen=day()?.date;
@@ -289,10 +327,26 @@ $('yg-three-recalc').addEventListener('click',calculate);
 $('yg-three-add').addEventListener('click',()=>openSearch());
 $('yg-open-stops').addEventListener('click',()=>{inlineExpanded=!inlineExpanded;renderInlineStops();});
 $('yg-inline-stops').addEventListener('click',e=>{
+ const role=e.target.closest('[data-assign-role]');
+ if(role){
+  const kind=role.dataset.assignRole;
+  const done=app.setCollectedRole(role.dataset.rolePlace,kind);
+  if(!done?.ok)return app.toast(done?.error||'장소 역할을 변경하지 못했어요.');
+  if(done.changed)app.toast(({stop:'방문지',origin:'출발지',destination:'도착지'})[kind]+'로 지정했어요.');
+  if(done.id&&kind!=='stop')app.focusPlace(done.id);
+  return;
+ }
  const remove=e.target.closest('[data-remove-place]');
- if(remove){if(app.removeStop(remove.dataset.removePlace))app.toast('방문지를 삭제했어요.');return;}
+ if(remove){
+  const done=app.removeCollectedPlace(remove.dataset.removePlace);
+  app.toast(done?.ok?'장소를 삭제했어요.':done?.error||'장소 삭제에 실패했어요.');
+  return;
+ }
  const focus=e.target.closest('[data-focus-place]');
- if(focus){app.focusPlace(focus.dataset.focusPlace);$('map-region').scrollIntoView({behavior:'smooth',block:'center'});}
+ if(focus){
+  app.focusPlace(focus.dataset.focusPlace);
+  $('map-region').scrollIntoView({behavior:'smooth',block:'center'});
+ }
 });
 $('yg-route-mode').addEventListener('change',e=>{
  app.setRouteMode(e.target.value);renderDaily();app.toast('계산 방식을 변경했어요. 다시 계산해 주세요.');
@@ -361,6 +415,6 @@ function init(){
  go(d.every(x=>x.date)&&(stored===2||stored===3)&&d.some(x=>x.result||stored===2)?stored:1);
  renderDaily();
 }
-window.YeoNext={go,calculate,renderDaily,renderSheet,openSheet,dateLabel:()=>dateText(day()?.date,{short:true}),searchRegion:()=>''};
+window.YeoNext={go,calculate,renderDaily,renderSheet,openSheet,expandPlaceList:()=>{inlineExpanded=true;renderDaily();},dateLabel:()=>dateText(day()?.date,{short:true}),searchRegion:()=>''};
 init();
 })();
