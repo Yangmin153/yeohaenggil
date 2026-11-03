@@ -94,12 +94,29 @@ try{
  }));
  console.log('ADD_SEARCH_DIAGNOSTICS',JSON.stringify({beforeStop,...status}));
  if(status.count<=beforeStop)throw Error('Search result +add did not increase actual itinerary visit count');
- if(await page.locator('#search-screen').getAttribute('data-search-mode')!=='list')throw Error('Adding a place unexpectedly hid the search results and showed the map');
- if(!(await page.locator('#quick-input').isVisible()))throw Error('Search input disappeared after adding a visit');
-
- console.log('PASS: only search-result buttons add places; map taps never select coordinates');
- // Search remains in the result list after +add and is ready for another query.
- if(await page.locator('#search-screen').getAttribute('data-search-mode')==='map')await page.locator('#search-list-toggle').click();
+ await page.waitForFunction(()=>{
+  const map=window.YeoSearch?.getMapDiagnostics?.(),visits=window.TripApp?.getDay?.()?.stops;
+  const newest=visits?.at(-1);
+  return map?.viewMode==='map'&&map.selectedName===newest?.name&&map.focused&&map.candidates===0&&map.saved>=1&&
+   Math.abs(map.center.lat-newest.lat)<.003&&Math.abs(map.center.lng-newest.lng)<.003;
+ },null,{timeout:16000});
+ console.log('FIRST_MAP_FOCUS',JSON.stringify(await page.evaluate(()=>window.YeoSearch.getMapDiagnostics())));
+ // A second search must work directly from the same visible top search input.
+ await page.locator('#quick-input').fill('광화문광장');
+ await page.locator('#quick-input').press('Enter');
+ await page.locator('#quick-results .quick-direct-add').first().waitFor({timeout:25000});
+ await page.locator('#quick-results .quick-direct-add').first().click();
+ await page.waitForFunction(()=>{
+  const d=window.TripApp?.getDay?.(),map=window.YeoSearch?.getMapDiagnostics?.(),recent=d?.stops?.at(-1);
+  return d?.stops?.length>=3&&map?.viewMode==='map'&&map.selectedName===recent?.name&&map.candidates===0&&map.focused&&map.saved>=2&&
+   Math.abs(map.center.lat-recent.lat)<.003&&Math.abs(map.center.lng-recent.lng)<.003;
+ },null,{timeout:16000});
+ console.log('SECOND_MAP_FOCUS',JSON.stringify(await page.evaluate(()=>({
+  map:window.YeoSearch.getMapDiagnostics(),visits:window.TripApp.getDay().stops.map(s=>({name:s.name,lat:s.lat,lng:s.lng}))
+ }))));
+ console.log('PASS: two consecutive search-only additions recenter Naver map, show all saved stops and hide candidate markers');
+ // The user can always return to search results, without adding map taps.
+ await page.locator('#search-list-toggle').click();
  await page.setViewportSize({width:390,height:520});
  await page.waitForTimeout(350);
  const box=await page.locator('.search-screen-results-mount').boundingBox();
@@ -156,8 +173,24 @@ try{
   feedback:document.querySelector('#search-screen-feedback')?.textContent
  }))));
  await page.waitForFunction(()=>window.YeoSearch?.isOpen?.()&&window.YeoSearch?.mode?.()==='destination',null,{timeout:5000});
- if(!(await page.locator('#search-screen-region').textContent()).includes('도착지 검색'))throw Error('Destination search did not advance automatically');
- console.log('PASS: STEP2 origin selection automatically advances to destination search');
+ if(!(await page.locator('#search-screen-region').textContent()).includes('도착지 선택'))throw Error('Destination search heading did not update');
+ if(await page.locator('#search-screen').getAttribute('data-search-kind')!=='destination')throw Error('Destination color stage was not activated');
+ if(!(await page.locator('#search-stage-help').textContent()).includes('도착지'))throw Error('Destination hint did not update');
+ if(!(await page.locator('#search-transition-toast').textContent()).includes('출발지를 설정했어요. 이제 도착지를 선택해 주세요.'))throw Error('Origin-to-destination confirmation was not shown');
+ if(!(await page.locator('#search-transition-toast').isVisible()))throw Error('Origin transition notice was not visible');
+ console.log('PASS: origin-to-destination handoff changes title, warm color, hint and one unobtrusive confirmation');
+ await page.locator('#quick-input').fill('서울역');
+ await page.locator('#quick-input').press('Enter');
+ await page.locator('#quick-results .quick-direct-add').first().waitFor({timeout:25000});
+ await page.locator('#quick-results .quick-direct-add').first().click();
+ await page.waitForFunction(()=>document.querySelector('#search-screen')?.hidden&&document.querySelector('#toast')?.textContent?.includes('출발지와 도착지를 설정했어요.'),null,{timeout:12000});
+ const completed=await page.evaluate(()=>({
+  origin:window.TripApp?.getDay?.()?.origin?.name,destination:window.TripApp?.getDay?.()?.destination?.name,
+  originShown:document.querySelector('#yg-origin-display')?.textContent,destinationShown:document.querySelector('#yg-dest-display')?.textContent,
+  step:document.body.dataset.tripStep
+ }));
+ if(completed.step!=='2'||completed.origin!==completed.originShown||completed.destination!==completed.destinationShown)throw Error('Selected endpoints were not reflected in STEP2');
+ console.log('PASS: selected destination returns to STEP2 with both endpoints rendered',JSON.stringify(completed));
 }catch(e){
  console.error('DESIGN_SMOKE_FAILED',e.stack||e.message);
  await page.screenshot({path:'/tmp/yg-design-smoke-error.png'}).catch(()=>{});
