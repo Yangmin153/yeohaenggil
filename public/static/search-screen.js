@@ -208,8 +208,7 @@ function paintMarkers(){
   refreshSavedMarkers();selectedMarker=mark(selected,true);
   return;
  }
-  // Search candidates never appear as map pins. Only stored places remain.
-  refreshSavedMarkers();
+ // Search candidates never appear as map pins. Only stored places remain.
  refreshSavedMarkers();
 }
 function showMode(next){
