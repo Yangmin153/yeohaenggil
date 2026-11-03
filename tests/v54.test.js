@@ -55,7 +55,7 @@ test('v5.4 search map shows added places distinctly and refreshes selected DAY l
 });
 test('v5.4 modified application scripts remain syntactically valid',async()=>{
  for(const f of ['public/static/app.js','public/static/search-screen.js']){
-  const source=await read(f);assert.doesNotThrow(()=>new Function(source),f);
+  const source=await read(f);assert.doesNotThrow(()=>new Function(source.replace(/^import .*;\s*$/gm,'')),f);
  }
  const quick=await read('public/static/quick-add.js');
  assert.doesNotThrow(()=>new Function(quick.replace(/^import .*;\s*$/gm,'')));
