@@ -125,6 +125,21 @@ try{
  await page.locator('#quick-input').fill('경복궁');
  await page.locator('#quick-input').press('Enter');
  await page.locator('#quick-results .quick-direct-add').first().waitFor({timeout:25000});
+ await page.evaluate(()=>{
+  window.__endpointTrace={events:[],before:{kind:window.YeoSearch?.mode?.(),open:window.YeoSearch?.isOpen?.()}};
+  const endpoint=window.YeoSearch.completeEndpoint;
+  window.YeoSearch.completeEndpoint=(place)=>{
+   window.__endpointTrace.events.push({event:'completeEndpoint',name:place?.name});
+   const ok=endpoint(place);window.__endpointTrace.events.push({event:'return',ok});
+   return ok;
+  };
+  const preview=window.YeoSearch.preview;
+  window.YeoSearch.preview=(place,...rest)=>{
+   window.__endpointTrace.events.push({event:'preview',name:place?.name});
+   return preview(place,...rest);
+  };
+ });
+ console.log('ENDPOINT_SELECT_BUTTON',await page.locator('#quick-results .quick-direct-add').first().textContent());
  await page.locator('#quick-results .quick-direct-add').first().click();
  await page.waitForTimeout(800);
  console.log('ENDPOINT_AUTO_DIAGNOSTICS',JSON.stringify(await page.evaluate(()=>({
@@ -133,7 +148,10 @@ try{
   destination:window.TripApp?.getDay?.()?.destination?.name,
   heading:document.querySelector('#search-screen-region')?.textContent,
   toast:document.querySelector('#toast')?.textContent,
-  history:history.state,hash:location.hash
+  history:history.state,hash:location.hash,trace:window.__endpointTrace,
+  pickedHidden:document.querySelector('#search-picked')?.hidden,
+  quickButtons:[...document.querySelectorAll('#quick-results .quick-direct-add')].slice(0,3).map(x=>({text:x.textContent,disabled:x.disabled})),
+  feedback:document.querySelector('#search-screen-feedback')?.textContent
  }))));
  await page.waitForFunction(()=>window.YeoSearch?.isOpen?.()&&window.YeoSearch?.mode?.()==='destination',null,{timeout:5000});
  if(!(await page.locator('#search-screen-region').textContent()).includes('도착지 검색'))throw Error('Destination search did not advance automatically');
