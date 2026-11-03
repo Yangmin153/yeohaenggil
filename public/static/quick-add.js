@@ -111,8 +111,9 @@ async function search(force=false,all=false){
 function feedback(msg){const el=$('quick-feedback');el.hidden=false;el.textContent=msg;clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>el.hidden=true,2300);app.toast(msg);}
 function add(item,button=null){
  if(window.YeoSearch?.isOpen?.()&&window.YeoSearch?.isEndpointMode?.()){
-  window.YeoSearch.preview(item);
-  return true;
+  // A tap on a verified search result immediately sets the endpoint; the map
+  // itself never accepts manually chosen locations.
+  return window.YeoSearch.completeEndpoint(item);
  }
  if(window.YeoRegion&&!window.YeoRegion.ensureSelected())return false;
  const duplicate=app.getDay().stops.some(x=>samePlace(x,item));
