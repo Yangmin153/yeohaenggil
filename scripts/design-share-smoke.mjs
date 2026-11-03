@@ -23,11 +23,14 @@ try{
   throw new Error('Naver Static Map API must be enabled and return an actual image.');
  }
  if(!String(mapResp.headers()['content-type']).startsWith('image/'))throw Error('Static Map response is not an image');
- const save=page.waitForEvent('download',{timeout:20000});
- await page.locator('#sv-save-card').click();
- const downloaded=await save;
- if(!downloaded.suggestedFilename().endsWith('.png'))throw Error('PNG not downloaded');
- console.log('PASS: view-only page and PNG download',downloaded.suggestedFilename());
+ if(await page.locator('#sv-save-card').count()||await page.locator('#sv-share-card').count())throw Error('Old PNG actions should be removed');
+ const mapSvg=await page.locator('#sv-fallback-map rect').getAttribute('fill');
+ if(mapSvg!=='transparent')throw Error('Map marker overlay must not cover the Naver map image');
+ await page.locator('[data-focus-index="1"]').click();
+ const info=await page.locator('#sv-map-caption').textContent();
+ if(!info.includes('북촌한옥마을'))throw Error('Selected timeline place was not focused in map');
+ await page.locator('#sv-map-fit').click();
+ console.log('PASS: view-only Naver map tiles, transparent pins, map focus/fit, no PNG controls');
  const config=await page.evaluate(async()=>{
    const r=await fetch('/api/config');const cfg=await r.json();
    return {status:r.status,supabaseReady:cfg.supabaseReady,match:cfg.supabaseUrl==='https://halbesrgdvjdzrvmdyxy.supabase.co',mapKeyPresent:Boolean(cfg.mapsKeyId)};
@@ -49,11 +52,18 @@ try{
  await page.locator('#yg-share-link').waitFor({state:'visible'});
  const link=await page.locator('#yg-share-link').inputValue();
  if(!link.includes('/view.html#trip='))throw Error('No view-only URL generated');
- const png=page.waitForEvent('download',{timeout:20000});
- await page.locator('[data-share-action="save"]').click();
- if(!(await png).suggestedFilename().endsWith('.png'))throw Error('Share modal PNG missing');
- console.log('PASS: share modal actual browser copy-link/PNG UI');
+ if(await page.locator('[data-share-action="save"]').count()||await page.locator('[data-share-action="image"]').count())throw Error('Share modal still exposes PNG');
+ if(await page.locator('[data-share-action="copy"]').count()!==1||await page.locator('[data-share-action="text"]').count()!==1)throw Error('Link and text actions are required');
+ console.log('PASS: share modal offers view-only link and detailed text, no PNG actions');
  await page.locator('#yg-share-close').click();
+ // Selecting the first date must not change existing dates until the second is chosen.
+ await page.locator('[data-yg-step="1"]').click();
+ await page.locator('#yg-date-range-open').click();
+ await page.locator('[data-date="2026-11-06"]').click();
+ if(await page.locator('#yg-start-date').inputValue()!=='2026-11-03')throw Error('First calendar click overwrote original itinerary');
+ await page.locator('[data-date="2026-11-08"]').click();
+ if(await page.locator('#yg-start-date').inputValue()!=='2026-11-06'||await page.locator('#yg-end-date').inputValue()!=='2026-11-08')throw Error('Two-click date range failed');
+ console.log('PASS: airline date range waits until both departure and return are selected');
  // Search layout check: shrinking viewport simulates the area remaining above a keyboard.
  await page.locator('[data-yg-step="2"]').click();
  await page.locator('#yg-add-visit').click();
