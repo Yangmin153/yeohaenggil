@@ -6,6 +6,7 @@ const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 const ctx=await browser.newContext({viewport:{width:390,height:780},deviceScaleFactor:1,acceptDownloads:true,locale:'ko-KR'});
 const page=await ctx.newPage();page.setDefaultTimeout(18000);
 page.on('pageerror',e=>console.log('PAGE_ERROR',e.message));
+page.on('response',r=>{if(r.status()>=400&&/naver|map|config/i.test(r.url())){try{const u=new URL(r.url());console.log('MAP_HTTP_ERROR',r.status(),u.host+u.pathname)}catch{}}});
 page.on('console',m=>{if(['error','warning'].includes(m.type()))console.log('PAGE_CONSOLE_'+m.type(),m.text().slice(0,500));});
 const place=(id,name,lat,lng)=>({id,name,lat,lng,address:'서울특별시 종로구'});
 const start=place('s','경복궁',37.5797,126.977),end=place('e','서울역',37.5547,126.9707),one=place('1','북촌한옥마을',37.5826,126.984);
@@ -101,6 +102,10 @@ try{
   diagnostics:window.YeoSearch?.getMapDiagnostics?.(),viewMode:document.querySelector('#search-screen')?.dataset.searchMode,
   mapVisible:!document.querySelector('#search-map-stage')?.hidden,
   sdkReady:Boolean(window.naver?.maps?.Map),
+  mapScript:document.querySelector('#naver-maps-sdk')?{loaded:!!window.__ygNaverMapsLoaded,srcHost:new URL(document.querySelector('#naver-maps-sdk').src).host}:null,
+  mapStatus:document.querySelector('#map-placeholder')?.textContent?.slice(0,220),
+  apiIndicator:document.querySelector('#api-indicator')?.textContent,
+  sdkScripts:[...document.querySelectorAll('script[src*="maps.js"]')].map(x=>({id:x.id,hostname:new URL(x.src).hostname})),
   stop:window.TripApp?.getDay?.()?.stops?.at(-1)
  }))));
  await page.waitForFunction(()=>{
