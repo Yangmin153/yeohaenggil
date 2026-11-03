@@ -68,8 +68,8 @@ function renderAdjustment(){
  $('yg-adjust-list').innerHTML=ordered.length?ordered.map((p,i)=>{
   const name=escape(p.name),icon=window.TripMeta?.icon?.(p,17)||'•',fixed=Boolean(p.locked);
   return '<div class="yg-adjust-row"><span class="yg-adjust-index">'+(i+1)+'</span>'+
-   '<span class="yg-adjust-icon">'+icon+'</span><div class="yg-adjust-name"><strong>'+name+'</strong><small>'+(fixed?'이 순서 고정':'자동 최적화 대상')+'</small></div>'+
-   '<label class="yg-adjust-lock"><input type="checkbox" data-route-lock="'+escape(p.id)+'" '+(fixed?'checked':'')+'><span>고정</span></label>'+
+   '<span class="yg-adjust-icon">'+icon+'</span><div class="yg-adjust-name"><strong>'+name+'</strong><small>'+(fixed?(i+1)+'번째 방문으로 고정됨':'이 장소의 방문 순서를 선택할 수 있어요')+'</small></div>'+
+   '<button type="button" class="yg-adjust-lock-button" data-route-lock="'+escape(p.id)+'" aria-pressed="'+fixed+'" aria-label="'+name+' '+(fixed?'순서 고정 해제':(i+1)+'번째 방문으로 고정')+'">'+(fixed?'고정 해제':(i+1)+'번째로 고정')+'</button>'+
    '<div class="yg-adjust-move"><button type="button" data-route-up="'+escape(p.id)+'" aria-label="'+name+' 한 칸 위로" '+(i===0?'disabled':'')+'>▲</button>'+
    '<button type="button" data-route-down="'+escape(p.id)+'" aria-label="'+name+' 한 칸 아래로" '+(i===ordered.length-1?'disabled':'')+'>▼</button></div>'+ 
    '<button type="button" class="yg-adjust-delete" data-adjust-remove="'+escape(p.id)+'" aria-label="'+name+' 방문지 삭제" title="이 방문지 삭제">×</button></div>';
@@ -211,7 +211,6 @@ $('yg-calculate').addEventListener('click',calculate);
 $('yg-three-recalc').addEventListener('click',calculate);
 $('yg-three-add').addEventListener('click',()=>openSearch());
 $('yg-open-stops').addEventListener('click',openSheet);
-$('yg-three-list').addEventListener('click',openSheet);
 $('yg-route-mode').addEventListener('change',e=>{
  app.setRouteMode(e.target.value);renderDaily();app.toast('계산 방식을 변경했어요. 다시 계산해 주세요.');
 });
@@ -239,8 +238,14 @@ $('yg-adjust-list').addEventListener('click',e=>{
  if(up){app.moveRouteStop(up.dataset.routeUp,-1);renderDaily();}
  else if(down){app.moveRouteStop(down.dataset.routeDown,1);renderDaily();}
 });
-$('yg-adjust-list').addEventListener('change',e=>{
- const checkbox=e.target.closest('[data-route-lock]');if(checkbox){app.setRouteStopLocked(checkbox.dataset.routeLock,checkbox.checked);renderDaily();}
+$('yg-adjust-list').addEventListener('click',e=>{
+ const button=e.target.closest('[data-route-lock]');
+ if(!button)return;
+ const next=button.getAttribute('aria-pressed')!=='true';
+ if(app.setRouteStopLocked(button.dataset.routeLock,next)){
+  renderDaily();
+  app.toast(next?'이 장소의 방문 순서를 고정했어요. 다시 최적화하면 적용돼요.':'방문 순서 고정을 해제했어요.');
+ }
 });
 $('yg-sheet-map').addEventListener('click',()=>{closeSheet();openSearch();});
 
