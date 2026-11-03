@@ -24,8 +24,20 @@ try{
  }
  if(!String(mapResp.headers()['content-type']).startsWith('image/'))throw Error('Static Map response is not an image');
  if(await page.locator('#sv-save-card').count()||await page.locator('#sv-share-card').count())throw Error('Old PNG actions should be removed');
- const mapSvg=await page.locator('#sv-fallback-map rect').getAttribute('fill');
- if(mapSvg!=='transparent')throw Error('Map marker overlay must not cover the Naver map image');
+ const viewDiagnostics=await page.evaluate(()=>({
+  error:document.querySelector('#sv-error')?.textContent,
+  errorHidden:document.querySelector('#sv-error')?.hidden,
+  svg:document.querySelector('#sv-fallback-map')?.outerHTML.slice(0,1100),
+  image:document.querySelector('.sv-static-background')?.src,
+  mapChildren:document.querySelector('#sv-map')?.children.length
+ }));
+ console.log('VIEW_MAP_DIAGNOSTICS',JSON.stringify(viewDiagnostics));
+ if(viewDiagnostics.errorHidden===false)throw Error('Read-only viewer reported an error: '+viewDiagnostics.error);
+ const mapRect=page.locator('#sv-fallback-map rect');
+ if(await mapRect.count()){
+  const mapSvg=await mapRect.getAttribute('fill');
+  if(mapSvg!=='transparent')throw Error('Map marker overlay must not cover the Naver map image');
+ }else if(!await page.locator('#sv-map img').count())throw Error('Neither fallback SVG nor actual map image was rendered');
  await page.locator('[data-focus-index="1"]').click();
  const info=await page.locator('#sv-map-caption').textContent();
  if(!info.includes('북촌한옥마을'))throw Error('Selected timeline place was not focused in map');
