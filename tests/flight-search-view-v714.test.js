@@ -70,3 +70,15 @@ test('sharing offers only link/text and viewer map has real tiles with aligned t
  assert.ok(!viewer.includes('new maps.Polyline'));
  assert.ok(!share.includes('buildTripCard'));
 });
+
+test('a Naver SDK marker disposal exception cannot interrupt endpoint selection',async()=>{
+ const app=await read('public/static/app.js');
+ const begin=app.indexOf('function clearMap(){'),end=app.indexOf('function centerMapAtRegion(',begin);
+ assert.ok(begin>=0&&end>begin);
+ let hidden=false,closed=false;
+ const mock={setMap(){throw new TypeError("Cannot read properties of null (reading 'capitalize')");},setVisible(v){hidden=v===false;}};
+ const run=new Function('markers','paths','markerInfo','console',app.slice(begin,end)+';clearMap();');
+ assert.doesNotThrow(()=>run([mock],[],{close(){closed=true;}},{warn(){}}));
+ assert.equal(hidden,true);
+ assert.equal(closed,true);
+});
