@@ -49,7 +49,7 @@ test('STEP2 search preview displays selected marker only while saved markers rea
  assert.match(js,/if\(selected\)\{[\s\S]*clearSavedMarkers\(\)/);
  assert.match(js,/selectedMarker=mark\(selected,true\)/);
  assert.match(js,/items=\[\];clearMarkers\(\)/);
- assert.match(js,/if\(place\)focusAdded\(place\)/);
+ assert.match(js,/showMode\('list'\)/);
  assert.match(js,/picked.hidden=false;showMode\('map'\);paintMarkers\(\)/);
  assert.match(js,/document\.addEventListener\('trip:stops-changed'/);
 });
@@ -72,8 +72,8 @@ test('STEP3 footer keeps visit navigation and both recalc actions live beneath v
  assert.match(html,/id="yg-three-recalc"/);
  assert.match(html,/id="yg-live-optimize"/);
  assert.match(html,/id="yg-route-adjust"/);
- assert.match(ui,/app\.moveRouteStop\(/);
- assert.match(ui,/app\.setRouteStopLocked\(/);
+ assert.match(ui,/app\.setRouteStopPosition\(/);
+ assert.match(ui,/data-adjust-select/);
  assert.match(app,/function moveRouteStop\(id,direction\)/);
  assert.match(app,/function setRouteStopLocked\(id,locked\)/);
  assert.match(css,/env\(safe-area-inset-bottom,0px\)/);
