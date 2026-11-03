@@ -5,7 +5,7 @@
 const app=window.TripApp,$=id=>document.getElementById(id);
 if(!app||!$('yg-step-one'))return;
 const MS=86400000,MAX_DAYS=10,escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-let currentStep=1,busy=false,sheetOpen=false,sheetFreeze=null,lastWarnings=[],dragStartY=0;
+let currentStep=1,busy=false,sheetOpen=false,sheetFreeze=null,lastWarnings=[],dragStartY=0,selectedAdjustId=null,editingAdjustId=null;
 const days=()=>app.getDays(),day=()=>app.getDay(),stops=()=>day().stops;
 function ms(value){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return NaN;
@@ -65,16 +65,62 @@ function renderDaily(){
 }
 function renderAdjustment(){
  const d=day(),ids=d.result?.orderIds||d.stops.map(p=>p.id),byId=new Map(d.stops.map(p=>[p.id,p])),ordered=ids.map(id=>byId.get(id)).filter(Boolean);
+ if(selectedAdjustId&&!byId.has(selectedAdjustId))selectedAdjustId=null;
  $('yg-adjust-list').innerHTML=ordered.length?ordered.map((p,i)=>{
-  const name=escape(p.name),icon=window.TripMeta?.icon?.(p,17)||'•',fixed=Boolean(p.locked);
-  return '<div class="yg-adjust-row"><span class="yg-adjust-index">'+(i+1)+'</span>'+
-   '<span class="yg-adjust-icon">'+icon+'</span><div class="yg-adjust-name"><strong>'+name+'</strong><small>'+(fixed?(i+1)+'번째 방문으로 고정됨':'이 장소의 방문 순서를 선택할 수 있어요')+'</small></div>'+
-   '<button type="button" class="yg-adjust-lock-button" data-route-lock="'+escape(p.id)+'" aria-pressed="'+fixed+'" aria-label="'+name+' '+(fixed?'순서 고정 해제':(i+1)+'번째 방문으로 고정')+'">'+(fixed?'고정 해제':(i+1)+'번째로 고정')+'</button>'+
-   '<div class="yg-adjust-move"><button type="button" data-route-up="'+escape(p.id)+'" aria-label="'+name+' 한 칸 위로" '+(i===0?'disabled':'')+'>▲</button>'+
-   '<button type="button" data-route-down="'+escape(p.id)+'" aria-label="'+name+' 한 칸 아래로" '+(i===ordered.length-1?'disabled':'')+'>▼</button></div>'+ 
-   '<button type="button" class="yg-adjust-delete" data-adjust-remove="'+escape(p.id)+'" aria-label="'+name+' 방문지 삭제" title="이 방문지 삭제">×</button></div>';
- }).join(''):'<p class="yg-adjust-empty">방문지를 추가하면 순서를 조정할 수 있어요.</p>';
+  const name=escape(p.name),id=escape(p.id),icon=window.TripMeta?.icon?.(p,17)||'•',checked=selectedAdjustId===p.id;
+  return '<div class="yg-adjust-row'+(checked?' is-selected':'')+'">'+
+   '<label class="yg-adjust-check" aria-label="'+name+' 수정할 방문지로 선택">'+
+   '<input type="checkbox" data-adjust-select="'+id+'" '+(checked?'checked':'')+' aria-label="'+name+' 선택">'+
+   '<span class="yg-adjust-checkmark" aria-hidden="true"></span></label>'+
+   '<span class="yg-adjust-index">'+(i+1)+'</span>'+
+   '<span class="yg-adjust-icon">'+icon+'</span>'+
+   '<div class="yg-adjust-name"><strong>'+name+'</strong><small>'+(p.locked?(i+1)+'번째 방문으로 지정됨':'자동 동선 계산 대상')+'</small></div>'+
+   '<button type="button" class="yg-adjust-delete" data-adjust-remove="'+id+'" aria-label="'+name+' 방문지 삭제" title="이 방문지 삭제">×</button></div>';
+ }).join(''):'<p class="yg-adjust-empty">아직 조정할 방문지가 없어요. 장소를 추가해 주세요.</p>';
+ const chosen=byId.get(selectedAdjustId);
+ $('yg-adjust-edit-selected').disabled=!chosen;
+ $('yg-adjust-selection-note').textContent=chosen?chosen.name+' 선택됨 · 수정 버튼을 눌러 주세요.':'수정할 방문지 한 곳을 체크해 주세요.';
 }
+function openVisitPositionEditor(){
+ const d=day(),p=d.stops.find(x=>x.id===selectedAdjustId);if(!p)return;
+ editingAdjustId=p.id;
+ const dialog=$('yg-position-dialog'),selector=$('yg-position-select'),ids=d.result?.orderIds||d.stops.map(x=>x.id);
+ const current=ids.indexOf(p.id)+1;
+ const fixedById=new Map(d.stops.filter(x=>x.locked&&x.id!==p.id).map(x=>[x.id,x.name]));
+ selector.replaceChildren();
+ const auto=document.createElement('option');auto.value='auto';auto.textContent='자동 최적화에 맡기기 (순서 지정 해제)';selector.append(auto);
+ ids.forEach((id,i)=>{
+  const item=document.createElement('option');item.value=String(i+1);
+  item.textContent=(i+1)+'번째 방문'+(fixedById.has(id)?' · '+fixedById.get(id)+' 지정됨':'');
+  item.disabled=fixedById.has(id);selector.append(item);
+ });
+ selector.value=String(current);
+ $('yg-position-place').textContent='선택한 장소: '+p.name;
+ $('yg-position-warning').hidden=true;$('yg-position-warning').textContent='';
+ dialog.hidden=false;document.body.classList.add('yg-position-open');
+ selector.focus({preventScroll:true});
+}
+function closeVisitPositionEditor(){
+ if($('yg-position-dialog').hidden)return;
+ $('yg-position-dialog').hidden=true;document.body.classList.remove('yg-position-open');editingAdjustId=null;
+ $('yg-adjust-edit-selected').focus({preventScroll:true});
+}
+async function applyVisitPosition(){
+ const id=editingAdjustId,p=day()?.stops.find(x=>x.id===id),selected=$('yg-position-select').value;
+ if(!p)return closeVisitPositionEditor();
+ const successful=selected==='auto'?app.setRouteStopLocked(id,false):app.setRouteStopPosition(id,Number(selected));
+ if(!successful){
+  $('yg-position-warning').hidden=false;
+  $('yg-position-warning').textContent='이 순서로 변경할 수 없어요. 다른 방문 순서를 선택해 주세요.';
+  return;
+ }
+ closeVisitPositionEditor();selectedAdjustId=null;renderDaily();
+ if(configured(day().origin)&&configured(day().destination)){
+  app.toast(selected==='auto'?'방문 순서를 다시 자동 계산합니다.':p.name+'을(를) '+selected+'번째로 방문하도록 다시 계산합니다.');
+  await calculate();
+ }else app.toast('방문 순서 선택을 저장했어요. 출발지와 도착지를 설정하면 새 순서로 계산돼요.');
+}
+
 function renderSheet(){
  const d=day(),items=d.stops;
  $('yg-sheet-count').textContent=String(items.length);
@@ -226,27 +272,24 @@ $('yg-place-sheet').addEventListener('click',e=>{
  }
 });
 
-$('yg-adjust-list').addEventListener('click',e=>{
- const remove=e.target.closest('[data-adjust-remove]');
- if(remove){
-  const id=remove.dataset.adjustRemove;
-  if(!day().stops.some(p=>p.id===id))return;
-  if(app.removeStop(id)){renderDaily();app.toast('방문지를 삭제했어요. 다시 최적화해 주세요.');}
-  return;
- }
- const up=e.target.closest('[data-route-up]'),down=e.target.closest('[data-route-down]');
- if(up){app.moveRouteStop(up.dataset.routeUp,-1);renderDaily();}
- else if(down){app.moveRouteStop(down.dataset.routeDown,1);renderDaily();}
+$('yg-adjust-list').addEventListener('change',e=>{
+ const checkbox=e.target.closest('[data-adjust-select]');if(!checkbox)return;
+ selectedAdjustId=checkbox.checked?checkbox.dataset.adjustSelect:null;
+ renderAdjustment();
 });
 $('yg-adjust-list').addEventListener('click',e=>{
- const button=e.target.closest('[data-route-lock]');
- if(!button)return;
- const next=button.getAttribute('aria-pressed')!=='true';
- if(app.setRouteStopLocked(button.dataset.routeLock,next)){
-  renderDaily();
-  app.toast(next?'이 장소의 방문 순서를 고정했어요. 다시 최적화하면 적용돼요.':'방문 순서 고정을 해제했어요.');
- }
+ const remove=e.target.closest('[data-adjust-remove]');if(!remove)return;
+ const id=remove.dataset.adjustRemove;
+ if(!day().stops.some(p=>p.id===id))return;
+ if(selectedAdjustId===id)selectedAdjustId=null;
+ if(app.removeStop(id)){renderDaily();app.toast('방문지를 삭제했어요. 다시 최적화해 주세요.');}
 });
+$('yg-adjust-edit-selected').addEventListener('click',openVisitPositionEditor);
+$('yg-position-cancel').addEventListener('click',closeVisitPositionEditor);
+$('yg-position-close').addEventListener('click',closeVisitPositionEditor);
+$('yg-position-apply').addEventListener('click',applyVisitPosition);
+$('yg-position-dialog').addEventListener('click',e=>{if(e.target.id==='yg-position-dialog')closeVisitPositionEditor();});
+
 $('yg-sheet-map').addEventListener('click',()=>{closeSheet();openSearch();});
 
 const sheetHeader=$('yg-place-sheet').querySelector('.yg-sheet-head');
@@ -266,7 +309,11 @@ document.addEventListener('trip:days-imported',()=>{
  else{$('yg-duration').textContent='날짜를 선택해 주세요.';go(1);}
  renderDaily();
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen)closeSheet();});
+document.addEventListener('keydown',e=>{
+ if(e.key!=='Escape')return;
+ if(!$('yg-position-dialog').hidden){closeVisitPositionEditor();return;}
+ if(sheetOpen)closeSheet();
+});
 function init(){
  document.body.classList.remove('region-needs-choice');document.body.classList.add('region-ready');
  const d=days();
