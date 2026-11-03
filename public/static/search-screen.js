@@ -118,10 +118,8 @@ function refreshSavedMarkers(){
   if(selected&&count===1&&Number(selected.lat)===Number(place.lat)&&Number(selected.lng)===Number(place.lng))continue;
   const pin=window.YeoPins?.marker?.(searchMap,place,{kind:count>1?'cluster':kind,count,zIndex:600});
   if(!pin)continue;
-  window.naver.maps.Event.addListener(pin,'click',()=>{
-   if(count>1)window.YeoNext?.openSheet?.();
-   else showSaved(place);
-  });
+  // Saved marker is view-only inside the search screen. Search results
+  // are the sole source of new places and endpoint selection.
   savedMarkers.push(pin);
  }
 }
@@ -141,7 +139,7 @@ function paintMarkers(){
   const m=mark(item);
   if(!m)continue;
   markers.push(m);
-  window.naver.maps.Event.addListener(m,'click',()=>preview(item));
+  // Result marker is visual only: the corresponding search result remains clickable.
  }
  refreshSavedMarkers();
 }
