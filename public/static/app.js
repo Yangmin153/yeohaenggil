@@ -552,6 +552,7 @@ function bootNaverMap(key){
   if(sdkReady||authFailed)return;
   if(typeof window.naver?.maps?.Map!=='function'){mapStatus('지도 SDK 로드 실패','네트워크와 네이버 지도 API 설정을 확인해 주세요.',true);return;}
   sdkReady=true;clearTimeout(timer);
+  document.dispatchEvent(new Event('trip-maps-sdk-ready'));
   if(typeof ResizeObserver==='function'){mapObserver=new ResizeObserver(()=>resizeMapStable());mapObserver.observe($('map-region'));}
   window.addEventListener('orientationchange',()=>setTimeout(()=>resizeMapStable({fit:true}),250));
   window.addEventListener('resize',()=>resizeMapStable());
