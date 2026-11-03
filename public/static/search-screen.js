@@ -259,20 +259,27 @@ function completeEndpoint(item){
  const kind=searchKind;
  if(!endpointMode())return false;
  if(!window.TripApp?.setEndpointFromSearch?.(kind,item))return false;
- const dayId=window.TripApp?.getDay?.()?.id;
- const destination=window.TripApp?.getDay?.()?.destination;
- const needsDestination=kind==='origin'&&document.body.dataset.tripStep==='2'&&
-  (!destination||!/[^ ]/.test(destination.name||'')||/미설정/.test(destination.name||''));
- hide();
+ const current=window.TripApp?.getDay?.();
+ const dayId=current?.id,destination=current?.destination;
+ const filled=destination&&Number.isFinite(Number(destination.lat))&&Number.isFinite(Number(destination.lng))&&
+  !/미설정/.test(String(destination.name||''));
+ const nextIsDestination=kind==='origin'&&document.body.dataset.tripStep==='2'&&!filled;
+ if(nextIsDestination){
+  // Avoid history.back() from the first search racing with the next search's
+  // new pushState and unexpectedly dismissing the destination picker.
+  hide(true);
+  if(history.state?.yeohaenggilSearch){
+   history.replaceState({...history.state,yeohaenggilSearch:false},'',location.href);
+  }
+ }else hide();
  window.TripApp?.toast?.((kind==='origin'?'출발지':'도착지')+'를 설정했어요.');
- if(needsDestination){
-  // Let the search History popstate settle before opening the next full-screen search.
-  setTimeout(()=>{
+ if(nextIsDestination){
+  requestAnimationFrame(()=>{
    if(!opened&&document.body.dataset.tripStep==='2'&&window.TripApp?.getDay?.()?.id===dayId){
     $('yg-dest-pick')?.scrollIntoView?.({behavior:'smooth',block:'center'});
     show('destination');
    }
-  },280);
+  });
  }
  return true;
 }
