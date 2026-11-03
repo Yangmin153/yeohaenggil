@@ -103,6 +103,8 @@ try{
  console.log('ADD_SEARCH_DIAGNOSTICS',JSON.stringify({beforeStop,...status}));
  if(status.count<=beforeStop)throw Error('Search result +add did not increase actual itinerary visit count');
  console.log('PASS: only search-result buttons add places; map taps never select coordinates');
+ // Successful +add intentionally switches to map preview; show results before measuring list geometry.
+ if(await page.locator('#search-screen').getAttribute('data-search-mode')==='map')await page.locator('#search-list-toggle').click();
  await page.setViewportSize({width:390,height:520});
  await page.waitForTimeout(350);
  const box=await page.locator('.search-screen-results-mount').boundingBox();
