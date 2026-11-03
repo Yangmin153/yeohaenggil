@@ -57,11 +57,11 @@ test('search marker renderer always rehydrates saved pins, without stale signatu
  assert.match(src,/if\(mode==='map'\)\{requestAnimationFrame\(\(\)=>\{maybeMap\(\);updateSize\(\);paintMarkers\(\);\}\);\}/);
  assert.match(src,/document\.addEventListener\('trip:endpoint-changed'/);
 });
-test('selected search candidate hides competing search-result markers while preserving saved places',async()=>{
+test('search map never renders search-result candidates, only saved places or focused preview',async()=>{
  const src=await read('public/static/search-screen.js');
  const start=src.indexOf('function paintMarkers(){'),end=src.indexOf('function showMode(next){',start),block=src.slice(start,end);
  assert.match(block,/if\(selected\)\{/);
  assert.match(block,/refreshSavedMarkers\(\);selectedMarker=mark\(selected,true\);/);
- assert.match(block,/for\(const item of items.slice\(0,15\)\)/);
- assert.ok(block.indexOf('if(selected)')<block.indexOf('for(const item of items.slice(0,15))'));
+ assert.doesNotMatch(block,/for\(const item of items.slice\(0,15\)\)/);
+ assert.match(block,/clearMarkers\(\)/);assert.match(block,/refreshSavedMarkers\(\)/);
 });
