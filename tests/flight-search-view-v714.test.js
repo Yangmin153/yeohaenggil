@@ -73,7 +73,7 @@ test('sharing offers only link/text and viewer map has real tiles with aligned t
  assert.ok(!viewer.includes('sv-static-background'));
  assert.ok(!view.includes('<svg'));
  assert.ok(!view.includes('sv-static-background'));
- assert.ok(viewer.includes('function focusPlace(i)'));
+ assert.ok(viewer.includes('function focusPlace(i,scroll=true)'));
  assert.ok(!viewer.includes('new maps.Polyline'));
  assert.ok(!share.includes('buildTripCard'));
 });
