@@ -26,13 +26,14 @@ test('one cancellable preview works for search results while map tapping never s
  assert.doesNotMatch(script,/maps\.Event\.addListener\(searchMap,'click'/);
  assert.match(script,/clearPreview\(\{restoreCamera:false\}\)/);
 });
-test('add click gives map focus, shows highlighted marker and does not close the search screen',async()=>{
+test('add click keeps place search visible for the next query; map preview remains optional',async()=>{
  const [quick,screen]=await Promise.all(['public/static/quick-add.js','public/static/search-screen.js'].map(read));
  assert.match(quick,/addSuccess\?\.\(item\.name[^\n]*item\)/);
  assert.match(screen,/function focusAdded\(item\)/);
  assert.match(screen,/previewSource='added'/);
  assert.match(screen,/searchMap\.panTo\(new window\.naver\.maps\.LatLng/);
- assert.match(screen,/if\(place\)focusAdded\(place\)/);
+ assert.match(screen,/showMode\('list'\)/);
+ assert.match(screen,/input\.focus\(\{preventScroll:true\}\)/);
  assert.match(screen,/if\(returnStep===3/);
  assert.match(quick,/app\.previewPlace\(item\)/);
 });
