@@ -293,7 +293,7 @@
         <div id="modal-place" class="modal-tab">
           <label class="field-label" for="place-query">장소 이름 또는 도로명·지번 주소</label>
           <div class="address-search unified-search-field"><span class="search-leading" aria-hidden="true">⌕</span><input id="place-query" enterkeyhint="search" autocomplete="off" maxlength="80" placeholder="어디로 가시나요? 장소·주소 검색" aria-describedby="place-search-status"><button id="btn-search-place" type="button">검색</button></div>
-          <div class="place-search-options"><label for="place-scope" hidden>검색 범위</label><select id="place-scope" hidden><option value="all">전국 검색</option><option value="nearby">오늘 출발지 주변 20km</option></select><button type="button" class="map-pick-shortcut" id="btn-pick-map-primary">지도에서 위치 선택 ↗</button></div>
+          <div class="place-search-options"><label for="place-scope" hidden>검색 범위</label><select id="place-scope" hidden><option value="all">전국 검색</option><option value="nearby">오늘 출발지 주변 20km</option></select><button type="button" class="map-pick-shortcut" id="btn-pick-map-primary" hidden disabled aria-hidden="true">지도에서 위치 선택 ↗</button></div>
           <div id="place-search-status" class="place-search-status" role="status" aria-live="polite">여행지 이름이나 주소를 입력하면 함께 찾아드려요.</div>
           <div id="place-results" class="place-results" aria-live="polite"></div>
           <button id="place-address-fallback" class="place-more hidden" type="button">검색어 수정하기</button>
@@ -301,7 +301,7 @@
           <div id="place-selected" class="place-selected hidden" role="status"></div>
           <p class="place-attribution">장소 정보는 카카오맵, 주소 확인은 네이버 지도에서 제공합니다. 실제 방문 전 위치를 확인해 주세요.</p>
         </div>
-        <div id="modal-address" class="modal-tab hidden" aria-label="이전 주소 검색 방식"><label class="field-label" for="address-query">도로명·지번 주소 검색</label><div class="address-search"><input id="address-query" placeholder="예: 제주특별자치도 제주시 공항로 2"><button id="btn-search-address">검색</button></div><p class="modal-explain">네이버 Maps 주소 검색입니다. 관광지 이름 검색이 아니라 <strong>주소 검색</strong>이며, 결과를 선택한 뒤 이름을 바꿀 수 있습니다.</p><div id="address-results" class="address-results"></div><button class="linkish" id="btn-pick-map">⌖ 지도에서 직접 위치 찍기 ↗</button></div>
+        <div id="modal-address" class="modal-tab hidden" aria-label="이전 주소 검색 방식"><label class="field-label" for="address-query">도로명·지번 주소 검색</label><div class="address-search"><input id="address-query" placeholder="예: 제주특별자치도 제주시 공항로 2"><button id="btn-search-address">검색</button></div><p class="modal-explain">네이버 Maps 주소 검색입니다. 관광지 이름 검색이 아니라 <strong>주소 검색</strong>이며, 결과를 선택한 뒤 이름을 바꿀 수 있습니다.</p><div id="address-results" class="address-results"></div><button class="linkish" id="btn-pick-map" hidden disabled aria-hidden="true">⌖ 지도에서 직접 위치 찍기 ↗</button></div>
         <div id="modal-coordinate" hidden aria-hidden="true"><input id="input-lat" type="hidden"><input id="input-lng" type="hidden"></div>
         <details id="modal-name-details" class="modal-name-details"><summary>표시 이름 수정 (선택)</summary>
           <div class="modal-name-fields"><label class="field-label" for="input-name">표시할 장소 이름</label><input id="input-name" maxlength="100" placeholder="예: 협재해수욕장">
