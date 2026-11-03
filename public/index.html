@@ -35,7 +35,7 @@
   <script defer src="/static/app.js?v=7.15.0"></script>
   <script type="module" src="/static/mobile-ux.js?v=4.8.0"></script>
   <script type="module" src="/static/quick-add.js?v=7.16.0"></script>
-  <script type="module" src="/static/search-screen.js?v=7.16.0"></script>
+  <script type="module" src="/static/search-screen.js?v=7.17.0"></script>
   <script defer src="/static/map-workspace.js?v=6.7.1"></script>
   <script type="module" src="/static/accounts.js?v=7.6.0"></script>
   <!-- Region onboarding removed from vNext daily planner; legacy nodes retained for compatibility. -->
@@ -377,6 +377,10 @@
  <p id="search-screen-feedback" role="status" aria-live="polite" hidden></p>
  <div class="search-map-stage" id="search-map-stage">
    <div id="search-naver-map" aria-label="네이버 방문지 검색 지도"></div>
+   <div id="search-static-fallback" class="search-static-fallback" role="img" aria-label="네이버 지도에 저장한 방문지 위치 미리보기" hidden>
+    <img id="search-static-image" alt="선택한 방문지를 중심으로 한 네이버 지도" decoding="async">
+    <div id="search-static-markers" class="search-static-markers" aria-hidden="true"></div>
+   </div>
    <div class="search-map-message" id="search-map-message" role="status">지도를 불러오는 중이에요.</div>
 
  </div>
