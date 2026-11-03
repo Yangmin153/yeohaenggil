@@ -75,11 +75,11 @@ function maybeMap(){
  }catch(e){console.warn('장소 검색 지도 초기화 실패',e);$('search-map-message').hidden=false;$('search-map-message').textContent='지도를 열지 못했어요. 목록 검색은 사용할 수 있어요.';}
 }
 function clearMarkers(){
- for(const m of markers)m.setMap(null);
+ for(const m of markers)try{m.setMap(null);}catch(error){console.warn('검색 마커 정리 중 오류',error?.message||error);}
  markers=[];
- if(selectedMarker){selectedMarker.setMap(null);selectedMarker=null;}
+ if(selectedMarker){try{selectedMarker.setMap(null);}catch(error){console.warn('선택 마커 정리 중 오류',error?.message||error);}selectedMarker=null;}
 }
-function clearSavedMarkers(){for(const marker of savedMarkers)marker.setMap(null);savedMarkers=[];}
+function clearSavedMarkers(){for(const marker of savedMarkers)try{marker.setMap(null);}catch(error){console.warn('저장된 장소 마커 정리 중 오류',error?.message||error);}savedMarkers=[];}
 function savedPlaces(){return window.TripApp?.getDay?.()?.stops||[];}
 function updateSavedButton(){const n=savedPlaces().length;const button=$('search-screen-count');button.textContent='담은 장소 보기';button.setAttribute('aria-label','담은 장소 '+n+'곳 보기');}
 function existingPlaces(){
@@ -356,4 +356,10 @@ document.addEventListener('trip:stops-changed',()=>{if(opened){paintMarkers();up
 document.addEventListener('trip:day-changed',()=>{if(opened){clearPreview({restoreCamera:false});paintMarkers();updateSavedButton();}});
 window.addEventListener('resize',()=>{if(opened&&mode==='map')paintMarkers();});
 $('search-screen-count').addEventListener('click',()=>window.YeoNext?.openSheet?.());
-window.YeoSearch={show,hide,isOpen:()=>opened,returnStep:()=>returnStep,mode:()=>searchKind,isEndpointMode:endpointMode,completeEndpoint,preview,clearPreview,focusAdded,showSavedPlace:showSaved,searchStarted,onResults,addSuccess,refreshSavedMarkers};
+window.YeoSearch={show,hide,isOpen:()=>opened,returnStep:()=>returnStep,mode:()=>searchKind,isEndpointMode:endpointMode,completeEndpoint,preview,clearPreview,focusAdded,showSavedPlace:showSaved,searchStarted,onResults,addSuccess,refreshSavedMarkers,
+ getMapDiagnostics:()=>({
+  viewMode:mode,stage:searchKind,selectedName:selected?.name||null,
+  saved: savedMarkers.length,candidates:markers.length,focused:!!selectedMarker,
+  center:searchMap?.getCenter?.()?{lat:searchMap.getCenter().lat(),lng:searchMap.getCenter().lng()}:null
+ })
+};
