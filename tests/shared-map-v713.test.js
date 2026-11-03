@@ -50,8 +50,12 @@ test('view-only map uses authentic Naver tiles without fake road lines and suppo
  assert.ok(html.includes('id="sv-timeline"'));
  assert.ok(!html.includes('id="sv-save-card"'));
  assert.ok(!html.includes('id="sv-share-card"'));
- assert.ok(view.includes('renderStaticMap(day)'));
- assert.ok(view.includes("fill:'transparent'"));
+ assert.ok(view.includes('new window.naver.maps.Map('));
+ assert.ok(!view.includes('sv-fallback-map'));
+ assert.ok(!view.includes('sv-static-background'));
+ assert.ok(!html.includes('sv-fallback-map'));
+ assert.ok(!html.includes('sv-static-background'));
+ assert.ok(html.includes('sv-map-unavailable'));
  assert.ok(view.includes('function focusPlace('));
  assert.ok(view.includes('function fitAll('));
  assert.ok(!view.includes('new maps.Polyline'));
