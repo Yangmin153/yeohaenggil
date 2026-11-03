@@ -5,7 +5,7 @@
 const app=window.TripApp,$=id=>document.getElementById(id);
 if(!app||!$('yg-step-one'))return;
 const MS=86400000,MAX_DAYS=10,escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-let currentStep=1,busy=false,sheetOpen=false,sheetFreeze=null,lastWarnings=[],dragStartY=0,selectedAdjustId=null,editingAdjustId=null;
+let currentStep=1,busy=false,sheetOpen=false,inlineOpen=false,sheetFreeze=null,lastWarnings=[],dragStartY=0,selectedAdjustId=null,editingAdjustId=null;
 const days=()=>app.getDays(),day=()=>app.getDay(),stops=()=>day().stops;
 function ms(value){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return NaN;
@@ -61,7 +61,42 @@ function renderDaily(){
  $('yg-route-mode').value=d.mode==='manual'?'manual':'auto';
  $('yg-origin-pick').classList.toggle('is-configured',configured(d.origin));
  $('yg-dest-pick').classList.toggle('is-configured',configured(d.destination));
- renderAdjustment();if(sheetOpen)renderSheet();
+ renderInlineStops();renderStepTwoReadiness();renderAdjustment();if(sheetOpen)renderSheet();
+}
+/** STEP 2 list is inline; the original sheet still serves search and STEP 3. */
+function renderInlineStops(){
+ const d=day(),panel=$('yg-inline-stops'),toggle=$('yg-open-stops');
+ if(!panel||!toggle||!d)return;
+ panel.hidden=!inlineOpen;
+ toggle.setAttribute('aria-expanded',String(inlineOpen));
+ panel.innerHTML=d.stops.length?d.stops.map(p=>{
+  const name=escape(p.name),id=escape(p.id);
+  const icon=window.TripMeta?.icon?.(p,18)||'•';
+  return '<div class="yg-inline-row">'+
+   '<span class="yg-inline-icon" aria-hidden="true">'+icon+'</span>'+
+   '<button type="button" class="yg-inline-focus" data-inline-focus="'+id+'" aria-label="'+name+' 지도에서 보기">'+
+   '<strong>'+name+'</strong><small>'+escape(p.address||p.category||'지도에서 위치 보기')+'</small></button>'+
+   '<button type="button" class="yg-inline-remove" data-inline-remove="'+id+'" aria-label="'+name+' 삭제">×</button></div>';
+ }).join(''):'<p class="yg-inline-empty">아직 담은 방문지가 없어요.</p>';
+}
+function renderStepTwoReadiness(){
+ const button=$('yg-calculate'),note=$('yg-step-two-status');
+ if(!button||!note)return;
+ const assigned=days().filter(d=>d.stops.length),missing=assigned.find(d=>!configured(d.origin)||!configured(d.destination));
+ const pending=app.unassignedStops().length;
+ const ready=assigned.length>0&&!missing&&!pending;
+ button.disabled=busy||!ready;
+ note.textContent=!assigned.length?'방문지를 1곳 이상 담아 주세요.':
+  pending?'날짜가 정해지지 않은 장소 '+pending+'곳을 배정해 주세요.':
+  missing?dateText(missing.date,{short:true})+'의 '+(!configured(missing.origin)&&!configured(missing.destination)?'출발지와 도착지를':!configured(missing.origin)?'출발지를':'도착지를')+' 선택해 주세요.':
+  '준비 완료 · 동선 확인하기를 누르세요.';
+ note.dataset.ready=String(ready);
+}
+function focusInlinePlace(id){
+ const d=day(),place=d?.stops.find(p=>p.id===id);
+ if(!place)return;
+ app.resizeMap();app.focusPlace(id);
+ $('map-region')?.scrollIntoView?.({behavior:'smooth',block:'center'});
 }
 function renderAdjustment(){
  const d=day(),ids=d.result?.orderIds||d.stops.map(p=>p.id),byId=new Map(d.stops.map(p=>[p.id,p])),ordered=ids.map(id=>byId.get(id)).filter(Boolean);
@@ -173,6 +208,7 @@ function renderWarnings(){
 }
 async function calculate(){
  if(busy)return;
+ if(!days().some(d=>d.stops.length)){app.toast('방문지를 1곳 이상 담아 주세요.');return;}
  const arranged=days(),pending=app.unassignedStops(),full=arranged.map((d,i)=>({d,i})).filter(({d})=>configured(d.origin)&&configured(d.destination));
  const incomplete=arranged.find(d=>d.stops.length&&(!configured(d.origin)||!configured(d.destination)));
  if(incomplete){app.setActive(arranged.indexOf(incomplete));go(2);app.toast(dateText(incomplete.date)+' 출발지와 도착지를 먼저 설정해 주세요.');return;}
@@ -189,7 +225,7 @@ async function calculate(){
   if(!response.ok)throw Error(dateText(d.date)+': '+(route?.detail||'네이버 경로 계산이 실패했어요.'));
   return route;
  };
- busy=true;for(const id of ['yg-calculate','yg-three-recalc'])$(id).disabled=true;
+ busy=true;for(const id of ['yg-calculate','yg-three-recalc'])$(id).disabled=true;renderStepTwoReadiness();
  const overlay=$('yg-calc-overlay'),bar=$('yg-calc-bar'),counter=$('yg-calc-count'),message=$('yg-calc-overlay-message');
  let completed=0;
  const progress=()=>{
@@ -218,7 +254,7 @@ async function calculate(){
  finally{
   overlay.hidden=true;busy=false;
   if(completed===full.length)$('yg-calc-progress').hidden=true;
-  for(const id of ['yg-calculate','yg-three-recalc'])$(id).disabled=false;
+  $('yg-three-recalc').disabled=false;renderStepTwoReadiness();
  }
 }
 function openSearch(){
@@ -238,7 +274,7 @@ $('yg-dest-pick').addEventListener('click',()=>{if(window.YeoSearch)window.YeoSe
 document.querySelectorAll('[name="yg-origin-choice"]').forEach(radio=>radio.addEventListener('change',()=>{
  if(!radio.checked)return;
  app.setDayOriginMode(app.getActive(),radio.value);
- if(radio.value==='custom'){if(window.YeoSearch)window.YeoSearch.show('origin');else app.openModal('origin');}
+ // Choosing custom only enables its own independent picker.
 }));
 $('yg-add-visit').addEventListener('click',openSearch);
 $('yg-fit-all').addEventListener('click',()=>{app.fitMap();app.resizeMap();});
@@ -256,7 +292,13 @@ $('yg-back-places').addEventListener('click',()=>go(2));
 $('yg-calculate').addEventListener('click',calculate);
 $('yg-three-recalc').addEventListener('click',calculate);
 $('yg-three-add').addEventListener('click',()=>openSearch());
-$('yg-open-stops').addEventListener('click',openSheet);
+$('yg-open-stops').addEventListener('click',()=>{inlineOpen=!inlineOpen;renderInlineStops();});
+$('yg-inline-stops').addEventListener('click',e=>{
+ const remove=e.target.closest('[data-inline-remove]');
+ if(remove){if(app.removeStop(remove.dataset.inlineRemove))renderDaily();return;}
+ const focus=e.target.closest('[data-inline-focus]');
+ if(focus)focusInlinePlace(focus.dataset.inlineFocus);
+});
 $('yg-route-mode').addEventListener('change',e=>{
  app.setRouteMode(e.target.value);renderDaily();app.toast('계산 방식을 변경했어요. 다시 계산해 주세요.');
 });
