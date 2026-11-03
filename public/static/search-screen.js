@@ -423,6 +423,7 @@ window.visualViewport?.addEventListener('resize',updateSize);
 window.visualViewport?.addEventListener('scroll',updateSize);
 window.addEventListener('resize',updateSize);
 document.addEventListener('trip-map-ready',()=>{if(opened)maybeMap()});
+document.addEventListener('trip-maps-sdk-ready',()=>{if(opened&&mode==='map')maybeMap()});
 document.addEventListener('trip:endpoint-changed',()=>{if(opened)paintMarkers();});
 document.addEventListener('trip:stops-changed',()=>{if(opened){paintMarkers();updateSavedButton();}});
 document.addEventListener('trip:day-changed',()=>{if(opened){clearPreview({restoreCamera:false});paintMarkers();updateSavedButton();}});
