@@ -22,7 +22,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Open actual Preview and verify sharing + mobile search
         env:
-          YG_PREVIEW_URL: https://yeohaenggil-abn2jxc0d-travel-alex.vercel.app
+          YG_PREVIEW_URL: https://yeohaenggil-ab6f1pqjb-travel-alex.vercel.app
         run: node scripts/design-share-smoke.mjs
       - name: Upload error screenshot only on failure
         if: failure()
