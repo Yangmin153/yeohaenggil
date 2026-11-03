@@ -362,6 +362,7 @@ function addSuccess(message,place=null){
  if(!opened)return;
  const id=place?window.TripApp?.getDay?.()?.stops?.at(-1)?.id:null;
  hide();
+ window.YeoNext?.expandPlaceList?.();
  window.TripApp?.toast?.(message);
  if(id)requestAnimationFrame(()=>window.TripApp?.focusPlace?.(id));
 }
@@ -387,6 +388,7 @@ function chooseRole(kind){
  const result=window.TripApp?.setCollectedRoleFromSearch?.(selected,kind);
  if(!result?.ok)return notify(result?.error||'역할을 지정하지 못했어요.');
  hide();
+ window.YeoNext?.expandPlaceList?.();
  window.TripApp?.toast?.(kind==='origin'?'출발지로 지정했어요.':'도착지로 지정했어요.');
  if(result.id)requestAnimationFrame(()=>window.TripApp?.focusPlace?.(result.id));
 }
