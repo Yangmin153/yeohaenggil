@@ -19,3 +19,22 @@ export function staticMapLayout(points,width=904,height=285){
  const pixels=normalized.map(p=>({x:width/2+(p.x-centerX)*256*2**level,y:height/2+(p.y-centerY)*256*2**level}));
  return {lat,lng,level,width,height,pixels};
 }
+
+/** Focus one chosen visit even when other saved visits are far away.
+ * Coordinates use the same EPSG:3857 pixel grid as Naver Static Maps.
+ * This is a location preview, not a fabricated driving route. */
+export function focusedStaticMapLayout(points,focus,width=390,height=500,level=13){
+ const valid=p=>p&&Number.isFinite(Number(p.x))&&Number.isFinite(Number(p.y))&&
+  Number(p.x)>=32&&Number(p.x)<=40&&Number(p.y)>=123&&Number(p.y)<=133;
+ if(!Array.isArray(points)||!points.length||points.length>42||!points.every(valid)||!valid(focus))return null;
+ const w=Number(width),h=Number(height),z=Number(level);
+ if(!Number.isInteger(w)||w<320||w>1024||!Number.isInteger(h)||h<240||h>1024||
+  !Number.isInteger(z)||z<6||z>16)return null;
+ if(!points.some(p=>Math.abs(Number(p.x)-Number(focus.x))<0.00001&&Math.abs(Number(p.y)-Number(focus.y))<0.00001))return null;
+ const c=project(Number(focus.x),Number(focus.y)),scale=256*2**z;
+ const pixels=points.map(p=>{
+  const pos=project(Number(p.x),Number(p.y));
+  return {x:w/2+(pos.x-c.x)*scale,y:h/2+(pos.y-c.y)*scale};
+ });
+ return {lat:Number(focus.x),lng:Number(focus.y),width:w,height:h,level:z,pixels};
+}
