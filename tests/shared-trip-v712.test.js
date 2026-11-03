@@ -41,7 +41,8 @@ test('sharing uses independent noneditable view, preserves trip editor & offers 
  const [html,view,ui,viewjs]=await Promise.all(['public/index.html','public/view.html','public/static/share-trip.js','public/static/view-trip.js'].map(read));
  for(const id of ['yg-share-open','yg-share-panel','yg-share-link','yg-share-feedback','yg-calc-overlay','yg-calc-bar'])assert.match(html,new RegExp('id="'+id+'"'));
  assert.match(html,/data-share-action="text"/);
- assert.match(html,/data-share-action="image"/);
+ assert.doesNotMatch(html,/data-share-action="(?:save|image)"/);
+ assert.doesNotMatch(view,/id="sv-(?:save|share)-card"/);
  assert.match(view,/읽기 전용 일정/);
  assert.match(view,/noindex,nofollow,noarchive/);
  assert.doesNotMatch(view,/(?:id="yg-calculate"|id="yg-add-visit"|id="account-auth-submit")/);
