@@ -433,11 +433,11 @@ window.YeoSearch={show,hide,isOpen:()=>opened,returnStep:()=>returnStep,mode:()=
  getMapDiagnostics:()=>({
   viewMode:mode,stage:searchKind,selectedName:selected?.name||null,
   saved: savedMarkers.length,candidates:markers.length,focused:!!selectedMarker,
-  center:searchMap?.getCenter?.()?{lat:searchMap.getCenter().lat(),lng:searchMap.getCenter().lng()}:staticFocus,
+  center:searchMap?.getCenter?.()?{lat:searchMap.getCenter().lat(),lng:searchMap.getCenter().lng()}:staticFocus?{lat:staticFocus.x,lng:staticFocus.y}:null,
   source:searchMap?'dynamic':!$('search-static-fallback').hidden?'static':'none',
   ...(searchMap?{}:{
    saved:[...$('search-static-markers').children].filter(p=>!p.classList.contains('is-focused')).length,
-   focused:!$('search-static-fallback').hidden&&!!$('search-static-markers .is-focused')
+   focused:!$('search-static-fallback').hidden&&!!document.querySelector('#search-static-markers .is-focused')
   })
  })
 };
