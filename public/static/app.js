@@ -251,6 +251,36 @@ function reorderStop(id,direction){
  if(owner)owner.mode='manual';
  invalidateRoutes();refresh();document.dispatchEvent(new Event('trip:stops-changed'));return true;
 }
+// A deliberate visit-order preference: reserve one position and optimize the others.
+function setRouteStopPosition(id,position){
+ const d=day(),count=d.stops.length,target=Number(position)-1;
+ if(typeof id!=='string'||!Number.isInteger(target)||target<0||target>=count)return false;
+ const byId=new Map(d.stops.map(p=>[p.id,p]));
+ const ids=d.result?.orderIds?.length===count?d.result.orderIds:d.stops.map(p=>p.id);
+ if(ids.length!==count||new Set(ids).size!==count||ids.some(key=>!byId.has(key)))return false;
+ const selected=byId.get(id);if(!selected)return false;
+ const existing=ids.map(key=>byId.get(key));
+ const reserved=existing[target];
+ if(reserved?.locked&&reserved.id!==id){
+  toast((target+1)+'번째는 '+reserved.name+' 장소로 이미 지정돼 있어요. 해당 장소를 먼저 수정해 주세요.');
+  return false;
+ }
+ const slots=Array(count).fill(null);
+ // Other position preferences stay at their exact visit numbers.
+ existing.forEach((p,i)=>{if(p.locked&&p.id!==id)slots[i]=p;});
+ slots[target]=selected;
+ const available=existing.filter(p=>p.id!==id&&!p.locked);
+ let next=0;
+ for(let i=0;i<count;i++)if(!slots[i])slots[i]=available[next++];
+ if(slots.some(p=>!p)||next!==available.length)return false;
+ selected.locked=true;
+ d.stops=slots;
+ d.mode='auto';
+ if(d.result)state.dirtyDayIds.add(d.id);
+ d.result=null;sceneSignature='';sceneResult=null;mapFitQueued=true;
+ refresh();document.dispatchEvent(new Event('trip:stops-changed'));
+ return true;
+}
 // Result-step adjustments apply to the selected date only. Automatic mode remains selected.
 function setRouteStopLocked(id,locked){
  const d=day(),index=d.stops.findIndex(p=>p.id===id);if(index<0)return false;
@@ -696,6 +726,6 @@ window.TripApp = Object.freeze({
  importDays(days){if(!validDays(days))return false;clearTimeout(pendingCalc);liveRoutes.clear();state.days=normalizeDays(days);state.active=0;state.dirtyDayIds.clear();refresh();document.dispatchEvent(new Event('trip:days-imported'));return true},
  refresh, calculateRoute, openModal, toast, markDirty,applyLiveRoute,restorePlannedRoute,exportCloudDays,
  resizeMap:()=>resizeMapStable({fit:mapFitQueued}),refreshMap:renderMap,getMap:()=>map,fitMap,focusPlace,setMapLocked,
- setDayCount,setTravelDates,syncLinkedOrigins,setStopFixedDate,allStops,unassignedStops,moveUnassignedToActive,removeStop,clearComputed,applyMultiRoutes,applyDailyRoutes,setRouteMode,setDayOriginMode,reorderStop,setRouteStopLocked,moveRouteStop,centerMapAtRegion,getMapDiagnostics:()=>({created:mapCreateCount,resizes:mapResizeCount,overlays:overlayRenderCount,ready:!!map,visible:mapHasArea()}),getRegion:currentRegion,setRegion,addQuickStop,setEndpointFromSearch,previewPlace,clearPlacePreview,
+ setDayCount,setTravelDates,syncLinkedOrigins,setStopFixedDate,allStops,unassignedStops,moveUnassignedToActive,removeStop,clearComputed,applyMultiRoutes,applyDailyRoutes,setRouteMode,setDayOriginMode,reorderStop,setRouteStopLocked,moveRouteStop,setRouteStopPosition,centerMapAtRegion,getMapDiagnostics:()=>({created:mapCreateCount,resizes:mapResizeCount,overlays:overlayRenderCount,ready:!!map,visible:mapHasArea()}),getRegion:currentRegion,setRegion,addQuickStop,setEndpointFromSearch,previewPlace,clearPlacePreview,
 });
 boot();
