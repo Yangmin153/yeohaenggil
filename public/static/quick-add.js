@@ -128,7 +128,7 @@ function add(item,button=null){
  const message=item.name+' 추가 완료 · 총 '+total+'곳';
  feedback(message);selectedPreview=null;app.clearPlacePreview();
  if(isFullSearch){
-  window.YeoSearch?.addSuccess?.(item.name+'을(를) 담았어요. · '+total+'곳',item);
+  window.YeoSearch?.addSuccess?.(item.name+'을(를) 담았어요. · '+total+'곳',item,result.stop?.id);
   // Leave the pressed result visibly confirmed for 450ms, without blocking the next input.
   const completed=sequence;
   setTimeout(()=>{if(sequence===completed&&!input.value.trim()){results.hidden=true;results.replaceChildren();}},450);
