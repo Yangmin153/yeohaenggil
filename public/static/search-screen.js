@@ -211,8 +211,10 @@ function show(kind='stop'){
  returnStep=Number(document.body.dataset.tripStep)===3?3:2;
  searchDayId=window.TripApp?.getDay?.()?.id||null;
  $('search-list-toggle').hidden=true;
-  $('search-global-results').hidden=true;
-  $('search-scope-note').textContent='검색 결과에서 장소를 선택해 주세요. 지도는 위치 확인용이에요.';
+ $('search-global-results').hidden=true;
+  $('search-scope-note').textContent='장소 이름이나 주소를 검색해 결과에서 추가해 주세요. 지도는 위치 확인용이에요.';
+ input.placeholder=searchKind==='origin'?'오늘의 출발지를 검색하세요':searchKind==='destination'?'마지막 도착지를 검색하세요':'가고 싶은 장소명이나 주소 검색';
+ input.setAttribute('aria-label',searchKind==='origin'?'출발지 장소 검색':searchKind==='destination'?'도착지 장소 검색':'방문지 장소 검색');
  if(window.YeoRegion&&!window.YeoRegion.ensureSelected())return;
  opened=true;historyEntry=true;previousFocus=document.activeElement;previousScroll=window.scrollY;
  feedback.hidden=true;clearPreview({restoreCamera:false});items=[];input.value='';results.replaceChildren();results.hidden=true;
@@ -252,8 +254,11 @@ function addSuccess(message,place=null){
  updateSavedButton();
  feedback.textContent=message;feedback.hidden=false;
  clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>feedback.hidden=true,2100);
- if(place)focusAdded(place);
- else{clearPreview({restoreCamera:false});showMode('map');refreshSavedMarkers();}
+ // Keep the real search field and result list on screen after adding a visit.
+ // Only a search-result row may explicitly open the map preview.
+ clearPreview({restoreCamera:false});
+ showMode('list');
+ requestAnimationFrame(()=>{if(opened&&searchKind==='stop')input.focus({preventScroll:true});});
 }
 function completeEndpoint(item){
  const kind=searchKind;
