@@ -3,7 +3,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#f5faf7"><title>함께 보는 여행길 · 읽기 전용 일정</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css">
-<link rel="stylesheet" href="/static/shared-trip.css?v=2">
+<link rel="stylesheet" href="/static/shared-trip.css?v=3">
 </head><body class="yg-viewonly">
 <header class="sv-header"><a href="/" class="sv-brand">↗ 여행길</a><span class="sv-label">읽기 전용 일정</span></header>
 <main class="sv-layout">
@@ -12,12 +12,12 @@
 <div id="sv-content" hidden>
  <nav id="sv-days" class="sv-days" aria-label="확인할 여행 날짜"></nav>
  <section class="sv-map-card" aria-label="방문지 위치 지도">
-  <div class="sv-map-head"><strong>장소 위치</strong><small>네이버 지도에 방문지 위치만 표시해요. 확인되지 않은 경로선은 그리지 않습니다.</small></div>
-  <div id="sv-map" class="sv-map"><svg id="sv-fallback-map" viewBox="0 0 500 260" role="img" aria-label="방문지 간략 위치도" preserveAspectRatio="xMidYMid meet"></svg></div>
+  <div class="sv-map-head"><div><strong>우리 여행 지도</strong><small>번호를 눌러 위치를 확인해 보세요. · 실제 도로 경로선은 표시하지 않아요.</small></div><button type="button" id="sv-map-fit" aria-label="모든 여행 장소 지도에서 보기">전체 장소 보기</button></div>
+  <div id="sv-map" class="sv-map"><svg id="sv-fallback-map" viewBox="0 0 904 285" role="img" aria-label="방문지 위치 표시" preserveAspectRatio="none"></svg></div><p id="sv-map-caption" class="sv-map-caption" role="status">지도를 준비하고 있어요.</p>
  </section>
- <section class="sv-timeline-card"><div class="sv-title-row"><h2>방문 순서</h2><span id="sv-metrics"></span></div><ol id="sv-timeline" class="sv-timeline"></ol></section>
- <div class="sv-share-actions"><button type="button" id="sv-save-card">이 날짜 이미지 저장</button><button type="button" id="sv-share-card">이미지 공유</button></div>
+ <section class="sv-timeline-card"><div class="sv-title-row"><div><h2>날짜별 방문 장소</h2><small id="sv-day-status">여행 계획</small></div><span id="sv-metrics"></span></div><ol id="sv-timeline" class="sv-timeline"></ol></section>
+
 </div>
 </main>
 <footer class="sv-footer">여행길 · 친구와 함께 보는 여행 일정</footer>
-<script type="module" src="/static/view-trip.js?v=2"></script></body></html>
+<script type="module" src="/static/view-trip.js?v=3"></script></body></html>
