@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="/static/account-mint.css?v=1.0.0">
   <link rel="stylesheet" href="/static/flight-calendar.css?v=1.0.0">
   <link rel="stylesheet" href="/static/visit-edit.css?v=1.0.0">
+  <link rel="stylesheet" href="/static/search-transition.css?v=1.0.0">
   <script defer src="/static/search-utils.js?v=4.2.0"></script>
   <script defer src="/static/place-meta.js?v=4.3.0"></script>
   <script defer src="/static/route-pins.js?v=6.4.0"></script>
@@ -33,8 +34,8 @@
   <script defer src="/static/scroll-lock.js?v=7.0.0"></script>
   <script defer src="/static/app.js?v=7.15.0"></script>
   <script type="module" src="/static/mobile-ux.js?v=4.8.0"></script>
-  <script type="module" src="/static/quick-add.js?v=7.15.0"></script>
-  <script type="module" src="/static/search-screen.js?v=7.15.0"></script>
+  <script type="module" src="/static/quick-add.js?v=7.16.0"></script>
+  <script type="module" src="/static/search-screen.js?v=7.16.0"></script>
   <script defer src="/static/map-workspace.js?v=6.7.1"></script>
   <script type="module" src="/static/accounts.js?v=7.6.0"></script>
   <!-- Region onboarding removed from vNext daily planner; legacy nodes retained for compatibility. -->
@@ -356,6 +357,14 @@
   <span id="search-screen-region">장소 검색</span>
   <button type="button" id="search-screen-count" class="yg-search-saved-button" aria-label="현재 날짜에 담은 방문지 목록 열기" aria-live="polite">담은 장소 보기 (0)</button>
  </div>
+ <div id="search-stage-card" class="search-stage-card" aria-label="현재 장소 검색 단계">
+  <span id="search-stage-icon" class="search-stage-icon" aria-hidden="true">⌕</span>
+  <div class="search-stage-copy">
+   <strong id="search-stage-label">방문지 검색</strong>
+   <small id="search-stage-help">검색 결과에서 가고 싶은 장소를 담아 주세요.</small>
+  </div>
+ </div>
+ <div id="search-transition-toast" class="search-transition-toast" role="status" aria-live="polite" hidden></div>
  <div id="search-screen-form-mount" class="search-screen-form-mount"></div>
  <div id="search-screen-toolbar" class="search-screen-toolbar" role="group" aria-label="검색 보기 설정">
   <button type="button" id="search-global-results" class="search-toolbar-action" hidden>전국 관련도순</button>
