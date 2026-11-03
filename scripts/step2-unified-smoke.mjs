@@ -37,6 +37,7 @@ for(const fixture of fixtures){
   await page.evaluate(place=>window.TripQuickAdd.addPlace(place),stop);
   await page.waitForFunction(()=>document.getElementById('search-screen').hidden&&window.TripApp.getDay().stops.length===1);
   assert.equal(await page.locator('#yg-calculate').isDisabled(),true);
+  await page.waitForFunction(()=>window.__testFocus.length>=1,{},{timeout:5000});
   assert.ok((await page.evaluate(()=>window.__testFocus)).length>=1);
   await page.locator('#yg-open-stops').click();
   assert.equal(await page.locator('#yg-open-stops').getAttribute('aria-expanded'),'true');
