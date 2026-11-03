@@ -5,6 +5,8 @@ const base=process.env.YG_PREVIEW_URL||'https://yeohaenggil-orodk51j3-travel-ale
 const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
 const ctx=await browser.newContext({viewport:{width:390,height:780},deviceScaleFactor:1,acceptDownloads:true,locale:'ko-KR'});
 const page=await ctx.newPage();page.setDefaultTimeout(18000);
+page.on('pageerror',e=>console.log('PAGE_ERROR',e.message));
+page.on('console',m=>{if(['error','warning'].includes(m.type()))console.log('PAGE_CONSOLE_'+m.type(),m.text().slice(0,500));});
 const place=(id,name,lat,lng)=>({id,name,lat,lng,address:'서울특별시 종로구'});
 const start=place('s','경복궁',37.5797,126.977),end=place('e','서울역',37.5547,126.9707),one=place('1','북촌한옥마을',37.5826,126.984);
 const day={id:'day-1',date:'2026-11-03',origin:start,destination:end,stops:[one],departure:'09:00',mode:'auto',unassignedStops:[],
@@ -94,6 +96,13 @@ try{
  }));
  console.log('ADD_SEARCH_DIAGNOSTICS',JSON.stringify({beforeStop,...status}));
  if(status.count<=beforeStop)throw Error('Search result +add did not increase actual itinerary visit count');
+ await page.waitForTimeout(1000);
+ console.log('MAP_FOCUS_INITIAL_DIAGNOSTICS',JSON.stringify(await page.evaluate(()=>({
+  diagnostics:window.YeoSearch?.getMapDiagnostics?.(),viewMode:document.querySelector('#search-screen')?.dataset.searchMode,
+  mapVisible:!document.querySelector('#search-map-stage')?.hidden,
+  sdkReady:Boolean(window.naver?.maps?.Map),
+  stop:window.TripApp?.getDay?.()?.stops?.at(-1)
+ }))));
  await page.waitForFunction(()=>{
   const map=window.YeoSearch?.getMapDiagnostics?.(),visits=window.TripApp?.getDay?.()?.stops;
   const newest=visits?.at(-1);
