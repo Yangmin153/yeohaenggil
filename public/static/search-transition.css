@@ -1,0 +1,68 @@
+/* STEP2 search stages: visually separate departure and arrival without modal confirmations. */
+body.search-open #search-screen .search-stage-card{
+ display:flex;align-items:center;gap:10px;
+ flex:0 0 auto;min-height:56px;margin:8px 14px 6px;padding:8px 12px;
+ border:1px solid #d8eae3;border-radius:14px;background:#f3fbf7;
+ color:#1b5448;letter-spacing:-.03em
+}
+body.search-open #search-screen .search-stage-icon{
+ display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;
+ border-radius:11px;background:#e3f7ed;color:#0b987c;
+ font-size:20px;font-weight:850
+}
+body.search-open #search-screen .search-stage-copy{
+ display:grid;gap:2px;min-width:0;flex:1
+}
+body.search-open #search-screen .search-stage-copy strong{
+ font-size:14px;font-weight:850;line-height:1.5;white-space:nowrap
+}
+body.search-open #search-screen .search-stage-copy small{
+ font-size:12px;line-height:1.5;color:#658578;overflow-wrap:anywhere
+}
+body.search-open #search-screen[data-search-kind="origin"] .search-stage-card{
+ background:#eef9f4;border-color:#b8e6d2;color:#116d57
+}
+body.search-open #search-screen[data-search-kind="origin"] .search-stage-icon{
+ background:#d1f3e3;color:#087c63
+}
+body.search-open #search-screen[data-search-kind="destination"] .search-stage-card{
+ background:#fff5ef;border-color:#f6d3be;color:#9d4f29
+}
+body.search-open #search-screen[data-search-kind="destination"] .search-stage-icon{
+ background:#ffe6d5;color:#ba6639
+}
+body.search-open #search-screen[data-search-kind="destination"] #search-screen-region{
+ color:#aa5c35!important
+}
+body.search-open #search-screen[data-search-kind="origin"] #search-screen-region{
+ color:#0b9278!important
+}
+body.search-open #search-screen .search-transition-toast:not([hidden]){
+ display:block;flex:0 0 auto;margin:2px 14px 6px;padding:11px 12px;
+ border-radius:12px;border:1px solid #b9e4d6;
+ background:#e9f8f1;color:#116d58;font-size:12px;font-weight:800;
+ line-height:1.5;letter-spacing:-.03em;box-shadow:0 2px 10px #0d5a3c0f
+}
+body.search-open #search-screen[data-search-kind="destination"] .search-transition-toast:not([hidden]){
+ background:#fff4e9;border-color:#f6d8c0;color:#9f582e
+}
+body.search-open #search-screen .search-transition-toast[hidden]{
+ display:none!important
+}
+body.search-open #search-screen #search-screen-form-mount{
+ flex:0 0 auto;min-height:44px
+}
+body.search-open #search-screen .search-screen-results-mount{
+ min-height:0
+}
+@media(max-height:580px){
+ body.search-open #search-screen .search-stage-card{
+  min-height:45px;margin:3px 12px;padding:5px 10px
+ }
+ body.search-open #search-screen .search-stage-icon{
+  width:32px;height:32px;flex-basis:32px
+ }
+ body.search-open #search-screen .search-transition-toast:not([hidden]){
+  margin:2px 12px 4px;padding:8px 10px
+ }
+}
