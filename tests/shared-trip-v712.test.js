@@ -49,7 +49,7 @@ test('sharing uses independent noneditable view, preserves trip editor & offers 
  assert.match(ui,/navigator\.share/);
  assert.match(viewjs,/decodeSnapshot/);
  assert.match(viewjs,/sv-timeline/);
- assert.match(viewjs,/staticMapLayout/);
+ assert.match(viewjs,/new window\.naver\.maps\.Map/);
 });
 test('route loading progress tracks completed work, not invented percentages',async()=>{
  const [html,js]=await Promise.all(['public/index.html','public/static/vnext.js'].map(read));
