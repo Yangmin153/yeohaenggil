@@ -71,7 +71,7 @@ test('v5.3 result can add places and recalculate while maintaining dirty indicat
 
 test('v5.3 all browser entrypoint scripts parse without syntax errors',async()=>{
  for(const path of ['public/static/app.js','public/static/search-screen.js','public/static/design-v51.js']){
-  const source=await read(path);assert.doesNotThrow(()=>new Function(source),path);
+  const source=await read(path);assert.doesNotThrow(()=>new Function(source.replace(/^import .*;\s*$/gm,'')),path);
  }
  const quick=await read('public/static/quick-add.js');
  assert.doesNotThrow(()=>new Function(quick.replace(/^import .*;\s*$/gm,'')));

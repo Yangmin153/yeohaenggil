@@ -26,7 +26,7 @@ test('one cancellable preview works for search results while map tapping never s
  assert.doesNotMatch(script,/maps\.Event\.addListener\(searchMap,'click'/);
  assert.match(script,/clearPreview\(\{restoreCamera:false\}\)/);
 });
-test('add click keeps place search visible for the next query; map preview remains optional',async()=>{
+test('place search selection returns to STEP2 and focuses the saved position',async()=>{
  const [quick,screen]=await Promise.all(['public/static/quick-add.js','public/static/search-screen.js'].map(read));
  assert.match(quick,/addSuccess\?\.\(item\.name[^\n]*item\)/);
  assert.match(screen,/function focusAdded\(item\)/);
@@ -42,7 +42,7 @@ test('endpoint search result instantly sets endpoint without choosing map coordi
  assert.match(quick,/YeoSearch\.completeEndpoint\(item\)/);
  assert.match(screen,/function completeEndpoint\(item\)/);
  assert.match(screen,/setEndpointFromSearch\?\.\(kind,item\)/);
- assert.match(screen,/show\('destination',\{transitionMessage:/);
+ assert.doesNotMatch(screen,/show\('destination',\{transitionMessage:/);
 });
 test('popup and result mode preserve background lock and keyboard-friendly scrolling',async()=>{
  const [screen,style]=await Promise.all(['public/static/search-screen.js','public/static/vnext.css'].map(read));
@@ -58,5 +58,5 @@ test('search UI strings are explicit and buttons have minimum 44px target',async
  assert.match(html,/id="search-global-results"/);
  assert.match(css,/min-height:44px/);
  assert.match(screen,/textContent='담은 장소 보기'/);
- assert.match(html,/search-screen\.js\?v=7\.16\.0/);
+ assert.match(html,/search-screen\.js\?v=8\.0\.0/);
 });
