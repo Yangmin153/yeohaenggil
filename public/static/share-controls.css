@@ -68,3 +68,6 @@ body[data-trip-step] .search-screen-results-mount{
 body[data-trip-step] .search-screen[data-keyboard-open="true"] .search-screen-top{min-height:44px!important}
 body[data-trip-step] .search-screen[data-keyboard-open="true"] .search-screen-results-mount{padding-bottom:14px!important}
 body[data-trip-step] .search-screen[data-keyboard-open="true"] .search-area-tools{display:none!important}
+
+/* Legacy map tap-to-place UI must never appear in any search mode. */
+#btn-pick-map,#btn-pick-map-primary,#map-select-notice{display:none!important}
