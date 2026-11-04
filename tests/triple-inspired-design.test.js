@@ -17,7 +17,8 @@ test('STEP1 keeps real native date inputs, introduces original travel card',asyn
   if(id==='yg-trip-showcase')assert.match(html,/class="yg-trip-showcase"/);
   else assert.match(html,new RegExp('id="'+id+'"'));
  }
- assert.ok(html.indexOf('yg-trip-showcase')<html.indexOf('id="yg-start-date"'));
+ assert.ok(html.indexOf('id="yg-start-date"')<html.indexOf('id="yg-next-places"'));
+ assert.ok(html.indexOf('id="yg-next-places"')<html.indexOf('yg-trip-showcase'));
  assert.doesNotMatch(html,/step1-promo\.js/);
 });
 test('STEP2 search, day selection, endpoints and optimization keep their original handlers',async()=>{
