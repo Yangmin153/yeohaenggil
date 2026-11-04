@@ -43,7 +43,7 @@ test('editing a preferred stop never silently displaces another preferred stop',
  assert.deepEqual(d.stops.map(x=>x.id),['c','b','a','d']);
  assert.equal(d.stops[1].locked,true);
 });
-test('search UI returns to STEP2 and never enables map-based place selection',async()=>{
+test('search UI remains open with saved location marker, without map-based place picking',async()=>{
  const search=await read('public/static/search-screen.js');
  const quick=await read('public/static/quick-add.js');
  assert.match(search,/function addSuccess\(message,place=null\)/);
