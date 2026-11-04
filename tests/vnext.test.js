@@ -41,7 +41,7 @@ test('Kakao y latitude and x longitude keep Naver LatLng position correct',async
  assert.equal(x.lat,33.361666);assert.equal(x.lng,126.529166);
  const app=await read('public/static/app.js'),search=await read('public/static/search-screen.js'),core=await read('lib/core.js');
  assert.match(app,/new naver\.maps\.LatLng\(place\.lat,place\.lng\)/);
- assert.match(search,/new window\.naver\.maps\.LatLng\(Number\(item\.lat\),Number\(item\.lng\)\)/);
+ assert.match(search,/new window\.naver\.maps\.LatLng\(Number\(selected\.lat\),Number\(selected\.lng\)\)/);
  assert.match(core,/const coordinates = p => `\$\{p\.lng\.toFixed\(7\)\},\$\{p\.lat\.toFixed\(7\)\}`/);
  assert.match(core,/\[\[a\.lng,a\.lat\],\[b\.lng,b\.lat\]\]/);
 });
