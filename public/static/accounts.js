@@ -2,7 +2,20 @@
 const $=id=>document.getElementById(id),app=()=>window.TripApp;
 let api=null,session=null,user=null,activeId=null,config=null,lastId=null,busy=false,authView='signin',pendingEmail='',pendingEmailType='signup',oauthCheckedAt=0;
 let tripCache=null,tripCacheUser=null,tripLoadedAt=0,tripPending=null,tripRequestId=0,openRequestId=0,apiPending=null;
-let draftScopeId=globalThis.crypto?.randomUUID?.()||String(Date.now());
+const DRAFT_KEY='yeohaenggil.vnext.draft-scope-id';
+function rotateDraftScope(){
+ const id=globalThis.crypto?.randomUUID?.()||String(Date.now());
+ try{sessionStorage.setItem(DRAFT_KEY,id);}catch{}
+ return id;
+}
+function restoreDraftScope(){
+ try{
+  const stored=sessionStorage.getItem(DRAFT_KEY);
+  if(stored&&/^[a-z0-9-]{8,80}$/i.test(stored))return stored;
+ }catch{}
+ return rotateDraftScope();
+}
+let draftScopeId=restoreDraftScope();
 const enabledOAuth={google:false,kakao:false};
 const panel=$('account-panel'),feedback=$('account-feedback'),travelList=$('account-trips');
 const notice=(msg,error=false)=>{feedback.textContent=msg;feedback.dataset.error=String(error)};
@@ -98,7 +111,7 @@ async function refreshOAuthProviders(force=false){
 function applySession(next){
  const id=next?.user?.id||null,changed=id!==lastId;
  if(changed){
-   draftScopeId=globalThis.crypto?.randomUUID?.()||String(Date.now());
+   if(lastId!==null)draftScopeId=rotateDraftScope();
    ++tripRequestId;++openRequestId;tripCache=null;tripCacheUser=null;tripLoadedAt=0;tripPending=null;
    $('account-trips-status').textContent=id?'저장된 여행을 불러오는 중…':'';
    if(lastId!==null){activeId=null;travelList.replaceChildren();app().restoreGuestDays();}
@@ -313,7 +326,7 @@ async function perform(action){
   }else if(action==='save')await saveCloud();
   else if(action==='list')await loadTrips(true);
   else if(action==='import')await importLocal();
-  else if(action==='new'){if(confirm('새 여행을 시작할까요? 기존 클라우드 여행은 별도로 저장해야 합니다.')){activeId=null;draftScopeId=globalThis.crypto?.randomUUID?.()||String(Date.now());app().newTrip();$('account-trip-name').value='새 여행';close();}}
+  else if(action==='new'){if(confirm('새 여행을 시작할까요? 기존 클라우드 여행은 별도로 저장해야 합니다.')){activeId=null;draftScopeId=rotateDraftScope();app().newTrip();$('account-trip-name').value='새 여행';close();}}
   else if(action==='signout'){const {error}=await api.auth.signOut();if(error)throw error;applySession(null);setView('signin');close();}
   else if(action==='password'){if(!user?.email)throw Error('계정 이메일을 확인할 수 없어요.');const {error}=await api.auth.resetPasswordForEmail(user.email,{redirectTo:location.origin+location.pathname});if(error)throw error;notice('비밀번호 변경 링크를 이메일로 보냈어요. 메일함을 확인해 주세요.');}
   else if(action==='delete'){if(prompt('계정 삭제와 여행 데이터 영구 삭제에 동의한다면 DELETE를 입력하세요.')!=='DELETE')return;const response=await fetch('/api/account',{method:'DELETE',headers:{authorization:'Bearer '+session.access_token}});const body=await response.json();if(!response.ok)throw Error(body.error||'계정 삭제를 완료하지 못했습니다.');await api.auth.signOut();applySession(null);close();}

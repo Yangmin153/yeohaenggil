@@ -49,6 +49,8 @@ test('archived dates are isolated by user/trip scope and are not read from legac
  const accounts=await read('public/static/accounts.js');
  assert.match(accounts,/const storageScope=\(\)=>loggedIn\(\)\?user\.id/);
  assert.match(accounts,/draftScopeId=/);
+ assert.match(accounts,/sessionStorage\.getItem\(DRAFT_KEY\)/);
+ assert.match(accounts,/if\(lastId!==null\)draftScopeId=rotateDraftScope\(\)/);
  assert.match(accounts,/migrateArchiveScope\?\.\(previousScope,storageScope\(\)\)/);
 });
 test('editing one day leaves unrelated calculated days unchanged',async()=>{
