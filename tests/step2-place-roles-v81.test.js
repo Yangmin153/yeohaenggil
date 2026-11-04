@@ -34,8 +34,8 @@ test('unified screen chooses endpoints from one saved-place popup and preserves 
  const [html,ui,app,search,css]=await Promise.all([
  'public/index.html','public/static/vnext.js','public/static/app.js','public/static/search-screen.js',
  'public/static/step2-role-picker.css'].map(read));
- for(const id of ['yg-inline-stops','yg-role-status','search-picked-origin','search-picked-destination'])assert.ok(html.includes('id="'+id+'"'));
+ for(const id of ['yg-inline-stops','yg-role-status','yg-endpoint-chooser','search-picked-add'])assert.ok(html.includes('id="'+id+'"')); assert.doesNotMatch(html,/id="search-picked-(?:origin|destination)"/);
  assert.match(ui,/data-chooser-place/);assert.doesNotMatch(ui,/data-assign-role/);assert.match(app,/function setCollectedRoleFromSearch/);
- assert.match(search,/function chooseRole/);
+ assert.doesNotMatch(search,/function chooseRole/);assert.match(search,/function completeEndpoint/);
  assert.match(css,/#yg-endpoint-section\{display:none!important/);
 });

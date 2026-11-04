@@ -26,8 +26,8 @@ test('same-origin Static Map API validates focused point, dimensions, and abuse 
 test('search results add only by button, then Naver map preview contains saved and focused markers without candidates',async()=>{
  const [screen,html,css,quick]=await Promise.all(['public/static/search-screen.js','public/index.html','public/static/search-transition.css','public/static/quick-add.js'].map(read));
  assert.match(quick,/YeoSearch\?\.addSuccess\?\.\(item\.name/);
- assert.match(screen,/if\(id\)requestAnimationFrame\(\(\)=>window\.TripApp\?\.focusPlace\?\.\(id\)\)/);
- assert.match(screen,/const id=place\?window\.TripApp/);
+ assert.match(screen,/selected=place;previewSource='added'/);
+ assert.match(screen,/picked.hidden=true;input.blur\(\)/);
  assert.match(screen,/selectedMarker=mark\(selected,true\)/);
  assert.match(screen,/refreshSavedMarkers\(\);selectedMarker=mark\(selected,true\)/);
  assert.match(screen,/getMapDiagnostics:/);

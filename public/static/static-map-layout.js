@@ -28,7 +28,7 @@ export function focusedStaticMapLayout(points,focus,width=390,height=500,level=1
   Number(p.x)>=32&&Number(p.x)<=40&&Number(p.y)>=123&&Number(p.y)<=133;
  if(!Array.isArray(points)||!points.length||points.length>42||!points.every(valid)||!valid(focus))return null;
  const w=Number(width),h=Number(height),z=Number(level);
- if(!Number.isInteger(w)||w<320||w>1024||!Number.isInteger(h)||h<240||h>1024||
+ if(!Number.isInteger(w)||w<320||w>1024||!Number.isInteger(h)||h<120||h>1024||
   !Number.isInteger(z)||z<6||z>16)return null;
  if(!points.some(p=>Math.abs(Number(p.x)-Number(focus.x))<0.00001&&Math.abs(Number(p.y)-Number(focus.y))<0.00001))return null;
  const c=project(Number(focus.x),Number(focus.y)),scale=256*2**z;

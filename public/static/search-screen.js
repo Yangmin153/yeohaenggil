@@ -92,10 +92,13 @@ function renderStaticFallback(){
  const box=mapStage.getBoundingClientRect();
  const width=Math.min(1024,Math.round(box.width)),height=Math.min(1024,Math.round(box.height));
  // Avoid stretching a 240px keyboard-era image into a taller map.
- if(width<320||height<240||width>1024||height>1024){
+ // A compact iPhone map can be shorter than 240px after Safari UI changes.
+ // Render a real image at its actual dimensions instead of getting stuck in a
+ // permanent "adjusting screen" state.
+ if(width<320||height<120||width>1024||height>1024){
   root.hidden=true;
   $('search-map-message').hidden=false;
-  $('search-map-message').textContent='화면을 조정하고 있어요. 잠시 후 지도가 나타나요.';
+  $('search-map-message').textContent='지도를 불러오는 중이에요.';
   return;
  }
  const d=window.TripApp?.getDay?.();
@@ -210,11 +213,6 @@ function existingPlaces(){
   ...(['origin','destination'].filter(kind=>d[kind]&&Number.isFinite(d[kind].lat)&&Number.isFinite(d[kind].lng)&&!/미설정/.test(d[kind].name||'')).map(kind=>({place:d[kind],kind})))];
 }
 function endpointMode(){return searchKind==='origin'||searchKind==='destination';}
-function showRoleOptions(){
- const available=!endpointMode()&&opened;
- picked.querySelector('.search-picked-role-row').hidden=!available;
- for(const id of ['search-picked-origin','search-picked-destination'])$(id).hidden=!available;
-}
 function actionText(){return searchKind==='origin'?'출발지로 설정':searchKind==='destination'?'도착지로 설정':'이 장소 담기';}
 function showSaved(place){
  rememberCamera();selected=place;previewSource='saved';isSavedSelection=true;
@@ -223,7 +221,7 @@ function showSaved(place){
  $('search-picked-address').textContent=(place.address||'')+' · 이미 담은 장소';
  $('search-picked-add').textContent=endpointMode()?actionText():'이미 추가됨';
  $('search-picked-add').disabled=!endpointMode();
- picked.hidden=false;showRoleOptions();showMode('map');
+ picked.hidden=false;showMode('map');
 }
 /**
  * Deterministically rebuild persisted place pins from the active day's data.
@@ -311,8 +309,6 @@ function clearPreview({restoreCamera=true}={}){
  const hadSelection=Boolean(selected);
  selected=null;previewSource=null;isSavedSelection=false;
  picked.hidden=true;
- picked.querySelector('.search-picked-role-row').hidden=true;
- $('search-picked-origin').hidden=true;$('search-picked-destination').hidden=true;
  $('search-picked-add').disabled=false;
  $('search-picked-cancel').textContent='취소';
  if(hadSelection&&restoreCamera&&previewCamera&&searchMap){
@@ -331,7 +327,7 @@ function preview(item,source='result'){
  $('search-picked-name').textContent=String(item.name||'선택한 위치');
  $('search-picked-address').textContent=String(item.address||'지도에서 선택한 장소');
  input.blur();
- picked.hidden=false;showRoleOptions();
+ picked.hidden=false;
  showMode('map');
 }
 function focusAdded(item){
@@ -409,11 +405,14 @@ function notify(message){
 }
 function addSuccess(message,place=null){
  if(!opened)return;
- const id=place?window.TripApp?.getDay?.()?.stops?.at(-1)?.id:null;
- hide();
- window.YeoNext?.expandPlaceList?.();
- window.TripApp?.toast?.(message);
- if(id)requestAnimationFrame(()=>window.TripApp?.focusPlace?.(id));
+ if(!place){notify(message);return;}
+ // The inline '추가' action must stay in the search overlay. Focus only the
+ // persisted result and let the existing map move to that coordinate once.
+ selected=place;previewSource='added';isSavedSelection=true;previewCamera=null;
+ picked.hidden=true;input.blur();
+ updateSavedButton();
+ showMode('map');
+ notify(message);
 }
 function showTransition(message){
  const notice=$('search-transition-toast');
@@ -431,15 +430,6 @@ function completeEndpoint(item){
  window.TripApp?.toast?.(kind==='origin'?'출발지를 설정했어요.':'도착지를 설정했어요.');
  if(placeId)requestAnimationFrame(()=>window.TripApp?.focusPlace?.(placeId));
  return true;
-}
-function chooseRole(kind){
- if(!selected||endpointMode())return;
- const result=window.TripApp?.setCollectedRoleFromSearch?.(selected,kind);
- if(!result?.ok)return notify(result?.error||'역할을 지정하지 못했어요.');
- hide();
- window.YeoNext?.expandPlaceList?.();
- window.TripApp?.toast?.(kind==='origin'?'출발지로 지정했어요.':'도착지로 지정했어요.');
- if(result.id)requestAnimationFrame(()=>window.TripApp?.focusPlace?.(result.id));
 }
 let addingSelection=false;
 function chooseAdd(){
@@ -464,8 +454,6 @@ function chooseAdd(){
 $('search-screen-back').addEventListener('click',()=>hide());
 $('search-list-toggle').addEventListener('click',()=>showMode(mode==='list'?'map':'list'));
 $('search-picked-add').addEventListener('click',chooseAdd);
-$('search-picked-origin').addEventListener('click',()=>chooseRole('origin'));
-$('search-picked-destination').addEventListener('click',()=>chooseRole('destination'));
 $('search-picked-cancel').addEventListener('click',()=>clearPreview());
 // The saved-place list can be opened without changing the current step.
 input.addEventListener('input',()=>{if(opened)clearPreview({restoreCamera:false});});

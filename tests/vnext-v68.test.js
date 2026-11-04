@@ -63,7 +63,7 @@ test('endpoint search uses exact same full-screen screen and retains saved visit
  assert.match(screen,/function completeEndpoint\(item\)/);
  assert.match(quick,/window\.YeoSearch\.preview\(item\)/);
  assert.match(vnext,/data-chooser-place/);
- assert.match(screen,/function chooseRole\(kind\)/);
+ assert.doesNotMatch(screen,/function chooseRole\(kind\)/);
  assert.match(app,/function setCollectedRoleFromSearch\(item,role\)/);
  assert.match(app,/function setEndpointFromSearch\(kind,item\)/);assert.match(app,/const result=setCollectedRoleFromSearch\(item,kind\)/);
 });

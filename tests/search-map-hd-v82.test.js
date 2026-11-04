@@ -65,7 +65,7 @@ test('STEP2 map requests twice-resolution tiles and survives Preview Dynamic Map
  assert.match(style,/object-fit:contain!important/);
  assert.match(style,/width:min\(100%,1024px\)/);
 });
-test('selected-place buttons emphasize one primary CTA and a two-column role row',async()=>{
+test('selected-place search preview has only the primary add CTA, not endpoint choices',async()=>{
  const [html,style,screen]=await Promise.all([
   read('public/index.html'),read('public/static/search-map-clarity-v82.css'),read('public/static/search-screen.js')
  ]);
@@ -73,11 +73,11 @@ test('selected-place buttons emphasize one primary CTA and a two-column role row
  const head=section.indexOf('class="search-picked-heading"'),actions=section.indexOf('class="search-picked-actions"');
  assert.ok(head>=0&&actions>head);
  assert.ok(section.indexOf('id="search-picked-cancel"')<actions);
- assert.ok(section.indexOf('id="search-picked-add"')<section.indexOf('class="search-picked-role-row"'));
- assert.ok(section.includes('id="search-picked-origin"')&&section.includes('id="search-picked-destination"'));
+ assert.ok(section.includes('id="search-picked-add"'));
+ assert.ok(!section.includes('class="search-picked-role-row"'));
+ assert.doesNotMatch(section,/id="search-picked-(?:origin|destination)"/);
  assert.match(style,/#search-screen \.search-picked-actions #search-picked-add/);
- assert.match(style,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
- assert.match(screen,/showRoleOptions\(\)/);
+ assert.doesNotMatch(screen,/showRoleOptions\(\)|function chooseRole/);
  assert.match(html,/search-map-clarity-v82\.css\?v=1\.1\.0/);
 });
 test('all changed scripts pass Node syntax checks',()=>{
