@@ -50,7 +50,7 @@ test('STEP2 search preview displays selected marker only while saved markers rea
  assert.match(js,/selectedMarker=mark\(selected,true\)/);
  assert.match(js,/if\(id\)requestAnimationFrame\(\(\)=>window\.TripApp\?\.focusPlace\?\.\(id\)\)/);
  assert.match(js,/showMode\('list'\)/);
- assert.match(js,/picked.hidden=false;showMode\('map'\);paintMarkers\(\)/);
+ assert.match(js,/const created=maybeMap\(\)/);assert.match(js,/if\(!created&&selected\)paintMarkers\(\)/);
  assert.match(js,/document\.addEventListener\('trip:stops-changed'/);
 });
 test('STEP2 collection sheet hides date choice and only supports deletion',async()=>{
