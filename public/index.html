@@ -33,21 +33,22 @@
   <link rel="stylesheet" href="/static/vnext-step12-compact-v84.css?v=1.1.0">
   <link rel="stylesheet" href="/static/search-compact-v86.css?v=1.0.0">
   <link rel="stylesheet" href="/static/vnext-compact-v87.css?v=1.0.0">
+  <link rel="stylesheet" href="/static/vnext-unified-v88.css?v=1.0.0">
   <script defer src="/static/search-utils.js?v=4.2.0"></script>
   <script defer src="/static/place-meta.js?v=4.3.0"></script>
   <script defer src="/static/route-pins.js?v=6.4.0"></script>
   <script defer src="/static/route-shape.js?v=6.4.0"></script>
   <script defer src="/static/scroll-lock.js?v=7.0.0"></script>
   <script defer src="/static/place-role-core.js?v=1.0.0"></script>
-  <script defer src="/static/app.js?v=8.6.0"></script>
+  <script defer src="/static/app.js?v=8.8.0"></script>
   <script type="module" src="/static/mobile-ux.js?v=4.8.0"></script>
-  <script type="module" src="/static/quick-add.js?v=8.6.0"></script>
-  <script type="module" src="/static/search-screen.js?v=8.6.0"></script>
+  <script type="module" src="/static/quick-add.js?v=8.8.0"></script>
+  <script type="module" src="/static/search-screen.js?v=8.8.0"></script>
   <script type="module" src="/static/step2-map-fallback.js?v=1.1.0"></script>
   <script defer src="/static/map-workspace.js?v=6.7.1"></script>
-  <script type="module" src="/static/accounts.js?v=7.6.0"></script>
+  <script type="module" src="/static/accounts.js?v=8.8.0"></script>
   <!-- Region onboarding removed from vNext daily planner; legacy nodes retained for compatibility. -->
-  <script defer src="/static/vnext.js?v=8.7.0"></script>
+  <script defer src="/static/vnext.js?v=8.8.0"></script>
   <script defer src="/static/navigation.js?v=7.6.0"></script>
   <script defer src="/static/live-route.js?v=7.5.0"></script>
   <script type="module" src="/static/share-trip.js?v=3.0.0"></script>
@@ -210,6 +211,10 @@
 <div class="map-select-notice hidden" id="map-select-notice"><strong>지도에서 위치를 선택하세요</strong><span>원하는 곳을 지도에서 한 번 눌러주세요</span><button id="btn-cancel-map-pick">취소</button></div></div>
         <div class="map-sheet" id="map-sheet"><button class="map-sheet-toggle" id="map-sheet-toggle" type="button" aria-expanded="false">가는 순서 보기 <span aria-hidden="true">⌃</span></button><div class="map-sheet-list" id="map-sheet-list"></div></div>
         <div class="result-section" id="route-results">
+          <div id="yg-incomplete-day" class="yg-incomplete-day" role="status" aria-live="polite" hidden>
+            <div><strong>이 날짜는 아직 동선 계산 전이에요.</strong><p>다른 날짜의 계산 결과는 유지돼요. 이 날짜에 출발지와 도착지를 정해 주세요.</p></div>
+            <button type="button" id="yg-incomplete-edit">이 날짜 완성하기</button>
+          </div>
           <div class="result-title"><div><div class="section-kicker">MY ROUTE</div><h2>오늘 얼마나 이동하나요?</h2></div><span class="result-status" id="result-status">계산 전</span></div>
           <div class="metrics"><div class="metric"><span>방문 장소</span><strong id="metric-places">—</strong><small>곳</small></div><div class="metric"><span id="metric-mode-label">자동차 이동</span><strong id="metric-drive">—</strong><small>분</small></div><div class="metric"><span>이동 거리</span><strong id="metric-distance">—</strong><small>km</small></div></div>
           <p id="route-savings" class="route-savings hidden" aria-live="polite"></p><div id="result-alert" class="result-alert hidden" role="status"></div>

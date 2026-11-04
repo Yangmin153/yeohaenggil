@@ -263,6 +263,13 @@ function go(next){
  if(next===2||next===3)requestAnimationFrame(()=>setTimeout(()=>{app.resizeMap();app.refreshMap();},130));
 }
 function renderWarnings(){
+ const current=day(),unfinished=Boolean(current&&!current.result);
+ const incomplete=$('yg-incomplete-day');
+ if(incomplete)incomplete.hidden=document.body.dataset.tripStep!=='3'||!unfinished;
+ const navigation=document.querySelector('#route-results .yg-nav-entry');
+ if(navigation)navigation.hidden=unfinished;
+ const adjust=$('yg-route-adjust');
+ if(adjust&&unfinished)adjust.open=false;
  const notReady=days().filter(d=>!d.result).length,estimated=days().filter(d=>d.result&&['estimated','mixed','road_partial'].includes(d.result.status)).length;
  const messages=[...new Set([...lastWarnings,...days().flatMap(d=>d.result?.warnings||[])])].filter(Boolean);
  if(notReady)messages.unshift('아직 동선을 만들지 않은 날짜가 '+notReady+'일 있어요.');
@@ -374,6 +381,7 @@ $('yg-next-places').addEventListener('click',()=>go(2));
 $('yg-back-dates').addEventListener('click',()=>go(1));
 $('yg-back-places').addEventListener('click',()=>go(2));
 $('yg-calculate').addEventListener('click',calculate);
+$('yg-incomplete-edit').addEventListener('click',()=>go(2));
 $('yg-three-recalc').addEventListener('click',calculate);
 $('yg-three-add').addEventListener('click',()=>openSearch());
 $('yg-open-stops').addEventListener('click',()=>{inlineExpanded=!inlineExpanded;renderInlineStops();});

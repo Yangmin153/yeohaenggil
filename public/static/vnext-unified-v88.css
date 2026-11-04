@@ -1,0 +1,143 @@
+/* v8.8 unified finish: minimal changes layered after legacy styles.
+   Source stylesheet order is preserved by scripts/build-css.mjs. */
+body[data-trip-step]{
+ font-family:Pretendard,"Pretendard Variable",-apple-system,BlinkMacSystemFont,sans-serif;
+ letter-spacing:-.03em;
+}
+body[data-trip-step] #yg-progress{
+ max-width:660px!important;
+ margin:6px auto 8px!important;
+ padding:3px!important;
+}
+body[data-trip-step] #yg-progress>button{
+ min-height:42px!important;
+ font-size:12px!important;
+ line-height:1.5!important;
+ letter-spacing:-.03em;
+}
+body[data-trip-step] .app-shell{
+ padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))!important;
+}
+body[data-trip-step="1"] #yg-step-one{
+ align-items:stretch!important;
+ justify-content:flex-start!important;
+}
+body[data-trip-step="1"] #yg-step-one .yg-step-actions{
+ position:static!important;
+ margin:10px auto 0!important;
+ max-width:500px!important;
+ transform:none!important;
+}
+body[data-trip-step="2"] #yg-plan-date{
+ min-height:48px!important;
+ margin-bottom:8px!important;
+}
+body[data-trip-step="2"] #yg-plan-date #yg-active-date{
+ min-height:36px!important;
+ max-width:178px!important;
+ font-size:14px!important;
+}
+body[data-trip-step="2"] #yg-daily-editor{
+ padding:10px!important;
+}
+body[data-trip-step="2"] #yg-inline-stops{
+ max-height:min(410px,49dvh)!important;
+ overscroll-behavior:contain!important;
+ -webkit-overflow-scrolling:touch;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place-main{
+ min-height:44px!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place-delete{
+ width:36px!important;
+ min-width:36px!important;
+ height:36px!important;
+ min-height:36px!important;
+ font-size:18px!important;
+}
+body[data-trip-step="2"] #yg-step-two-actions,
+body[data-trip-step="3"] #yg-step-three-actions{
+ padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+}
+body[data-trip-step="2"] #yg-step2-readiness{
+ max-width:100%;
+ font-size:12px!important;
+ line-height:1.5!important;
+ letter-spacing:-.03em;
+}
+body[data-trip-step="3"] #route-results .yg-nav-entry[hidden]{
+ display:none!important;
+}
+body[data-trip-step="3"] .yg-incomplete-day[hidden]{
+ display:none!important;
+}
+body[data-trip-step="3"] .yg-incomplete-day{
+ display:flex!important;
+ flex-wrap:wrap;
+ gap:12px;
+ align-items:center;
+ justify-content:space-between;
+ margin:0 0 14px;
+ padding:14px;
+ background:#eff8f4;
+ border:1px solid #c9e5d7;
+ border-radius:14px;
+}
+body[data-trip-step="3"] .yg-incomplete-day>div{
+ flex:1 1 190px;
+ min-width:0;
+}
+body[data-trip-step="3"] .yg-incomplete-day strong{
+ font-size:14px;
+ line-height:1.5;
+ color:#176e55;
+}
+body[data-trip-step="3"] .yg-incomplete-day p{
+ margin:4px 0 0;
+ font-size:12px;
+ line-height:1.5;
+ color:#526f63;
+}
+body[data-trip-step="3"] #yg-incomplete-edit{
+ flex:0 0 auto;
+ min-height:44px;
+ padding:10px 14px;
+ border:0;
+ border-radius:10px;
+ color:#fff;
+ background:#079980;
+ font-size:12px;
+ line-height:1.5;
+ font-weight:800;
+}
+body.search-open #search-screen{
+ overscroll-behavior:contain;
+}
+body.search-open #search-screen[data-search-mode="list"] #search-screen-results-mount{
+ flex:1 1 auto!important;
+ min-height:0!important;
+ overflow-y:auto!important;
+ -webkit-overflow-scrolling:touch;
+ padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))!important;
+}
+body.search-open #search-screen[data-search-mode="list"] .quick-result-row{
+ min-height:60px!important;
+}
+body.search-open #search-screen[data-search-mode="map"] .search-map-stage{
+ min-height:120px!important;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-list{
+ min-height:0!important;
+ overflow-y:auto!important;
+ overscroll-behavior:contain!important;
+}
+@media(max-width:768px){
+ body[data-trip-step="2"] #yg-daily-editor{margin-top:0!important}
+ body[data-trip-step="3"] .yg-incomplete-day{
+  align-items:stretch;
+  padding:12px;
+ }
+ body[data-trip-step="3"] #yg-incomplete-edit{
+  flex:1 1 100%;
+ }
+}

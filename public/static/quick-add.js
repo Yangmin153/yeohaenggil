@@ -72,70 +72,80 @@ async function search(force=false,all=false){
  if(!force&&key===lastKey&&lastItems.length){render(lastItems);return;}
  cancel();const current=sequence;abort=new AbortController();const signal=abort.signal;
  setMessage('장소와 주소를 검색하고 있어요…',false,true);setSearchActive(true);
- // Run the address lookup in parallel when the input resembles a street or lot address.
- // A keyword search failure must never suppress a successful geocode result.
  const safeAddress=()=>requestAddress(text,signal)
   .then(results=>({results,error:null})).catch(error=>({results:[],error}));
- const addressWork=addressQuery?safeAddress():null;
- try{
-  let found=[],hasNext=false,keywordError=null;
-  const merge=other=>{
-   const ids=new Set(found.map(p=>String(p.id)));
-   for(const item of other||[])if(item&&!ids.has(String(item.id))){found.push(item);ids.add(String(item.id));}
-  };
-  const emit=()=>{if(current!==sequence)return;
-   lastKey=key;lastItems=rankResults(found,'',nationwide?null:anchor,text);render(lastItems);};
+ let keywordItems=[],addressItems=[],keywordError=null,addressError=null;
+ const active=()=>current===sequence&&!signal.aborted;
+ const mergeKeyword=next=>{
+  const ids=new Set(keywordItems.map(p=>String(p.id)));
+  for(const item of next||[])if(item&&!ids.has(String(item.id))){
+   keywordItems.push(item);ids.add(String(item.id));
+  }
+ };
+ const emit=()=>{
+  if(!active())return;
+  const combined=addressItems.length
+   ?(window.TripSearch?.combine?.(keywordItems,addressItems)||keywordItems)
+   :keywordItems;
+  lastKey=key;lastItems=rankResults(combined,'',nationwide?null:anchor,text);
+  render(lastItems);
+ };
+ // Address results must never be blocked by extra keyword pages or a slow
+ // contextual search. Start both independently and show whichever is ready.
+ const keywordWork=(async()=>{
   try{
    for(const q of searchTerms(text,'')){
-    const general=await request(q,signal,1);
-    if(current!==sequence)return;
-    found=Array.isArray(general.items)?general.items.slice():[];
-    hasNext=Boolean(general.hasNext);
-    if(found.length)emit();
+    const first=await request(q,signal,1);
+    if(!active())return;
+    mergeKeyword(first.items);if(first.items?.length)emit();
     if(intent==='subway'){
      try{
       const station=await request(q,signal,1,'SW8');
-      if(current!==sequence)return;
-      merge(station.items);
-      if(station.items?.length)emit();
-     }catch(e){if(signal.aborted||current!==sequence)return;}
+      if(!active())return;
+      mergeKeyword(station.items);if(station.items?.length)emit();
+     }catch(e){if(!active())return;}
     }
-    if(hasNext){
+    if(first.hasNext){
      try{
       const second=await request(q,signal,2);
-      if(current!==sequence)return;
-      merge(second.items);
-      if(second.items?.length)emit();
-     }catch(e){if(signal.aborted||current!==sequence)return;}
+      if(!active())return;
+      mergeKeyword(second.items);if(second.items?.length)emit();
+     }catch(e){if(!active())return;}
     }
-    if(found.length)break;
+    if(keywordItems.length)break;
    }
-   if(anchor&&!nationwide&&city&&!addressQuery){
-    const nearbyMatch=found.some(p=>p.name&&distanceKm(anchor,p)<=30&&(
+   if(anchor&&!nationwide&&city&&!addressQuery&&active()){
+    const nearbyMatch=keywordItems.some(p=>p.name&&distanceKm(anchor,p)<=30&&(
      intent==='subway'?(p.categoryGroupCode==='SW8'||/지하철역|전철역|철도역/.test(String(p.category||''))):
       String(p.name).replace(/\s/g,'').toLowerCase()===text.replace(/\s/g,'').toLowerCase()
     ));
     if(!nearbyMatch){
-     const contextualQuery=[city,district,text].filter(Boolean).join(' ');
      try{
-      const contextual=await request(contextualQuery,signal,1,intent==='subway'?'SW8':'');
-      if(current!==sequence)return;
-      merge(contextual.items);
-     }catch(e){if(signal.aborted||current!==sequence)return;}
+      const nearby=await request([city,district,text].filter(Boolean).join(' '),signal,1,intent==='subway'?'SW8':'');
+      if(!active())return;
+      mergeKeyword(nearby.items);if(nearby.items?.length)emit();
+     }catch(e){if(!active())return;}
     }
    }
-  }catch(error){if(signal.aborted||current!==sequence)return;keywordError=error;}
-  if(current!==sequence)return;
-  const addressResult=await(addressWork||(!found.length?safeAddress():Promise.resolve({results:[],error:null})));
-  if(signal.aborted||current!==sequence)return;
-  if(addressResult.results.length)found=window.TripSearch?.combine?.(found,addressResult.results)||found;
-  if(!found.length&&(keywordError||addressResult.error)){
-   const detail=addressResult.error?.message||keywordError?.message||'검색 서비스 응답이 없습니다.';
-   setMessage('검색 결과를 가져오지 못했어요. '+detail,true);return;
+  }catch(error){if(active())keywordError=error;}
+ })();
+ const addressWork=addressQuery
+  ?safeAddress().then(result=>{if(!active())return;addressItems=result.results;addressError=result.error;if(addressItems.length)emit();})
+  :Promise.resolve();
+ try{
+  await Promise.all([keywordWork,addressWork]);
+  if(!active())return;
+  if(!addressQuery&&!keywordItems.length){
+   const fallback=await safeAddress();
+   if(!active())return;
+   addressItems=fallback.results;addressError=fallback.error;
   }
-  emit();
- }catch(e){if(signal.aborted||current!==sequence)return;setMessage('검색에 실패했어요: '+e.message,true);}
- finally{if(current===sequence)abort=null;}
+  if(!active())return;
+  if(keywordItems.length||addressItems.length){emit();return;}
+  if(keywordError||addressError){
+   setMessage('검색 결과를 가져오지 못했어요. '+(addressError?.message||keywordError?.message||'잠시 후 다시 시도해 주세요.'),true);
+  }else setMessage('검색 결과가 없습니다. 다른 장소명이나 주소를 검색해 주세요.',true);
+ }finally{if(current===sequence)abort=null;}
 }
 function feedback(msg){const el=$('quick-feedback');el.hidden=false;el.textContent=msg;clearTimeout(feedbackTimer);feedbackTimer=setTimeout(()=>el.hidden=true,2300);if(window.YeoSearch?.isOpen?.())window.YeoSearch?.notify?.(msg);else app.toast(msg);}
 function add(item,button=null){

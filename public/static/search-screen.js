@@ -7,6 +7,7 @@ const feedback=$('search-screen-feedback'),picked=$('search-picked');
 const centers={제주:[33.489,126.498],서울:[37.5665,126.978],부산:[35.1796,129.0756],강릉:[37.7519,128.8761],경주:[35.8562,129.2247],속초:[38.207,128.5918],여수:[34.7604,127.6622],전주:[35.8242,127.148],인천:[37.4563,126.7052],서귀포:[33.254,126.559]};
 let opened=false,historyEntry=false,previousFocus=null,previousScroll=0,searchKind='stop',returnStep=2,searchDayId=null;
 let mode='map',selected=null,items=[],searchMap=null,markers=[],selectedMarker=null,savedMarkers=[],savedSignature='',isSavedSelection=false,previewCamera=null,previewSource=null;
+const savedMarkerRegistry=new Map();let selectedMarkerKey='',markerPaintFrame=0;
 let feedbackTimer=null,transitionTimer=null,lastChosenRegion='',backgroundInert=[],staticSignature='',staticFocus=null,staticTimer=0,staticSerial=0,dynamicUnavailable=Boolean(window.__ygNaverAuthFailed),lastViewportSignature='',mapResizeFrame=0;
 function lockBackground(){
  backgroundInert=[];
@@ -195,9 +196,17 @@ function maybeMap(){
 function clearMarkers(){
  for(const m of markers)try{m.setMap(null);}catch(error){console.warn('검색 마커 정리 중 오류',error?.message||error);}
  markers=[];
- if(selectedMarker){try{selectedMarker.setMap(null);}catch(error){console.warn('선택 마커 정리 중 오류',error?.message||error);}selectedMarker=null;}
+ if(selectedMarker){try{selectedMarker.setMap(null);}catch(error){console.warn('선택 마커 정리 중 오류',error?.message||error);}}
+ selectedMarker=null;selectedMarkerKey='';
 }
-function clearSavedMarkers(){for(const marker of savedMarkers)try{marker.setMap(null);}catch(error){console.warn('저장된 장소 마커 정리 중 오류',error?.message||error);}savedMarkers=[];}
+function clearSavedMarkers(){
+ for(const marker of savedMarkerRegistry.values())try{marker.setMap(null);}catch(error){console.warn('저장된 장소 마커 정리 중 오류',error?.message||error);}
+ savedMarkerRegistry.clear();savedMarkers=[];
+}
+function queueMarkerPaint(){
+ if(markerPaintFrame)return;
+ markerPaintFrame=requestAnimationFrame(()=>{markerPaintFrame=0;if(opened)paintMarkers();});
+}
 function savedPlaces(){return window.TripApp?.getDay?.()?.stops||[];}
 function updateSavedButton(){
  const d=window.TripApp?.getDay?.(),items=[...(d?.stops||[]),d?.origin,d?.destination].filter(window.YGPlaceRoles?.configured||(()=>false));
@@ -228,9 +237,9 @@ function showSaved(place){
  * Never rely on the cached signature: Naver map lifecycle and hiding/showing
  * the search screen can detach marker overlays without changing place data.
  */
+/** Reconcile markers in place; avoid detaching every saved pin on each search or resize. */
 function refreshSavedMarkers(){
- clearSavedMarkers();
- if(!searchMap||!window.naver?.maps?.Marker)return;
+ if(!searchMap||!window.naver?.maps?.Marker){clearSavedMarkers();return;}
  const grouped=new Map();
  for(const entry of existingPlaces()){
   const {place}=entry;
@@ -239,33 +248,44 @@ function refreshSavedMarkers(){
   if(!grouped.has(key))grouped.set(key,[]);
   grouped.get(key).push(entry);
  }
- for(const group of grouped.values()){
+ const expected=new Map();
+ for(const [position,group] of grouped){
   const {place,kind}=group[0],count=group.length;
-  // A search selection uses the higher-priority highlighted pin at this location.
-  if(selected&&Number(selected.lat).toFixed(5)===Number(place.lat).toFixed(5)&&Number(selected.lng).toFixed(5)===Number(place.lng).toFixed(5))continue;
-  const pin=window.YeoPins?.marker?.(searchMap,place,{kind:count>1?'cluster':kind,count,zIndex:600});
-  if(!pin)continue;
-  // Saved marker is view-only inside the search screen. Search results
-  // are the sole source of new places and endpoint selection.
-  savedMarkers.push(pin);
+  if(selected&&Number(selected.lat).toFixed(5)+':'+Number(selected.lng).toFixed(5)===position)continue;
+  expected.set(position+'|'+kind+'|'+count+'|'+String(place.name||''),{place,kind,count});
  }
+ for(const [key,marker] of savedMarkerRegistry){
+  if(expected.has(key))continue;
+  try{marker.setMap(null);}catch{}
+  savedMarkerRegistry.delete(key);
+ }
+ for(const [key,{place,kind,count}] of expected){
+  if(savedMarkerRegistry.has(key))continue;
+  const pin=window.YeoPins?.marker?.(searchMap,place,{kind:count>1?'cluster':kind,count,zIndex:600});
+  if(pin)savedMarkerRegistry.set(key,pin);
+ }
+ savedMarkers=[...savedMarkerRegistry.values()];
 }
 function mark(item,pickedOne=false){
  return window.YeoPins?.marker?.(searchMap,item,{kind:pickedOne?'selected':'pending',selected:pickedOne,zIndex:pickedOne?800:100})||null;
 }
 function paintMarkers(){
- clearMarkers();
  if(!searchMap){
   if(screen.dataset.keyboardOpen==='true')queueStaticFallback(160);
   else renderStaticFallback();
   return;
  }
- if(selected){
-  // Retain saved visits/endpoints; hide only unselected SEARCH result candidates.
-  refreshSavedMarkers();selectedMarker=mark(selected,true);
-  return;
+ const key=selected
+  ?Number(selected.lat).toFixed(6)+':'+Number(selected.lng).toFixed(6)+'|'+String(selected.name||'')
+  :'';
+ if(selectedMarker&&selectedMarkerKey!==key){
+  try{selectedMarker.setMap(null);}catch{}
+  selectedMarker=null;selectedMarkerKey='';
  }
- // Search result candidates never become map markers: only persisted stops and the chosen focus are shown.
+ if(key&&!selectedMarker){
+  selectedMarker=mark(selected,true);
+  selectedMarkerKey=selectedMarker?key:'';
+ }
  refreshSavedMarkers();
 }
 function showMode(next){
@@ -491,10 +511,10 @@ if(typeof ResizeObserver==='function'){
 }
 document.addEventListener('trip-map-ready',()=>{if(opened)maybeMap()});
 document.addEventListener('trip-maps-sdk-ready',()=>{if(opened&&mode==='map')maybeMap()});
-document.addEventListener('trip:endpoint-changed',()=>{if(opened)paintMarkers();});
-document.addEventListener('trip:stops-changed',()=>{if(opened){paintMarkers();updateSavedButton();}});
-document.addEventListener('trip:day-changed',()=>{if(opened){clearPreview({restoreCamera:false});paintMarkers();updateSavedButton();}});
-window.addEventListener('resize',()=>{if(opened&&mode==='map')paintMarkers();});
+document.addEventListener('trip:endpoint-changed',()=>{if(opened)queueMarkerPaint();});
+document.addEventListener('trip:stops-changed',()=>{if(opened){queueMarkerPaint();updateSavedButton();}});
+document.addEventListener('trip:day-changed',()=>{if(opened){clearPreview({restoreCamera:false});queueMarkerPaint();updateSavedButton();}});
+window.addEventListener('resize',()=>{if(opened&&mode==='map')queueMarkerPaint();});
 $('search-screen-count').addEventListener('click',()=>{hide();window.YeoNext?.expandPlaceList?.();});
 window.YeoSearch={show,hide,isOpen:()=>opened,returnStep:()=>returnStep,mode:()=>searchKind,isEndpointMode:endpointMode,completeEndpoint,preview,clearPreview,focusAdded,showSavedPlace:showSaved,searchStarted,onResults,notify,addSuccess,refreshSavedMarkers,
  getMapDiagnostics:()=>({
