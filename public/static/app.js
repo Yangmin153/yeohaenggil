@@ -725,7 +725,8 @@ function renderMap(){if(!map)return;const d=day(),places=routePlaces();const r=d
  for(const group of clusters.values()){
   const {place,index}=group[0],multi=group.length>1,
    start=Boolean(place.id===(d.liveOrigin||d.origin).id),end=place.id===d.destination.id;
-  const kind=multi?'cluster':start?'origin':end?'destination':collecting?'pending':'stop';
+  const overlap=window.YeoPins?.overlapRole?.(group,d.liveOrigin||d.origin,d.destination);
+  const kind=overlap|| (multi?'cluster':start?'origin':end?'destination':collecting?'pending':'stop');
   const stopNumber=d.result?.entries?.findIndex(e=>e.place?.id===place.id);
   const chosen=group.some(x=>x.place.id===selectedMapStop);
   const marker=window.YeoPins?.marker?.(map,place,{kind,order:!collecting&&stopNumber>0?String(stopNumber):'',count:group.length,selected:chosen,
@@ -734,7 +735,7 @@ function renderMap(){if(!map)return;const d=day(),places=routePlaces();const r=d
   marker.__placeId=place.id;marker.__placeIds=group.map(x=>x.place.id);markers.push(marker);
   naver.maps.Event.addListener(marker,'click',()=>{
    if(!markerInfo)return;
-   if(multi)markerInfo.setContent('<div class="yg-marker-group"><strong>가까운 장소 '+group.length+'곳</strong>'+
+   if(multi)markerInfo.setContent('<div class="yg-marker-group"><strong>'+(overlap?'출발지 · 도착지가 같은 장소예요.':'가까운 장소 '+group.length+'곳')+'</strong>'+
     group.map(({place:p})=>'<button type="button" data-yg-map-pick="'+esc(p.id)+'">'+esc(p.name)+'</button>').join('')+'</div>');
    else{selectedMapStop=place.id;markerInfo.setContent(selectedStopDetails(place,stopNumber>0?stopNumber:index,kind));}
    markerInfo.open(map,marker);

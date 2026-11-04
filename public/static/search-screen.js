@@ -116,7 +116,9 @@ function renderStaticFallback(){
  const points=[{place:target,kind:'focused',label:''}];
  const seen=new Set([focus.x.toFixed(5)+':'+focus.y.toFixed(5)]);
  const stopIndex=d?.stops?.findIndex(p=>Math.abs(Number(p.lat)-focus.x)<.00003&&Math.abs(Number(p.lng)-focus.y)<.00003)??-1;
- points[0].label=stopIndex>=0?String(stopIndex+1):searchKind==='origin'?'출발':searchKind==='destination'?'도착':'●';
+ const dualFocus=window.YeoPins?.overlapRole?.([{place:target}],d?.origin,d?.destination)==='both';
+ points[0].label=dualFocus?'출발·도착':stopIndex>=0?String(stopIndex+1):searchKind==='origin'?'출발':searchKind==='destination'?'도착':'●';
+ if(dualFocus)points[0].kind='both';
  for(const entry of saved){
   const place=entry.place,x=Number(place?.lat),y=Number(place?.lng);
   if(!Number.isFinite(x)||!Number.isFinite(y))continue;
@@ -124,13 +126,15 @@ function renderStaticFallback(){
   if(seen.has(key))continue;
   seen.add(key);
   const i=d?.stops?.findIndex(p=>p.id===place.id)??-1;
-  points.push({place,kind:entry.kind,label:entry.kind==='origin'?'출발':entry.kind==='destination'?'도착':String(i+1)});
+  const dual=window.YeoPins?.overlapRole?.([{place}],d?.origin,d?.destination)==='both';
+  points.push({place,kind:dual?'both':entry.kind,label:dual?'출발·도착':entry.kind==='origin'?'출발':entry.kind==='destination'?'도착':String(i+1)});
  }
  const coords=points.map(e=>({x:Number(e.place.lat),y:Number(e.place.lng)}));
  const layout=focusedStaticMapLayout(coords,focus,width,height,13);
  if(!layout){root.hidden=true;return;}
  const density=window.devicePixelRatio>=1.5?'2':'1';
- const signature=[width,height,density,focus.x.toFixed(6),focus.y.toFixed(6),...coords.map(p=>p.x.toFixed(6)+':'+p.y.toFixed(6))].join('|');
+ const signature=[width,height,density,focus.x.toFixed(6),focus.y.toFixed(6),
+  ...points.map((entry,i)=>coords[i].x.toFixed(6)+':'+coords[i].y.toFixed(6)+':'+entry.kind+':'+entry.label)].join('|');
  if(signature===staticSignature)return;
  staticSignature=signature;staticFocus=focus;const request=++staticSerial;
  root.hidden=true;pinLayer.replaceChildren();
@@ -140,7 +144,7 @@ function renderStaticFallback(){
   const pt=layout.pixels[i];
   if(pt.x<0||pt.x>width||pt.y<0||pt.y>height)return;
   const marker=document.createElement('span');
-  marker.className='search-static-pin'+(i===0?' is-focused':entry.kind==='origin'?' is-origin':entry.kind==='destination'?' is-destination':'');
+  marker.className='search-static-pin'+(entry.kind==='both'?' is-both':'')+(i===0?' is-focused':entry.kind==='origin'?' is-origin':entry.kind==='destination'?' is-destination':'');
   marker.textContent=entry.label;
   marker.style.left=(pt.x/width*100)+'%';marker.style.top=(pt.y/height*100)+'%';
   marker.title=entry.place.name||'방문지';
@@ -248,11 +252,12 @@ function refreshSavedMarkers(){
   if(!grouped.has(key))grouped.set(key,[]);
   grouped.get(key).push(entry);
  }
- const expected=new Map();
+ const expected=new Map(),d=window.TripApp?.getDay?.();
  for(const [position,group] of grouped){
   const {place,kind}=group[0],count=group.length;
   if(selected&&Number(selected.lat).toFixed(5)+':'+Number(selected.lng).toFixed(5)===position)continue;
-  expected.set(position+'|'+kind+'|'+count+'|'+String(place.name||''),{place,kind,count});
+  const mergedKind=window.YeoPins?.overlapRole?.(group,d?.origin,d?.destination)|| (count>1?'cluster':kind);
+  expected.set(position+'|'+mergedKind+'|'+count+'|'+String(place.name||''),{place,kind:mergedKind,count});
  }
  for(const [key,marker] of savedMarkerRegistry){
   if(expected.has(key))continue;
@@ -261,13 +266,15 @@ function refreshSavedMarkers(){
  }
  for(const [key,{place,kind,count}] of expected){
   if(savedMarkerRegistry.has(key))continue;
-  const pin=window.YeoPins?.marker?.(searchMap,place,{kind:count>1?'cluster':kind,count,zIndex:600});
+  const pin=window.YeoPins?.marker?.(searchMap,place,{kind,count,zIndex:600});
   if(pin)savedMarkerRegistry.set(key,pin);
  }
  savedMarkers=[...savedMarkerRegistry.values()];
 }
 function mark(item,pickedOne=false){
- return window.YeoPins?.marker?.(searchMap,item,{kind:pickedOne?'selected':'pending',selected:pickedOne,zIndex:pickedOne?800:100})||null;
+ const d=window.TripApp?.getDay?.();
+ const both=window.YeoPins?.overlapRole?.([{place:item}],d?.origin,d?.destination);
+ return window.YeoPins?.marker?.(searchMap,item,{kind:both|| (pickedOne?'selected':'pending'),selected:pickedOne,zIndex:pickedOne?800:100})||null;
 }
 function paintMarkers(){
  if(!searchMap){

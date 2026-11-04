@@ -28,14 +28,17 @@ function render(){
  const center=coords[0],layout=focusedStaticMapLayout(coords,center,w,h,13);
  if(!layout){hide();return;}
  const density=window.devicePixelRatio>=1.5?'2':'1';
- const next=[day()?.id,w,h,density,...entries.map(e=>e.place.id+':'+e.place.lat+':'+e.place.lng),focusId||''].join('|');
+ const d=day(),dual=window.YeoPins?.overlapRole?.([{place:d?.origin}],d?.origin,d?.destination)==='both';
+ const next=[d?.id,w,h,density,dual?'both':'separate',...entries.map(e=>e.place.id+':'+e.place.lat+':'+e.place.lng+':'+e.kind),focusId||''].join('|');
  if(signature===next)return;
  signature=next;const token=++serial;pins.replaceChildren();box.hidden=true;
  entries.forEach((e,i)=>{const point=layout.pixels[i];
   if(point.x<0||point.x>w||point.y<0||point.y>h)return;
   const pin=document.createElement('span');
-  pin.className='yg-step2-static-pin'+(i===0?' is-focused':'')+(e.kind==='origin'?' is-origin':e.kind==='destination'?' is-destination':'');
-  pin.textContent=e.label;pin.title=e.place.name;pin.style.left=point.x/w*100+'%';pin.style.top=point.y/h*100+'%';pins.append(pin);
+  const d=day(),dual=window.YeoPins?.overlapRole?.([{place:e.place}],d?.origin,d?.destination)==='both';
+  pin.className='yg-step2-static-pin'+(i===0?' is-focused':'')+(dual?' is-both':e.kind==='origin'?' is-origin':e.kind==='destination'?' is-destination':'');
+  pin.textContent=dual?'출발·도착':e.label;
+  pin.title=e.place.name+(dual?' · 출발·도착':'');pin.style.left=point.x/w*100+'%';pin.style.top=point.y/h*100+'%';pins.append(pin);
  });
  const q=new URLSearchParams({
   p:center.x.toFixed(6)+','+center.y.toFixed(6),

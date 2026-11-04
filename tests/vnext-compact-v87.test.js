@@ -41,7 +41,7 @@ test('selected endpoint can be tapped again to clear, no separate cancel button 
  assert.doesNotMatch(script,/\$\('yg-endpoint-chooser-clear'\)/);
  assert.match(script,/data-chooser-selected/);
  assert.match(script,/aria-pressed="'\+String\(chosen\)/);
- assert.match(script,/chosen\?'해제':'선택'/);
+ assert.match(script,/다시 눌러 해제/);assert.match(script,/지정하기/);
  assert.doesNotMatch(script,/chosen\?' disabled/);
 });
 

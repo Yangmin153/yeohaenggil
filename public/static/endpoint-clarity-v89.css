@@ -1,0 +1,159 @@
+/* v8.9 · Explicit endpoint selection and dual-role map pin. */
+body[data-trip-step="2"] .yg-role-toggle-help{
+ margin:2px 0 8px!important;
+ padding:0 2px;
+ color:#648073;
+ font-size:12px!important;
+ line-height:1.5!important;
+ letter-spacing:-.03em!important;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-top{
+ align-items:flex-start!important;
+ padding:14px 16px 12px!important;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-heading{
+ min-width:0;flex:1;
+}
+#yg-endpoint-chooser #yg-endpoint-chooser-help{
+ margin:5px 0 8px;
+ font-size:12px;line-height:1.5;
+ letter-spacing:-.03em;
+ color:#667d73;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-current{
+ display:block;
+ width:100%;
+ padding:8px 10px;
+ border-radius:10px;
+ background:#f2f6f4;
+ color:#647b6e;
+ font-size:12px;
+ font-weight:750;
+ line-height:1.5;
+ letter-spacing:-.03em;
+ overflow-wrap:anywhere;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-current.is-configured{
+ background:#e7f7ef;
+ color:#167a5b;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-list{
+ padding:6px 12px!important;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-place{
+ border:1px solid transparent!important;
+ border-bottom-color:#e8eeeb!important;
+ border-radius:10px!important;
+ padding:10px 8px!important;
+ margin:3px 0!important;
+ gap:8px!important;
+ min-height:64px!important;
+ cursor:pointer;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-place.is-selected{
+ border:2px solid #1aa27b!important;
+ background:#e8f8ef!important;
+ padding:9px 7px!important;
+ box-shadow:0 1px 5px #1979570c;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-place.is-selected .yg-endpoint-chooser-icon{
+ background:#128b67;
+ color:#fff;
+ font-size:18px;
+ font-weight:900;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-place:focus-visible{
+ outline:2px solid #128b67!important;
+ outline-offset:2px!important;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-copy strong{
+ font-size:14px!important;
+ font-weight:850;
+ line-height:1.5!important;
+ letter-spacing:-.03em;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-copy small{
+ font-size:12px!important;
+ line-height:1.5!important;
+ letter-spacing:-.03em;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-other{
+ display:block;
+ font-size:12px;
+ line-height:1.5;
+ color:#8d6554;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-select{
+ display:flex;
+ flex-direction:column;
+ align-items:flex-end;
+ gap:2px;
+ flex:0 0 84px;
+ text-align:right;
+ line-height:1.5;
+ letter-spacing:-.03em;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-select strong{
+ font-size:12px;
+ font-weight:850;
+ color:#217565;
+ line-height:1.5;
+ white-space:nowrap;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-place.is-selected .yg-endpoint-chooser-select strong{
+ color:#17785a;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-select small{
+ font-size:12px;
+ color:#9b5744;
+ line-height:1.5;
+ white-space:nowrap;
+}
+/* Same real coordinate: one role-aware marker, never the generic number 2. */
+.yg-map-pin--both .yg-map-pin__head{
+ background:linear-gradient(135deg,#2175e6 0%,#2175e6 48%,#e64b3e 52%,#e64b3e 100%)!important;
+ border-color:#fff!important;
+ color:#fff!important;
+ box-shadow:0 0 0 3px #6359a3,0 4px 12px #12264155!important;
+}
+.yg-map-pin--both .yg-map-pin__head b{
+ display:flex!important;
+ flex-direction:column;
+ align-items:center;
+ justify-content:center;
+ font-size:12px!important;
+ line-height:1.5!important;
+ letter-spacing:-.03em!important;
+ font-weight:900;
+ white-space:nowrap;
+}
+.yg-map-pin--both .yg-map-pin__head b span{
+ display:block;
+ font-size:12px!important;
+ line-height:1.5!important;
+}
+body.search-open #search-screen .search-static-pin.is-both,
+body[data-trip-step="2"] .yg-step2-static-pin.is-both{
+ width:76px!important;
+ min-width:76px!important;
+ height:36px!important;
+ border-radius:18px!important;
+ border:2px solid #fff!important;
+ background:linear-gradient(110deg,#2175e6 0%,#2175e6 48%,#e64b3e 52%,#e64b3e 100%)!important;
+ color:#fff!important;
+ font-size:12px!important;
+ line-height:1.5!important;
+ letter-spacing:-.03em!important;
+ font-weight:900!important;
+ display:grid!important;
+ place-items:center!important;
+ white-space:nowrap!important;
+}
+@media(max-width:370px){
+ #yg-endpoint-chooser .yg-endpoint-chooser-top{
+  padding:12px 12px 10px!important;
+ }
+ #yg-endpoint-chooser .yg-endpoint-chooser-select{
+  flex-basis:78px;
+ }
+}

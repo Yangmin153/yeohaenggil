@@ -62,8 +62,8 @@ function renderDaily(){
  $('yg-day-stop-sub').textContent='장소를 담고 목록에서 출발·도착을 골라 주세요.';
  $('yg-role-status-origin').textContent=configured(d.origin)?d.origin.name:'아직 미지정';
  $('yg-role-status-destination').textContent=configured(d.destination)?d.destination.name:'아직 미지정';
- document.querySelector('[data-pick-endpoint="origin"]').setAttribute('aria-label','출발지 선택 · '+(configured(d.origin)?d.origin.name:'아직 미지정'));
- document.querySelector('[data-pick-endpoint="destination"]').setAttribute('aria-label','도착지 선택 · '+(configured(d.destination)?d.destination.name:'아직 미지정'));
+ document.querySelector('[data-pick-endpoint="origin"]').setAttribute('aria-label',configured(d.origin)?'출발지 변경 또는 해제 · '+d.origin.name:'출발지 지정하기');
+ document.querySelector('[data-pick-endpoint="destination"]').setAttribute('aria-label',configured(d.destination)?'도착지 변경 또는 해제 · '+d.destination.name:'도착지 지정하기');
  $('yg-empty-inline').hidden=count!==0;
  $('yg-stop-count').textContent=count+'곳';
  $('yg-legacy-stops').hidden=!pending;
@@ -192,18 +192,32 @@ function renderEndpointChooser(){
  const d=day(),kind=endpointChooserKind;
  $('yg-endpoint-chooser-title').textContent=kind==='origin'?'출발지 선택':'도착지 선택';
  $('yg-endpoint-chooser-caption').textContent=dateText(d.date,{short:true})+' · 담은 장소에서 선택';
- const current=d[kind],items=[];
+ const current=d[kind],roleName=kind==='origin'?'출발지':'도착지',items=[];
+ $('yg-endpoint-chooser-help').textContent='장소를 누르면 '+roleName+'로 지정돼요. 선택된 장소를 다시 누르면 해제돼요.';
+ $('yg-endpoint-chooser-current').textContent=configured(current)
+  ?'현재 '+roleName+' · '+current.name+' (다시 누르면 해제)'
+  :'현재 '+roleName+' · 아직 미지정';
+ $('yg-endpoint-chooser-current').classList.toggle('is-configured',Boolean(configured(current)));
  for(const p of [...d.stops,d.origin,d.destination]){
   if(configured(p)&&!items.some(existing=>window.YGPlaceRoles?.same?.(existing,p)))items.push(p);
  }
+ // Keep the current role visible first; the user never needs to hunt for "해제".
+ items.sort((a,b)=>Number(Boolean(window.YGPlaceRoles?.same?.(b,current)))-
+  Number(Boolean(window.YGPlaceRoles?.same?.(a,current))));
  const list=$('yg-endpoint-chooser-list');
  if(!items.length){list.innerHTML='<p class="yg-endpoint-chooser-empty">아직 담은 장소가 없어요.<span>아래 장소 검색에서 추가할 수 있어요.</span></p>';return;}
  list.innerHTML=items.map(p=>{
-  const chosen=window.YGPlaceRoles?.same?.(p,current),name=escape(p.name),address=escape(p.address||window.TripMeta?.meta?.(p)?.label||'저장한 장소');
+  const chosen=Boolean(window.YGPlaceRoles?.same?.(p,current)),name=escape(p.name),
+   address=escape(p.address||window.TripMeta?.meta?.(p)?.label||'저장한 장소');
+  const other=kind==='origin'?'destination':'origin';
+  const shared=Boolean(window.YGPlaceRoles?.same?.(p,d[other]));
   const icon=window.TripMeta?.icon?.(p,18)||'•';
-  return '<button type="button" data-chooser-place="'+escape(p.id)+'" data-chooser-selected="'+String(chosen)+'" class="yg-endpoint-chooser-place'+(chosen?' is-selected':'')+'" aria-pressed="'+String(chosen)+'" aria-label="'+name+(chosen?' 선택 해제':' 선택')+'">'+
-   '<span class="yg-endpoint-chooser-icon" aria-hidden="true">'+icon+'</span><span class="yg-endpoint-chooser-copy"><strong>'+name+'</strong><small>'+address+'</small></span>'+
-   '<span class="yg-endpoint-chooser-select">'+(chosen?'해제':'선택')+'</span></button>';
+  const otherLabel=other==='origin'?'출발지':'도착지';
+  return '<button type="button" data-chooser-place="'+escape(p.id)+'" data-chooser-selected="'+String(chosen)+'" class="yg-endpoint-chooser-place'+(chosen?' is-selected':'')+'" aria-pressed="'+String(chosen)+'" aria-label="'+name+(chosen?' '+roleName+' 지정 해제':' '+roleName+'로 지정')+'">'+
+   '<span class="yg-endpoint-chooser-icon" aria-hidden="true">'+(chosen?'✓':icon)+'</span>'+
+   '<span class="yg-endpoint-chooser-copy"><strong>'+name+'</strong><small>'+address+'</small>'+
+   (shared?'<span class="yg-endpoint-chooser-other">이미 '+otherLabel+'로 지정됨</span>':'')+'</span>'+
+   '<span class="yg-endpoint-chooser-select">'+(chosen?'<strong>'+roleName+' 지정됨</strong><small>다시 눌러 해제</small>':'<strong>지정하기</strong>')+'</span></button>';
  }).join('');
 }
 function openEndpointChooser(kind){
