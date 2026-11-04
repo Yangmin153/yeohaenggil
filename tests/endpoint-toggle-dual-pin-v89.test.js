@@ -82,7 +82,7 @@ test('same location can serve both roles; unassigning one preserves the other',a
 test('modified scripts parse and stylesheet gets included in build',async()=>{
  const html=await read('public/index.html');
  assert.match(html,/endpoint-clarity-v89\.css\?v=1\.0\.0/);
- assert.match(html,/route-pins\.js\?v=8\.9\.0/);
+ assert.match(html,/route-pins\.js\?v=8\.9\.1/);
  for(const path of ['public/static/vnext.js','public/static/app.js','public/static/search-screen.js','public/static/route-pins.js','public/static/step2-map-fallback.js']){
   const r=spawnSync(process.execPath,['--check',path],{encoding:'utf8'});
   assert.equal(r.status,0,path+'\n'+r.stderr);

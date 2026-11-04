@@ -282,8 +282,11 @@ function paintMarkers(){
   else renderStaticFallback();
   return;
  }
+ const d=window.TripApp?.getDay?.();
+ const role=selected&&window.YeoPins?.overlapRole?.([{place:selected}],d?.origin,d?.destination)==='both'
+  ?'both':'single';
  const key=selected
-  ?Number(selected.lat).toFixed(6)+':'+Number(selected.lng).toFixed(6)+'|'+String(selected.name||'')
+  ?Number(selected.lat).toFixed(6)+':'+Number(selected.lng).toFixed(6)+'|'+String(selected.name||'')+'|'+role
   :'';
  if(selectedMarker&&selectedMarkerKey!==key){
   try{selectedMarker.setMap(null);}catch{}

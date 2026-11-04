@@ -21,7 +21,11 @@ function coincident(a,b){
 // A numerical cluster is not an accurate label when both endpoints occupy
 // the same GPS location. Do not confuse nearby-but-distinct stops with endpoints.
 function overlapRole(group,origin,destination){
- if(!Array.isArray(group)||!coincident(origin,destination))return null;
+ // Clearing an endpoint intentionally retains its old coordinates for a future
+ // search. Coordinates alone MUST NOT make an unassigned endpoint look active.
+ const assigned=p=>Boolean(p&&typeof p.name==='string'&&p.name.trim()&&!/미설정/.test(p.name)&&
+  Number.isFinite(Number(p.lat))&&Number.isFinite(Number(p.lng)));
+ if(!Array.isArray(group)||!assigned(origin)||!assigned(destination)||!coincident(origin,destination))return null;
  const places=group.map(entry=>entry?.place||entry).filter(Boolean);
  return places.some(place=>coincident(place,origin))&&places.some(place=>coincident(place,destination))?'both':null;
 }
