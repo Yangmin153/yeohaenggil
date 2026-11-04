@@ -29,7 +29,7 @@ test('old unassigned data remains supported and transfer requires explicit user 
  assert.match(ui,/confirm\('기존 미배정 장소 '/);
  assert.match(html,/id="yg-legacy-assign"/);
  assert.match(ui,/app\.moveUnassignedToActive\(\)/);
- assert.match(ui,/if\(pending\.length\)\{/);
+ assert.match(ui,/pending\.length\?\[/);
 });
 test('STEP2 saved list has category, name and delete but no date or arrow controls',async()=>{
  const [ui,html]=await Promise.all([read('public/static/vnext.js'),read('public/index.html')]);
