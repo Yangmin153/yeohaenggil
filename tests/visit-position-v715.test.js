@@ -48,7 +48,9 @@ test('search UI remains open with saved location marker, without map-based place
  const quick=await read('public/static/quick-add.js');
  assert.match(search,/function addSuccess\(message,place=null\)/);
  const area=search.slice(search.indexOf('function addSuccess('),search.indexOf('function completeEndpoint('));
- assert.match(area,/hide\(\)/);
+ assert.doesNotMatch(area,/hide\(\)/);
+ assert.match(area,/selected=place;previewSource='added'/);
+ assert.match(area,/showMode\('map'\)/);
  assert.match(search,/previewSource='added'/);
  assert.match(search,/selectedMarker=mark\(selected,true\)/);
  assert.match(search,/searchMap\.panTo\(new window\.naver\.maps\.LatLng/);
