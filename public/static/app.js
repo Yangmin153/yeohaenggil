@@ -66,6 +66,26 @@ function setCollectedRole(id,role){
  document.dispatchEvent(new Event('trip:endpoint-changed'));
  return result;
 }
+function clearCollectedEndpoint(kind){
+ if(!['origin','destination'].includes(kind))return {ok:false,error:'올바른 출발·도착 유형을 선택해 주세요.'};
+ const d=day(),current=d[kind];
+ if(!window.YGPlaceRoles?.configured?.(current))return {ok:true,changed:false};
+ const opposite=d[kind==='origin'?'destination':'origin'];
+ const same=window.YGPlaceRoles?.same;
+ // A location already serving the opposite endpoint must not become a duplicate visit.
+ const preserve=!window.YGPlaceRoles?.configured?.(opposite)||!same(current,opposite);
+ if(preserve&&!d.stops.some(p=>same(p,current))&&d.stops.length>=30)
+  return {ok:false,error:'방문지가 30곳이라 선택한 장소를 보관할 수 없어요.'};
+ if(preserve&&!d.stops.some(p=>same(p,current)))
+  d.stops.push({...current,id:uid(),locked:false,fixedDate:d.date||null});
+ d[kind]={...current,name:kind==='origin'?'출발지 미설정':'도착지 미설정',address:''};
+ if(kind==='origin'&&state.active>0)d.originMode='custom';
+ if(kind==='destination')syncLinkedOrigins(state.active+1);
+ invalidateRoutes();selectedMapStop=null;refresh();
+ document.dispatchEvent(new Event('trip:stops-changed'));
+ document.dispatchEvent(new Event('trip:endpoint-changed'));
+ return {ok:true,changed:true};
+}
 function removeCollectedPlace(id){
  const result=window.YGPlaceRoles?.remove?.(day(),state.active,id,uid);
  if(!result?.ok)return result||{ok:false,error:'장소를 삭제할 수 없어요.'};
@@ -377,7 +397,14 @@ function applyDailyRoutes(payload){
  for(let i=0;i<state.days.length;i++){
   const d=state.days[i],entry=payload.days[i],oldIds=d.stops.map(p=>p.id);
   if(!entry||entry.date!==d.date)return false;
-  if(!entry.route){if(oldIds.length>0)return false;continue;}
+  if(!entry.route){
+   // An unfinished date may retain its visits without a computed route.
+   // A ready day must not silently lose its result if a route response is missing.
+   const complete=window.YGPlaceRoles?.configured?.(d.origin)&&window.YGPlaceRoles?.configured?.(d.destination)&&
+    (oldIds.length>0||Math.abs(d.origin.lat-d.destination.lat)>=0.00003||Math.abs(d.origin.lng-d.destination.lng)>=0.00003);
+   if(complete)return false;
+   continue;
+  }
   if(!Array.isArray(entry.route.orderIds)||entry.route.orderIds.length!==oldIds.length||
      !entry.route.orderIds.every(id=>oldIds.includes(id))||new Set(entry.route.orderIds).size!==oldIds.length)return false;
  }
@@ -751,6 +778,6 @@ window.TripApp = Object.freeze({
  importDays(days){if(!validDays(days))return false;clearTimeout(pendingCalc);liveRoutes.clear();state.days=normalizeDays(days);state.active=0;state.dirtyDayIds.clear();refresh();document.dispatchEvent(new Event('trip:days-imported'));return true},
  refresh, calculateRoute, openModal, toast, markDirty,applyLiveRoute,restorePlannedRoute,exportCloudDays,
  resizeMap:()=>resizeMapStable({fit:mapFitQueued}),refreshMap:renderMap,getMap:()=>map,fitMap,focusPlace,setMapLocked,
- setDayCount,setTravelDates,syncLinkedOrigins,setStopFixedDate,allStops,unassignedStops,moveUnassignedToActive,removeStop,removeCollectedPlace,setCollectedRole,setCollectedRoleFromSearch,clearComputed,applyMultiRoutes,applyDailyRoutes,setRouteMode,setDayOriginMode,reorderStop,setRouteStopLocked,moveRouteStop,setRouteStopPosition,centerMapAtRegion,getMapDiagnostics:()=>({created:mapCreateCount,resizes:mapResizeCount,overlays:overlayRenderCount,ready:!!map,visible:mapHasArea()}),getRegion:currentRegion,setRegion,addQuickStop,setEndpointFromSearch,previewPlace,clearPlacePreview,
+ setDayCount,setTravelDates,syncLinkedOrigins,setStopFixedDate,allStops,unassignedStops,moveUnassignedToActive,removeStop,removeCollectedPlace,clearCollectedEndpoint,setCollectedRole,setCollectedRoleFromSearch,clearComputed,applyMultiRoutes,applyDailyRoutes,setRouteMode,setDayOriginMode,reorderStop,setRouteStopLocked,moveRouteStop,setRouteStopPosition,centerMapAtRegion,getMapDiagnostics:()=>({created:mapCreateCount,resizes:mapResizeCount,overlays:overlayRenderCount,ready:!!map,visible:mapHasArea()}),getRegion:currentRegion,setRegion,addQuickStop,setEndpointFromSearch,previewPlace,clearPlacePreview,
 });
 boot();

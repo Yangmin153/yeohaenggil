@@ -193,6 +193,7 @@ function renderEndpointChooser(){
  $('yg-endpoint-chooser-title').textContent=kind==='origin'?'출발지 선택':'도착지 선택';
  $('yg-endpoint-chooser-caption').textContent=dateText(d.date,{short:true})+' · 담은 장소에서 선택';
  const current=d[kind],items=[];
+ $('yg-endpoint-chooser-clear').hidden=!configured(current);
  for(const p of [...d.stops,d.origin,d.destination]){
   if(configured(p)&&!items.some(existing=>window.YGPlaceRoles?.same?.(existing,p)))items.push(p);
  }
@@ -215,24 +216,22 @@ function openEndpointChooser(kind){
  window.YGScrollLock?.lock('endpoint-chooser');
  $('yg-endpoint-chooser-close').focus({preventScroll:true});
 }
+function routeReady(d){
+ return configured(d.origin)&&configured(d.destination)&&
+  (d.stops.length>0||Math.abs(d.origin.lat-d.destination.lat)>=0.00003||Math.abs(d.origin.lng-d.destination.lng)>=0.00003);
+}
 function readiness(){
- const missing=[];
- days().forEach(d=>{
-  const fields=[];
-  if(!d.stops.length&&configured(d.origin)&&configured(d.destination)&&Math.abs(d.origin.lat-d.destination.lat)<0.00003&&Math.abs(d.origin.lng-d.destination.lng)<0.00003)fields.push('방문지');
-  if(!configured(d.origin))fields.push('출발지');
-  if(!configured(d.destination))fields.push('도착지');
-  if(fields.length)missing.push(dateText(d.date,{short:true})+' · '+fields.join('·'));
- });
- const pending=app.unassignedStops().length;
- if(pending)missing.push('날짜 미배정 방문지 '+pending+'곳');
- return {ready:!missing.length,message:missing[0]||''};
+ const ready=days().filter(routeReady).length,skipped=days().length-ready;
+ return {ready:ready>0,count:ready,skipped,
+  message:ready?'': '출발지와 도착지가 설정된 날짜가 최소 1일 필요해요.'};
 }
 function updateReadiness(){
  const state=readiness(),button=$('yg-calculate'),hint=$('yg-step2-readiness');
  button.disabled=busy||!state.ready;
- button.title=state.ready?'전체 날짜의 최적 동선을 계산해요.':state.message+' 설정이 필요해요.';
- if(hint)hint.textContent=state.ready?'모든 날짜 준비 완료 · 동선을 확인할 수 있어요.':state.message+' 설정이 필요해요.';
+ button.title=state.ready?state.count+'일 동선을 계산해요. 미완성 날짜는 그대로 두어요.':state.message;
+ if(hint)hint.textContent=state.ready
+  ?state.count+'일 동선 계산 가능'+(state.skipped?' · 나머지 '+state.skipped+'일은 나중에 완성할 수 있어요.':'')
+  :state.message;
  return state;
 }
 function openSheet(){
@@ -276,13 +275,8 @@ async function calculate(){
  if(document.body.dataset.tripStep==='2'){
   const check=updateReadiness();if(!check.ready){app.toast(check.message+' 설정이 필요해요.');return;}
  }
- const arranged=days(),pending=app.unassignedStops(),full=arranged.map((d,i)=>({d,i})).filter(({d})=>configured(d.origin)&&configured(d.destination));
- const incomplete=arranged.find(d=>d.stops.length&&(!configured(d.origin)||!configured(d.destination)));
- if(incomplete){app.setActive(arranged.indexOf(incomplete));go(2);app.toast(dateText(incomplete.date)+' 출발지와 도착지를 먼저 설정해 주세요.');return;}
- if(pending.length){
-  go(2);app.toast('기존 미배정 장소 '+pending.length+'곳이 남아 있어요. 날짜를 고른 뒤 한 번에 옮겨 주세요.');return;
- }
- if(!full.length){app.toast('출발지와 도착지를 설정해 주세요.');go(2);return;}
+ const arranged=days(),pending=app.unassignedStops(),full=arranged.map((d,i)=>({d,i})).filter(({d})=>routeReady(d));
+ if(!full.length){app.toast('출발지와 도착지가 설정된 날짜가 최소 1일 필요해요.');go(2);return;}
  // Existing assigned visits are pinned to their day. Only the unassigned pool is redistributed.
  const snapshot=JSON.stringify({days:arranged.map(d=>({date:d.date,origin:d.origin,destination:d.destination,stops:d.stops,mode:d.mode})),pending});
  const routeRequest=async(d,orderedStops)=>{
@@ -316,7 +310,12 @@ async function calculate(){
   if(snapshot!==latest)throw Error('계산 중 일정이 변경됐어요. 다시 계산해 주세요.');
   const ok=app.applyDailyRoutes(result);
   if(!ok)throw Error('계산 결과와 현재 방문지가 일치하지 않아요. 다시 계산해 주세요.');
-  lastWarnings=result.warnings||[];$('yg-calc-progress').hidden=true;go(3);
+  const skipped=arranged.length-full.length;
+  lastWarnings=[...(result.warnings||[]),
+   ...(skipped?['아직 완성하지 않은 '+skipped+'일은 계산하지 않고 방문지를 보관했어요.']:[]),
+   ...(pending.length?['날짜를 정하지 않은 방문지 '+pending.length+'곳은 그대로 보관했어요.']:[])];
+  if(!day().result)app.setActive(full[0].i);
+  $('yg-calc-progress').hidden=true;go(3);
  }catch(e){app.toast('동선 계산 실패: '+e.message);$('yg-calc-progress').textContent=e.message;}
  finally{
   overlay.hidden=true;busy=false;
@@ -338,6 +337,14 @@ $('yg-end-date').addEventListener('change',syncDateRange);
 $('yg-active-date').addEventListener('change',e=>{inlineExpanded=true;app.setActive(Number(e.target.value));});
 document.querySelectorAll('[data-pick-endpoint]').forEach(btn=>btn.addEventListener('click',()=>openEndpointChooser(btn.dataset.pickEndpoint)));
 $('yg-endpoint-chooser-close').addEventListener('click',()=>closeEndpointChooser());
+$('yg-endpoint-chooser-clear').addEventListener('click',()=>{
+ const kind=endpointChooserKind;
+ if(!kind)return;
+ const outcome=app.clearCollectedEndpoint(kind);
+ if(!outcome?.ok){app.toast(outcome?.error||'지정을 취소하지 못했어요.');return;}
+ closeEndpointChooser();
+ app.toast(kind==='origin'?'출발지 지정을 취소했어요.':'도착지 지정을 취소했어요.');
+});
 $('yg-endpoint-chooser').addEventListener('click',e=>{
  if(e.target.id==='yg-endpoint-chooser'){closeEndpointChooser();return;}
  const button=e.target.closest('[data-chooser-place]');

@@ -274,7 +274,8 @@ function showMode(next){
  if(mode==='list')hideStaticFallback();
  mapStage.hidden=mode!=='map';
  resultMount.hidden=mode!=='list';
- $('search-list-toggle').textContent=mode==='list'?'지도 보기':'검색 결과 보기';
+ $('search-list-toggle').textContent=mode==='list'?'지도':'목록';
+ $('search-list-toggle').setAttribute('aria-label',mode==='list'?'지도 보기':'검색 결과 목록 보기');
  $('search-list-toggle').hidden=!items.length&&!selected;
  $('search-list-toggle').setAttribute('aria-pressed',String(mode==='list'));
  screen.dataset.searchMode=mode;

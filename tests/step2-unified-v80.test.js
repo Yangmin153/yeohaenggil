@@ -8,17 +8,17 @@ test('all three edit actions are in one STEP2 card with collapsible saved visits
  for(const id of ['yg-add-visit','yg-open-stops','yg-inline-stops','yg-endpoint-section','yg-origin-pick','yg-dest-pick'])assert.ok(card.includes('id="'+id+'"'),id);
  assert.ok(html.includes('id="yg-step2-readiness"'));assert.match(html,/id="yg-calculate"[^>]*disabled>동선 확인하기/);
 });
-test('readiness requires stops, an origin and destination on every day',async()=>{
- const src=await read('public/static/vnext.js'),part=src.slice(src.indexOf('function readiness(){'),src.indexOf('function updateReadiness(){'));
- const configured=p=>p?.name!=='미설정'&&!!p?.name;
- const fn=new Function('days','app','dateText','configured',part+';return readiness()');
- const day={date:'2026-11-04',stops:[],origin:{name:'미설정'},destination:{name:'미설정'}};
- const testDay=(days,pending=[])=>fn(()=>days,{unassignedStops:()=>pending},d=>d,configured);
- assert.equal(testDay([day]).ready,false);
- day.stops=[{id:'1'}];day.origin={name:'서울역'};day.destination={name:'인천공항'};
- assert.equal(testDay([day]).ready,true);
- assert.equal(testDay([day,{...day,destination:{name:'미설정'}}]).ready,false);
- assert.equal(testDay([day],[{id:'x'}]).ready,false);
+test('readiness allows calculation for completed dates while preserving unfinished dates',async()=>{
+ const src=await read('public/static/vnext.js');
+ const part=src.slice(src.indexOf('function routeReady(d){'),src.indexOf('function updateReadiness(){'));
+ const configured=p=>p?.name&&!/미설정/.test(p.name);
+ const make=(days)=>new Function('days','configured',part+';return readiness()')(()=>days,configured);
+ const empty={date:'2026-11-04',stops:[],origin:{name:'출발지 미설정'},destination:{name:'도착지 미설정'}};
+ const complete={date:'2026-11-05',stops:[{id:'1'}],origin:{name:'서울역'},destination:{name:'인천공항'}};
+ assert.equal(make([empty]).ready,false);
+ assert.equal(make([empty,complete]).ready,true);
+ assert.equal(make([empty,complete]).count,1);
+ assert.equal(make([empty,complete]).skipped,1);
 });
 test('setting an endpoint closes search without a forced destination handoff',async()=>{
  const src=await read('public/static/search-screen.js'),part=src.slice(src.indexOf('function completeEndpoint(item){'),src.indexOf('function chooseAdd(){'));
