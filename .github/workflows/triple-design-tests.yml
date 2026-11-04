@@ -1,7 +1,7 @@
 name: Triple-inspired design preview tests
 on:
   push:
-    branches: [design/triple-inspired-b375ee37, feature/step2-unified-ux-20261104, feature/step2-place-role-picking-20261104]
+    branches: [design/triple-inspired-b375ee37, feature/step2-unified-ux-20261104, feature/step2-place-role-picking-20261104, feature/search-map-hd-layout-v82-20261104]
 permissions:
   contents: read
 jobs:

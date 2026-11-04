@@ -7,7 +7,7 @@ const feedback=$('search-screen-feedback'),picked=$('search-picked');
 const centers={제주:[33.489,126.498],서울:[37.5665,126.978],부산:[35.1796,129.0756],강릉:[37.7519,128.8761],경주:[35.8562,129.2247],속초:[38.207,128.5918],여수:[34.7604,127.6622],전주:[35.8242,127.148],인천:[37.4563,126.7052],서귀포:[33.254,126.559]};
 let opened=false,historyEntry=false,previousFocus=null,previousScroll=0,searchKind='stop',returnStep=2,searchDayId=null;
 let mode='map',selected=null,items=[],searchMap=null,markers=[],selectedMarker=null,savedMarkers=[],savedSignature='',isSavedSelection=false,previewCamera=null,previewSource=null;
-let feedbackTimer=null,transitionTimer=null,lastChosenRegion='',backgroundInert=[],staticSignature='',staticFocus=null;
+let feedbackTimer=null,transitionTimer=null,lastChosenRegion='',backgroundInert=[],staticSignature='',staticFocus=null,staticTimer=0,staticSerial=0,dynamicUnavailable=Boolean(window.__ygNaverAuthFailed);
 function lockBackground(){
  backgroundInert=[];
  for(const node of document.body.children){
@@ -28,6 +28,10 @@ function updateSize(){
  screen.style.setProperty('--search-top',top+'px');
  const keyboardOpen=Boolean(opened&&viewport&&innerHeight-(viewport.height+viewport.offsetTop)>120);
  screen.dataset.keyboardOpen=String(keyboardOpen);
+ if(opened&&mode==='map'&&!searchMap){
+  $('search-static-fallback').hidden=true;
+  queueStaticFallback(keyboardOpen?160:100);
+ }
  if(searchMap&&opened&&mode==='map')requestAnimationFrame(()=>window.naver?.maps?.Event?.trigger(searchMap,'resize'));
 }
 // A new traveler has no chosen destination yet. Never infer Jeju (or any other
@@ -60,26 +64,45 @@ function mapViewKey(){
  * This fallback is view-only: map touches and marker touches NEVER add places.
  */
 function hideStaticFallback(){
- staticSignature='';staticFocus=null;
+ clearTimeout(staticTimer);staticTimer=0;
+ staticSerial++;staticSignature='';staticFocus=null;
  $('search-static-fallback').hidden=true;
  $('search-static-markers').replaceChildren();
  $('search-static-image').onload=null;
  $('search-static-image').onerror=null;
 }
+function queueStaticFallback(delay=0){
+ clearTimeout(staticTimer);
+ if(!opened||mode!=='map'||(searchMap&&!dynamicUnavailable))return;
+ staticTimer=setTimeout(()=>{staticTimer=0;renderStaticFallback();},delay);
+}
 function renderStaticFallback(){
- if(!opened||mode!=='map'||searchMap)return;
+ if(!opened||mode!=='map'||(searchMap&&!dynamicUnavailable))return;
+ const root=$('search-static-fallback'),pinLayer=$('search-static-markers'),image=$('search-static-image');
+ const box=mapStage.getBoundingClientRect();
+ const width=Math.min(1024,Math.round(box.width)),height=Math.min(1024,Math.round(box.height));
+ // Avoid stretching a 240px keyboard-era image into a taller map.
+ if(width<320||height<240||width>1024||height>1024){
+  root.hidden=true;
+  $('search-map-message').hidden=false;
+  $('search-map-message').textContent='화면을 조정하고 있어요. 잠시 후 지도가 나타나요.';
+  return;
+ }
  const d=window.TripApp?.getDay?.();
  const target=selected||d?.stops?.at(-1)||
   (!/미설정/.test(String(d?.origin?.name||''))?d?.origin:null)||
   (!/미설정/.test(String(d?.destination?.name||''))?d?.destination:null);
- if(!target||!Number.isFinite(Number(target.lat))||!Number.isFinite(Number(target.lng)))return;
- const width=Math.max(320,Math.min(1024,Math.round(mapStage.clientWidth||390)));
- const height=Math.max(240,Math.min(1024,Math.round(mapStage.clientHeight||500)));
+ if(!target||!Number.isFinite(Number(target.lat))||!Number.isFinite(Number(target.lng))){
+  root.hidden=true;
+  $('search-map-message').hidden=false;
+  $('search-map-message').textContent='검색 결과에서 장소를 선택하면 지도에 표시돼요.';
+  return;
+ }
  const focus={x:Number(target.lat),y:Number(target.lng)},saved=existingPlaces();
  const points=[{place:target,kind:'focused',label:''}];
  const seen=new Set([focus.x.toFixed(5)+':'+focus.y.toFixed(5)]);
  const stopIndex=d?.stops?.findIndex(p=>Math.abs(Number(p.lat)-focus.x)<.00003&&Math.abs(Number(p.lng)-focus.y)<.00003)??-1;
- points[0].label=stopIndex>=0?String(stopIndex+1):searchKind==='origin'?'S':searchKind==='destination'?'E':'●';
+ points[0].label=stopIndex>=0?String(stopIndex+1):searchKind==='origin'?'출발':searchKind==='destination'?'도착':'●';
  for(const entry of saved){
   const place=entry.place,x=Number(place?.lat),y=Number(place?.lng);
   if(!Number.isFinite(x)||!Number.isFinite(y))continue;
@@ -87,49 +110,60 @@ function renderStaticFallback(){
   if(seen.has(key))continue;
   seen.add(key);
   const i=d?.stops?.findIndex(p=>p.id===place.id)??-1;
-  points.push({place,kind:entry.kind,label:entry.kind==='origin'?'S':entry.kind==='destination'?'E':String(i+1)});
+  points.push({place,kind:entry.kind,label:entry.kind==='origin'?'출발':entry.kind==='destination'?'도착':String(i+1)});
  }
  const coords=points.map(e=>({x:Number(e.place.lat),y:Number(e.place.lng)}));
  const layout=focusedStaticMapLayout(coords,focus,width,height,13);
- if(!layout)return;
- const signature=[width,height,focus.x.toFixed(6),focus.y.toFixed(6),...coords.map(p=>p.x.toFixed(6)+':'+p.y.toFixed(6))].join('|');
+ if(!layout){root.hidden=true;return;}
+ const density=window.devicePixelRatio>=1.5?'2':'1';
+ const signature=[width,height,density,focus.x.toFixed(6),focus.y.toFixed(6),...coords.map(p=>p.x.toFixed(6)+':'+p.y.toFixed(6))].join('|');
  if(signature===staticSignature)return;
- staticSignature=signature;staticFocus=focus;
- const root=$('search-static-fallback'),markers=$('search-static-markers'),image=$('search-static-image');
- root.hidden=true;markers.replaceChildren();
+ staticSignature=signature;staticFocus=focus;const request=++staticSerial;
+ root.hidden=true;pinLayer.replaceChildren();
+ $('search-map-message').hidden=false;
+ $('search-map-message').textContent='선택한 장소의 지도를 불러오고 있어요.';
  points.forEach((entry,i)=>{
   const pt=layout.pixels[i];
   if(pt.x<0||pt.x>width||pt.y<0||pt.y>height)return;
-  const el=document.createElement('span');
-  el.className='search-static-pin'+(i===0?' is-focused':entry.kind==='origin'?' is-origin':entry.kind==='destination'?' is-destination':'');
-  el.textContent=entry.label;
-  el.style.left=(pt.x/width*100)+'%';el.style.top=(pt.y/height*100)+'%';
-  el.title=entry.place.name||'방문지';
-  markers.append(el);
+  const marker=document.createElement('span');
+  marker.className='search-static-pin'+(i===0?' is-focused':entry.kind==='origin'?' is-origin':entry.kind==='destination'?' is-destination':'');
+  marker.textContent=entry.label;
+  marker.style.left=(pt.x/width*100)+'%';marker.style.top=(pt.y/height*100)+'%';
+  marker.title=entry.place.name||'방문지';
+  pinLayer.append(marker);
  });
+ // Only the focus affects the actual raster: other saved points use inert HTML pins.
+ // This keeps a focused map cacheable even while the visit list changes.
  const query=new URLSearchParams({
-  p:coords.map(p=>p.x.toFixed(6)+','+p.y.toFixed(6)).join(';'),
+  p:focus.x.toFixed(6)+','+focus.y.toFixed(6),
   f:focus.x.toFixed(6)+','+focus.y.toFixed(6),
-  w:String(width),h:String(height),z:'13'
+  w:String(width),h:String(height),z:'13',s:density
  });
+ const url='/api/static-map?'+query;
+ const valid=()=>request===staticSerial&&staticSignature===signature&&opened&&mode==='map'&&!searchMap;
  image.onload=()=>{
-  if(staticSignature!==signature||!opened||mode!=='map'||searchMap)return;
+  if(!valid())return;
+  const now=mapStage.getBoundingClientRect();
+  if(Math.abs(Math.min(1024,now.width)-width)>2||Math.abs(Math.min(1024,now.height)-height)>2){
+   root.hidden=true;staticSignature='';queueStaticFallback(90);return;
+  }
   root.hidden=false;$('search-map-message').hidden=true;
  };
  image.onerror=()=>{
-  if(staticSignature!==signature)return;
+  if(!valid())return;
   root.hidden=true;$('search-map-message').hidden=false;
-  $('search-map-message').textContent='네이버 지도 미리보기를 불러오지 못했어요. 검색 결과에서 장소를 계속 추가할 수 있어요.';
+  $('search-map-message').textContent='지도를 표시하지 못했어요. 검색 결과에서 장소를 계속 선택할 수 있어요.';
  };
- image.src='/api/static-map?'+query;
+ if(image.getAttribute('src')===url&&image.complete&&image.naturalWidth>0)image.onload();
+ else image.src=url;
 }
 function maybeMap(){
  if(!opened)return;
- if(searchMap){updateSize();paintMarkers();return;}
- const maps=window.naver?.maps;
+ if(searchMap&&!dynamicUnavailable){updateSize();paintMarkers();return;}
+ const maps=dynamicUnavailable?null:window.naver?.maps;
  if(!maps?.Map||!mapNode?.clientWidth||mapNode.clientHeight<80){
-  renderStaticFallback();
-  $('search-map-message').textContent='네이버 지도 위치를 준비하고 있어요.';
+  if(screen.dataset.keyboardOpen==='true')queueStaticFallback(160);
+  else renderStaticFallback();
   return;
  }
  try{
@@ -143,7 +177,7 @@ function maybeMap(){
   // Map is for browsing only: selecting arbitrary coordinates is disabled.
   // Places and endpoints are selected from verified search results.
   savedSignature='';paintMarkers();
- }catch(e){console.warn('장소 검색 지도 초기화 실패',e);$('search-map-message').hidden=false;$('search-map-message').textContent='지도를 열지 못했어요. 목록 검색은 사용할 수 있어요.';}
+ }catch(e){console.warn('장소 검색 지도 초기화 실패',e);dynamicUnavailable=true;searchMap=null;queueStaticFallback();}
 }
 function clearMarkers(){
  for(const m of markers)try{m.setMap(null);}catch(error){console.warn('검색 마커 정리 중 오류',error?.message||error);}
@@ -168,9 +202,10 @@ function existingPlaces(){
 function endpointMode(){return searchKind==='origin'||searchKind==='destination';}
 function showRoleOptions(){
  const available=!endpointMode()&&opened;
+ picked.querySelector('.search-picked-role-row').hidden=!available;
  for(const id of ['search-picked-origin','search-picked-destination'])$(id).hidden=!available;
 }
-function actionText(){return searchKind==='origin'?'출발지로 설정':searchKind==='destination'?'도착지로 설정':'+ 방문지 추가';}
+function actionText(){return searchKind==='origin'?'출발지로 설정':searchKind==='destination'?'도착지로 설정':'이 장소 담기';}
 function showSaved(place){
  rememberCamera();selected=place;previewSource='saved';isSavedSelection=true;
  $('search-picked-cancel').textContent='닫기';
@@ -213,7 +248,11 @@ function mark(item,pickedOne=false){
 }
 function paintMarkers(){
  clearMarkers();
- if(!searchMap){renderStaticFallback();return;}
+ if(!searchMap){
+  if(screen.dataset.keyboardOpen==='true')queueStaticFallback(160);
+  else renderStaticFallback();
+  return;
+ }
  if(selected){
   // Retain saved visits/endpoints; hide only unselected SEARCH result candidates.
   refreshSavedMarkers();selectedMarker=mark(selected,true);
@@ -248,6 +287,7 @@ function clearPreview({restoreCamera=true}={}){
  const hadSelection=Boolean(selected);
  selected=null;previewSource=null;isSavedSelection=false;
  picked.hidden=true;
+ picked.querySelector('.search-picked-role-row').hidden=true;
  $('search-picked-origin').hidden=true;$('search-picked-destination').hidden=true;
  $('search-picked-add').disabled=false;
  $('search-picked-cancel').textContent='취소';
@@ -266,12 +306,12 @@ function preview(item,source='result'){
  $('search-picked-add').disabled=false;$('search-picked-add').textContent=actionText();
  $('search-picked-name').textContent=String(item.name||'선택한 위치');
  $('search-picked-address').textContent=String(item.address||'지도에서 선택한 장소');
+ input.blur();
  picked.hidden=false;showRoleOptions();
  showMode('map');
  if(!searchMap)maybeMap();
  paintMarkers();
  if(searchMap)searchMap.panTo(new window.naver.maps.LatLng(Number(item.lat),Number(item.lng)));
- input.blur();
 }
 function focusAdded(item){
  if(!item||!opened||searchKind!=='stop')return;
@@ -395,7 +435,7 @@ function chooseRole(kind){
 function chooseAdd(){
  if(!selected||(!endpointMode()&&isSavedSelection))return;
  const ok=endpointMode()?completeEndpoint(selected):window.TripQuickAdd?.addPlace?.(selected);
- if(ok===false){$('search-picked-add').textContent='이미 추가한 장소';setTimeout(()=>$('search-picked-add').textContent='+ 방문지 추가',1200);}
+ if(ok===false){$('search-picked-add').textContent='이미 추가한 장소';setTimeout(()=>$('search-picked-add').textContent='이 장소 담기',1200);}
 }
 $('search-screen-back').addEventListener('click',()=>hide());
 $('search-list-toggle').addEventListener('click',()=>showMode(mode==='list'?'map':'list'));
@@ -418,6 +458,24 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&opened){e.preventDe
 window.visualViewport?.addEventListener('resize',updateSize);
 window.visualViewport?.addEventListener('scroll',updateSize);
 window.addEventListener('resize',updateSize);
+document.addEventListener('trip-maps-auth-failed',()=>{
+ dynamicUnavailable=true;
+ clearMarkers();clearSavedMarkers();
+ try{searchMap?.destroy?.();}catch{}
+ searchMap=null;mapNode.replaceChildren();staticSignature='';
+ if(opened&&mode==='map')queueStaticFallback(0);
+});
+if(typeof ResizeObserver==='function'){
+ let lastBox='';
+ new ResizeObserver(()=>{
+  if(!opened||mode!=='map')return;
+  const next=[Math.round(mapStage.clientWidth),Math.round(mapStage.clientHeight)].join('x');
+  if(next===lastBox)return;lastBox=next;
+  if(searchMap){requestAnimationFrame(()=>window.naver?.maps?.Event?.trigger?.(searchMap,'resize'));return;}
+  $('search-static-fallback').hidden=true;
+  queueStaticFallback(120);
+ }).observe(mapStage);
+}
 document.addEventListener('trip-map-ready',()=>{if(opened)maybeMap()});
 document.addEventListener('trip-maps-sdk-ready',()=>{if(opened&&mode==='map')maybeMap()});
 document.addEventListener('trip:endpoint-changed',()=>{if(opened)paintMarkers();});

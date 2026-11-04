@@ -29,17 +29,18 @@
   <link rel="stylesheet" href="/static/search-transition.css?v=1.0.0">
   <link rel="stylesheet" href="/static/step2-unified.css?v=1.0.0">
   <link rel="stylesheet" href="/static/step2-role-picker.css?v=1.0.0">
+  <link rel="stylesheet" href="/static/search-map-polish.css?v=1.0.0">
   <script defer src="/static/search-utils.js?v=4.2.0"></script>
   <script defer src="/static/place-meta.js?v=4.3.0"></script>
   <script defer src="/static/route-pins.js?v=6.4.0"></script>
   <script defer src="/static/route-shape.js?v=6.4.0"></script>
   <script defer src="/static/scroll-lock.js?v=7.0.0"></script>
   <script defer src="/static/place-role-core.js?v=1.0.0"></script>
-  <script defer src="/static/app.js?v=8.1.0"></script>
+  <script defer src="/static/app.js?v=8.2.0"></script>
   <script type="module" src="/static/mobile-ux.js?v=4.8.0"></script>
   <script type="module" src="/static/quick-add.js?v=7.18.0"></script>
-  <script type="module" src="/static/search-screen.js?v=8.1.0"></script>
-  <script type="module" src="/static/step2-map-fallback.js?v=1.0.0"></script>
+  <script type="module" src="/static/search-screen.js?v=8.2.0"></script>
+  <script type="module" src="/static/step2-map-fallback.js?v=1.1.0"></script>
   <script defer src="/static/map-workspace.js?v=6.7.1"></script>
   <script type="module" src="/static/accounts.js?v=7.6.0"></script>
   <!-- Region onboarding removed from vNext daily planner; legacy nodes retained for compatibility. -->
@@ -393,13 +394,17 @@
    <div class="search-map-message" id="search-map-message" role="status">지도를 불러오는 중이에요.</div>
 
  </div>
- <div class="search-picked" id="search-picked" hidden>
-  <div class="search-picked-text"><strong id="search-picked-name"></strong><small id="search-picked-address"></small></div>
+ <div class="search-picked" id="search-picked" aria-label="선택한 장소 작업" hidden>
+  <div class="search-picked-heading">
+   <div class="search-picked-text"><strong id="search-picked-name"></strong><small id="search-picked-address"></small></div>
+   <button type="button" id="search-picked-cancel" class="search-picked-cancel" aria-label="선택 취소">닫기</button>
+  </div>
   <div class="search-picked-actions">
-   <button type="button" id="search-picked-cancel" class="search-picked-cancel">취소</button>
-   <button type="button" id="search-picked-add">+ 장소 담기</button>
-   <button type="button" id="search-picked-origin" class="yg-search-role-choice">출발로 지정</button>
-   <button type="button" id="search-picked-destination" class="yg-search-role-choice">도착으로 지정</button>
+   <button type="button" id="search-picked-add">이 장소 담기</button>
+   <div class="search-picked-role-row" role="group" aria-label="선택한 장소 역할 지정">
+    <button type="button" id="search-picked-origin" class="yg-search-role-choice"><span aria-hidden="true" class="yg-search-role-dot is-origin"></span> 출발지로 지정</button>
+    <button type="button" id="search-picked-destination" class="yg-search-role-choice"><span aria-hidden="true" class="yg-search-role-dot is-destination"></span> 도착지로 지정</button>
+   </div>
   </div>
  </div>
  <div id="search-screen-results-mount" class="search-screen-results-mount" hidden></div>

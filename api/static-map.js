@@ -28,17 +28,21 @@ export async function GET(request){
   map=focusedStaticMapLayout(points,{x,y},w,h,level);
   if(!map)return fail('방문지 범위 또는 지도 크기를 확인해 주세요.',422);
  }
+ // Naver's scale=2 returns twice the image pixels without changing the map coverage.
+ // Keep the CSS-sized w/h and zoom unchanged so HTML marker coordinates remain aligned.
+ const scale=url.searchParams.get('s')||'1';
+ if(scale!=='1'&&scale!=='2')return fail('지도 해상도 설정을 확인해 주세요.',422);
  const id=process.env.NAVER_MAPS_CLIENT_ID,secret=process.env.NAVER_MAPS_CLIENT_SECRET;
  if(!id||!secret)return fail('네이버 지도 서버 키가 설정되지 않았어요.',503);
  const api=new URL(endpoint);
- for(const [k,v] of Object.entries({w:map.width,h:map.height,center:map.lng.toFixed(7)+','+map.lat.toFixed(7),level:map.level,crs:'EPSG:4326',format:'png',lang:'ko'}))api.searchParams.set(k,String(v));
+ for(const [k,v] of Object.entries({w:map.width,h:map.height,center:map.lng.toFixed(7)+','+map.lat.toFixed(7),level:map.level,scale,crs:'EPSG:4326',format:'png',lang:'ko'}))api.searchParams.set(k,String(v));
  try{
   const response=await fetch(api,{headers:{'x-ncp-apigw-api-key-id':id,'x-ncp-apigw-api-key':secret,accept:'image/png,image/jpeg'},signal:AbortSignal.timeout(8000)});
   if(!response.ok)return fail('네이버 Static Map API 권한 또는 사용량을 확인해 주세요. (응답 '+response.status+')',502);
   const type=response.headers.get('content-type')||'';
   if(!/^image\/(png|jpeg)/i.test(type))return fail('네이버 지도 이미지 응답이 올바르지 않아요.',502);
   const buffer=await response.arrayBuffer();
-  if(!buffer.byteLength||buffer.byteLength>3_000_000)return fail('지도 이미지 크기를 확인해 주세요.',502);
-  return new Response(buffer,{status:200,headers:{'content-type':type,'x-content-type-options':'nosniff','cache-control':'private,max-age=60'}});
+  if(!buffer.byteLength||buffer.byteLength>4_100_000)return fail('지도 이미지 크기를 확인해 주세요.',502);
+  return new Response(buffer,{status:200,headers:{'content-type':type,'x-content-type-options':'nosniff','cache-control':'private,max-age=180'}});
  }catch{return fail('네이버 정적 지도를 불러오지 못했어요.',502);}
 }

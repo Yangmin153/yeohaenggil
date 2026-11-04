@@ -1,0 +1,232 @@
+/* Search map and action layout v8.2 — crisp static previews, clear primary action. */
+#search-screen .search-map-stage{
+ background:#eef3f2!important;
+}
+#search-screen .search-static-fallback>img{
+ width:100%!important;
+ height:100%!important;
+ object-fit:contain!important;
+ object-position:center!important;
+ image-rendering:auto;
+}
+body[data-trip-step="2"] #yg-step2-static-map>img{
+ width:100%!important;
+ height:100%!important;
+ object-fit:contain!important;
+ object-position:center!important;
+ image-rendering:auto;
+}
+#search-screen .search-map-message{
+ z-index:3;
+ background:rgba(255,255,255,.94)!important;
+ border:1px solid #e0e8e5!important;
+ box-shadow:0 8px 24px #12342a10;
+ color:#45625b!important;
+ line-height:1.5!important;
+}
+#search-screen .search-screen-toolbar{
+ display:flex!important;
+ flex-wrap:nowrap!important;
+ gap:8px!important;
+ padding:8px 12px!important;
+ border-bottom:1px solid #edf1ef;
+}
+#search-screen .search-screen-toolbar button:not([hidden]){
+ min-height:44px!important;
+ border-radius:12px!important;
+ font-size:12px!important;
+ font-weight:750!important;
+}
+#search-screen .search-screen-toolbar #search-list-toggle{
+ flex:0 0 auto;margin-left:auto!important;
+ background:#f0f6f3!important;color:#246454!important;
+ border-color:#d8e9e2!important;
+}
+#search-screen .search-picked{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:stretch!important;
+ gap:10px!important;
+ width:100%;
+ padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px))!important;
+ border-top:1px solid #e4ebe7!important;
+ border-radius:18px 18px 0 0;
+ background:#fff!important;
+ box-shadow:0 -8px 28px #0a31251c!important;
+}
+#search-screen .search-picked-heading{
+ display:flex;
+ align-items:center;
+ justify-content:space-between;
+ gap:12px;
+ min-width:0;
+}
+#search-screen .search-picked-text{
+ display:grid;
+ gap:2px;
+ min-width:0;
+ flex:1;
+}
+#search-screen .search-picked-text strong{
+ font-size:16px!important;
+ font-weight:800!important;
+ line-height:1.5!important;
+ letter-spacing:-.03em;
+ color:#263e37!important;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+#search-screen .search-picked-text small{
+ font-size:12px!important;
+ line-height:1.5!important;
+ color:#74877f!important;
+ white-space:nowrap;
+ overflow:hidden;
+ text-overflow:ellipsis;
+}
+#search-screen #search-picked-cancel{
+ position:static!important;
+ display:grid!important;
+ place-items:center;
+ flex:0 0 auto!important;
+ min-width:44px!important;
+ min-height:44px!important;
+ padding:0 8px!important;
+ border:0!important;
+ border-radius:12px!important;
+ background:#f3f6f5!important;
+ color:#536e63!important;
+ font-size:12px!important;
+ font-weight:750!important;
+}
+#search-screen .search-picked-actions{
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:stretch!important;
+ gap:8px!important;
+ width:100%!important;
+ min-width:0;
+}
+#search-screen .search-picked-actions #search-picked-add{
+ display:block;
+ width:100%!important;
+ min-height:50px!important;
+ padding:12px 14px!important;
+ border:0!important;
+ border-radius:13px!important;
+ background:#048f76!important;
+ color:#fff!important;
+ font-size:14px!important;
+ font-weight:850!important;
+ letter-spacing:-.03em;
+ text-align:center;
+ line-height:1.5;
+}
+#search-screen .search-picked-actions #search-picked-add:disabled{
+ background:#e5ebe8!important;
+ color:#74877f!important;
+ cursor:default;
+}
+#search-screen .search-picked-role-row{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:8px!important;
+ min-width:0;
+ width:100%;
+}
+#search-screen .search-picked-role-row[hidden]{display:none!important}
+#search-screen .search-picked-role-row button{
+ display:flex!important;
+ align-items:center;
+ justify-content:center;
+ gap:7px;
+ min-width:0;
+ min-height:46px!important;
+ padding:10px 8px!important;
+ border:1px solid #dce5e1!important;
+ border-radius:12px!important;
+ background:#f8faf9!important;
+ color:#39564a!important;
+ font-size:12px!important;
+ font-weight:800!important;
+ line-height:1.5!important;
+ white-space:nowrap;
+}
+#search-screen .search-picked-role-row button[hidden]{display:none!important}
+#search-screen #search-picked-origin{
+ background:#f1f6fd!important;
+ color:#2664a3!important;
+ border-color:#d7e5f7!important;
+}
+#search-screen #search-picked-destination{
+ background:#fff8f1!important;
+ color:#a16534!important;
+ border-color:#f1e2d2!important;
+}
+#search-screen .yg-search-role-dot{
+ display:block;
+ width:10px;height:10px;
+ flex:0 0 10px;
+ border-radius:50%;
+}
+#search-screen .yg-search-role-dot.is-origin{background:#2872c0}
+#search-screen .yg-search-role-dot.is-destination{background:#cc874e}
+#search-screen .search-picked button:focus-visible{
+ outline:2px solid #008f79!important;
+ outline-offset:2px;
+}
+body[data-trip-step="2"] .yg-place-role-actions{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:0!important;
+ background:#f4f7f5!important;
+ border:1px solid #dfe9e4!important;
+ border-radius:12px!important;
+ overflow:hidden!important;
+}
+body[data-trip-step="2"] .yg-place-role-actions button{
+ min-height:44px!important;
+ padding:7px 4px!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ color:#647a70!important;
+ font-size:12px!important;
+ font-weight:750!important;
+ line-height:1.5!important;
+}
+body[data-trip-step="2"] .yg-place-role-actions button+button{
+ border-left:1px solid #e2eae6!important;
+}
+body[data-trip-step="2"] .yg-place-role-actions button.is-active{
+ font-weight:850!important;
+ box-shadow:inset 0 0 0 1px currentColor;
+ border-radius:9px!important;
+}
+body[data-trip-step="2"] .yg-place-role-actions button.is-active.is-stop{
+ background:#e4f8f1!important;color:#007d68!important;
+}
+body[data-trip-step="2"] .yg-place-role-actions button.is-active.is-origin{
+ background:#eaf3ff!important;color:#1766b3!important;
+}
+body[data-trip-step="2"] .yg-place-role-actions button.is-active.is-destination{
+ background:#fff2e8!important;color:#a86130!important;
+}
+@media(max-width:370px){
+ #search-screen .search-picked{padding:12px 10px calc(12px + env(safe-area-inset-bottom,0px))!important}
+ #search-screen .search-picked-role-row{gap:6px!important}
+ #search-screen .search-picked-role-row button{gap:5px;padding:10px 4px!important}
+}
+
+/* A static raster can be at most 1024 CSS pixels wide; center without distortion on PC. */
+#search-screen .search-static-fallback{
+ inset:auto!important;
+ top:0!important;
+ bottom:0!important;
+ left:50%!important;
+ right:auto!important;
+ width:min(100%,1024px)!important;
+ height:min(100%,1024px)!important;
+ transform:translateX(-50%)!important;
+}

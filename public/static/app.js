@@ -583,7 +583,7 @@ function bootNaverMap(key){
  if(!key){mapStatus('네이버 지도 키가 필요해요','Vercel의 NAVER_MAPS_JS_KEY_ID를 확인해 주세요.',true);return;}
  mapStatus('네이버 지도를 불러오는 중이에요','지도 연결을 확인하고 있어요.');
  let authFailed=false,timer=null;
- window.navermap_authFailure=()=>{authFailed=true;sdkReady=false;clearTimeout(timer);mapStatus('네이버 지도 인증에 실패했어요','Dynamic Map 사용 권한과 Preview 도메인의 Web 서비스 URL 등록을 확인해 주세요.',true);};
+ window.navermap_authFailure=()=>{authFailed=true;sdkReady=false;window.__ygNaverAuthFailed=true;clearTimeout(timer);document.dispatchEvent(new Event('trip-maps-auth-failed'));mapStatus('네이버 지도 인증에 실패했어요','Dynamic Map 사용 권한과 Preview 도메인의 Web 서비스 URL 등록을 확인해 주세요.',true);};
  const loaded=()=>{
   if(sdkReady||authFailed)return;
   if(typeof window.naver?.maps?.Map!=='function'){mapStatus('지도 SDK 로드 실패','네트워크와 네이버 지도 API 설정을 확인해 주세요.',true);return;}
