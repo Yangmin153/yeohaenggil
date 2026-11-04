@@ -46,7 +46,7 @@ test('automatic multi-day allocator passes locked places to the actual daily roa
 });
 test('STEP2 search preview displays selected marker only while saved markers reappear after add',async()=>{
  const js=await read('public/static/search-screen.js');
- assert.match(js,/if\(selected\)\{[\s\S]*clearSavedMarkers\(\)/);
+ assert.match(js,/selectedMarkerKey/);assert.match(js,/savedMarkerRegistry/);
  assert.match(js,/selectedMarker=mark\(selected,true\)/);
  assert.match(js,/selected=place;previewSource='added'/);
  assert.match(js,/showMode\('list'\)/);

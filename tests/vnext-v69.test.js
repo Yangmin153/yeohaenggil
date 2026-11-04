@@ -49,9 +49,9 @@ test('search marker renderer always rehydrates saved pins, without stale signatu
  const src=await read('public/static/search-screen.js');
  const start=src.indexOf('function refreshSavedMarkers(){'),end=src.indexOf('function mark(item,pickedOne=false){',start);
  const sub=src.slice(start,end);
- assert.match(sub,/clearSavedMarkers\(\)/);
+ assert.match(sub,/savedMarkerRegistry\.delete\(key\)/);
  assert.match(sub,/for\(const entry of existingPlaces\(\)\)/);
- assert.match(sub,/savedMarkers\.push\(pin\)/);
+ assert.match(sub,/savedMarkerRegistry\.set\(key,pin\)/);
  assert.doesNotMatch(sub,/signature===savedSignature/);
  assert.match(src,/if\(searchMap&&!dynamicUnavailable\)return false;/);
  assert.match(src,/const created=maybeMap\(\)/);assert.match(src,/resizeSearchMap\(\)/);
@@ -60,8 +60,8 @@ test('search marker renderer always rehydrates saved pins, without stale signatu
 test('selected search candidate hides competing search-result markers while preserving saved places',async()=>{
  const src=await read('public/static/search-screen.js');
  const start=src.indexOf('function paintMarkers(){'),end=src.indexOf('function showMode(next){',start),block=src.slice(start,end);
- assert.match(block,/if\(selected\)\{/);
- assert.match(block,/refreshSavedMarkers\(\);selectedMarker=mark\(selected,true\);/);
+ assert.match(block,/const key=selected/);
+ assert.match(block,/if\(key&&!selectedMarker\)/);assert.match(block,/refreshSavedMarkers\(\)/);
  assert.doesNotMatch(block,/for\(const item of items.slice\(0,15\)\)/);
- assert.match(block,/Search result candidates never become map markers/);
+ assert.doesNotMatch(block,/for\(const item of items/);
 });

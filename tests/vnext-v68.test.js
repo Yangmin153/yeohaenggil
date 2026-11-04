@@ -59,7 +59,7 @@ test('endpoint search uses exact same full-screen screen and retains saved visit
  const [screen,quick,vnext,app]=await Promise.all(['public/static/search-screen.js','public/static/quick-add.js','public/static/vnext.js','public/static/app.js'].map(read));
  assert.match(screen,/function show\(kind='stop',options=\{\}\)/);
  assert.match(screen,/function endpointMode\(\)/);
- assert.match(screen,/refreshSavedMarkers\(\);selectedMarker=mark\(selected,true\)/);
+ assert.match(screen,/savedMarkerRegistry\.has\(key\)/);
  assert.match(screen,/function completeEndpoint\(item\)/);
  assert.match(quick,/window\.YeoSearch\.preview\(item\)/);
  assert.match(vnext,/data-chooser-place/);

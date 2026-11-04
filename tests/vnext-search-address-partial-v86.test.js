@@ -21,9 +21,9 @@ test('keyword and full address search both use API; geocoder works on valid stre
  assert.match(js,/function requestAddress\(term,signal\)/);
  assert.match(js,/\/api\/geocode\?q=/);
  assert.match(js,/window\.TripSearch\?\.looksLikeAddress\?\.\(text\)/);
- assert.match(js,/const addressWork=addressQuery\?safeAddress\(\):null/);
- assert.match(js,/window\.TripSearch\?\.combine\?\.\(found,addressResult\.results\)/);
- assert.match(js,/!found\.length\?safeAddress\(\)/);
+ assert.match(js,/const addressWork=addressQuery/);
+ assert.match(js,/window\.TripSearch\?\.combine\?\.\(keywordItems,addressItems\)/);
+ assert.match(js,/!addressQuery&&!keywordItems\.length/);
  const src=await read('public/static/search-utils.js'),ctx={};ctx.globalThis=ctx;
  vm.runInNewContext(src,ctx);
  assert.equal(ctx.TripSearch.looksLikeAddress('인천 부평구 수변로 22'),true);

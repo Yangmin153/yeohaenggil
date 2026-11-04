@@ -47,5 +47,5 @@ test('auth UI no longer touches removed account-guest element',async()=>{
  const html=await readFile(new URL('../public/index.html',import.meta.url),'utf8');
  assert.doesNotMatch(source,/\$\('account-guest'\)\.hidden/);
  assert.match(source,/!config\.supabaseReady\|\|!config\.supabaseUrl\|\|!config\.supabaseAnonKey/);
- assert.match(html,/src="\/static\/accounts\.js\?v=7\.6\.0"/);
+ assert.match(html,/src="\/static\/accounts\.js\?v=8\.8\.0"/);
 });

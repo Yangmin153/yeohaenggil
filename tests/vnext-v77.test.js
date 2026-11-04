@@ -22,7 +22,7 @@ test('quick search does not send distance restriction and loads additional natio
  assert.match(script,/new URLSearchParams\(\{q:term,page:String\(page\)\}\)/);
  assert.doesNotMatch(script,/params\.set\('bias'/);
  assert.doesNotMatch(script,/params\.set\('nearby'/);
- assert.match(script,/if\(hasNext\)/);
+ assert.match(script,/if\(first\.hasNext\)/);
  assert.match(script,/request\(q,signal,2\)/);
  assert.match(script,/next\.slice\(0,30\)/);
 });
@@ -33,7 +33,7 @@ test('map mode styles are scoped to bottom dock, never full-screen search',async
  assert.match(css,/body\.search-open #search-screen #search-screen-results-mount #quick-results/);
  assert.match(css,/display:block!important;position:static!important/);
  assert.match(css,/overflow-y:auto!important;overflow-x:hidden!important/);
- assert.match(html,/quick-add\.js\?v=8\.6\.0/);
+ assert.match(html,/quick-add\.js\?v=8\.8\.0/);
 });
 test('full screen search freezes unrelated underlying UI and restores previous inert state',async()=>{
  const js=await read('public/static/search-screen.js');
@@ -73,7 +73,7 @@ test('station category lookup is additive and does not suppress nationwide POIs'
  const src=await read('public/static/quick-add.js');
  const api=await read('lib/place-search.js');
  assert.match(src,/request\(q,signal,1,'SW8'\)/);
- assert.match(src,/contextualQuery/);
+ assert.match(src,/request\(\[city,district,text\]\.filter\(Boolean\)\.join/);
  assert.match(api,/category_group_code/);
  assert.match(api,/categoryGroupCode/);
 });

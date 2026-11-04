@@ -29,7 +29,7 @@ test('search results add only by button, then Naver map preview contains saved a
  assert.match(screen,/selected=place;previewSource='added'/);
  assert.match(screen,/picked.hidden=true;input.blur\(\)/);
  assert.match(screen,/selectedMarker=mark\(selected,true\)/);
- assert.match(screen,/refreshSavedMarkers\(\);selectedMarker=mark\(selected,true\)/);
+ assert.match(screen,/savedMarkerRegistry\.has\(key\)/);
  assert.match(screen,/getMapDiagnostics:/);
  assert.match(screen,/searchMap\.panTo\(new window\.naver\.maps\.LatLng/);
  assert.match(screen,/renderStaticFallback\(\)/);

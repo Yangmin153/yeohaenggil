@@ -17,7 +17,7 @@ test('선택 전 진입 차단, 직접 검색, 지역 변경 시 장소 보존',
 test('검색 입력 응답은 취소와 재사용 캐시로 최적화',async()=>{
  const quick=await read('public/static/quick-add.js');
  assert.match(quick,/TTL=45000,LIMIT=36/);assert.match(quick,/AbortController/);
- assert.match(quick,/cache\.set\(path/);assert.match(quick,/current!==sequence/);
+ assert.match(quick,/cache\.set\(path/);assert.match(quick,/current===sequence&&!signal\.aborted/);
 });
 test('장소 추가 중복을 확인하고 전체화면 검색은 유지',async()=>{
  const quick=await read('public/static/quick-add.js'),search=await read('public/static/search-screen.js');

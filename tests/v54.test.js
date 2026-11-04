@@ -43,7 +43,7 @@ test('v5.4 search indicates loading immediately and debounces Korean typing at 2
  assert.match(quick,/setTimeout\(\(\)=>search\(\),280\)/);
  assert.match(quick,/setMessage\('장소를 검색하고 있어요…',false,true\)/);
  assert.match(quick,/YeoSearch\?\.searchStarted\?\.\(\)/);
- assert.match(quick,/current!==sequence/);
+ assert.match(quick,/current===sequence&&!signal\.aborted/);
  assert.match(css,/quick-result-message\.is-loading/);
 });
 test('v5.4 search map shows added places distinctly and refreshes selected DAY live',async()=>{

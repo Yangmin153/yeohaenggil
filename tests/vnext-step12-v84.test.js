@@ -40,7 +40,7 @@ test('endpoint search preserves existing assigned locations and recalculates rou
  assert.match(block,/const result=setCollectedRoleFromSearch\(item,kind\)/);
  assert.ok(!block.includes('d[kind]=place'));
  assert.match(app,/function setCollectedRoleFromSearch\(item,role\)/);
- assert.match(app,/invalidateRoutes\(\);selectedMapStop=null;refresh\(\)/);
+ assert.match(app,/invalidateRoutes\(\[state\.active\]\);syncLinkedOrigins\(state\.active\+1\)/);
 });
 test('search map uses one SDK map instance and a coalesced viewport resize path',async()=>{
  const js=await read('public/static/search-screen.js');

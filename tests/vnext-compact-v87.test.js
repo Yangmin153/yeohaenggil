@@ -13,7 +13,7 @@ test('step progress sizing applies identically to STEP 1, 2 and 3, not STEP 2 on
  assert.match(css,/body\[data-trip-step\] #yg-progress>button span\s*\{[^}]*width:22px!important/);
  assert.ok(html.includes('vnext-compact-v87.css?v=1.0.0'));
  assert.ok(html.indexOf('search-compact-v86.css')<html.indexOf('vnext-compact-v87.css'));
- assert.match(html,/src="\/static\/vnext\.js\?v=8\.7\.0"/);
+ assert.match(html,/src="\/static\/vnext\.js\?v=8\.8\.0"/);
  assert.doesNotMatch(css,/body\[data-trip-step="2"\] #yg-progress/);
 });
 
