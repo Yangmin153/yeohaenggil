@@ -67,7 +67,7 @@ test('STEP2 map requests twice-resolution tiles and survives Preview Dynamic Map
 });
 test('selected-place buttons emphasize one primary CTA and a two-column role row',async()=>{
  const [html,style,screen]=await Promise.all([
-  read('public/index.html'),read('public/static/search-map-polish.css'),read('public/static/search-screen.js')
+  read('public/index.html'),read('public/static/search-map-clarity-v82.css'),read('public/static/search-screen.js')
  ]);
  const section=html.slice(html.indexOf('<div class="search-picked"'),html.indexOf('id="search-screen-results-mount"'));
  const head=section.indexOf('class="search-picked-heading"'),actions=section.indexOf('class="search-picked-actions"');
