@@ -1,0 +1,242 @@
+/* vNext 8.7 — global step navigation + compact STEP 2, iPhone-first.
+   Shared STEP 1/2/3 progress indicator; only the date/list belong to STEP 2. */
+body[data-trip-step] #yg-progress{
+ width:100%!important;
+ max-width:660px!important;
+ min-height:0!important;
+ display:flex!important;
+ align-items:center!important;
+ gap:4px!important;
+ margin:6px auto 10px!important;
+ padding:3px!important;
+ border-radius:13px!important;
+ box-shadow:none!important;
+}
+body[data-trip-step] #yg-progress>button{
+ flex:1 1 0!important;
+ min-width:0!important;
+ min-height:42px!important;
+ height:42px!important;
+ padding:6px 5px!important;
+ border-radius:10px!important;
+ gap:5px!important;
+ font-family:Pretendard,"Pretendard Variable",sans-serif;
+ font-size:12px!important;
+ line-height:1!important;
+ letter-spacing:-.03em!important;
+ font-weight:800!important;
+ white-space:nowrap!important;
+}
+body[data-trip-step] #yg-progress>button span{
+ width:22px!important;
+ height:22px!important;
+ min-width:22px!important;
+ flex:0 0 22px!important;
+ border-radius:8px!important;
+ font-size:12px!important;
+ line-height:1!important;
+}
+body[data-trip-step] #yg-progress>button:focus-visible{
+ outline:2px solid #078b77!important;
+ outline-offset:2px!important;
+}
+body[data-trip-step="2"] #yg-plan-date{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ width:100%!important;
+ max-width:660px!important;
+ height:auto!important;
+ min-height:48px!important;
+ padding:5px 10px!important;
+ margin:0 auto 8px!important;
+ border:1px solid #e0eae5!important;
+ border-radius:12px!important;
+ background:#fff!important;
+ box-shadow:none!important;
+}
+body[data-trip-step="2"] #yg-plan-date .yg-date-switch{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:space-between!important;
+ gap:10px!important;
+ min-width:0!important;
+ width:100%!important;
+ height:auto!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ border-radius:0!important;
+ background:transparent!important;
+ box-shadow:none!important;
+}
+body[data-trip-step="2"] #yg-plan-date .yg-date-switch label{
+ flex:0 0 auto!important;
+ width:auto!important;
+ margin:0!important;
+ padding:0!important;
+ font-family:Pretendard,"Pretendard Variable",sans-serif;
+ font-size:12px!important;
+ line-height:1.5!important;
+ letter-spacing:-.03em!important;
+ font-weight:800!important;
+ color:#5a7469!important;
+ white-space:nowrap!important;
+}
+body[data-trip-step="2"] #yg-plan-date #yg-active-date{
+ flex:0 1 178px!important;
+ display:block!important;
+ box-sizing:border-box!important;
+ min-width:136px!important;
+ max-width:178px!important;
+ width:178px!important;
+ min-height:36px!important;
+ height:36px!important;
+ margin:0!important;
+ padding:6px 28px 6px 12px!important;
+ border:1px solid #d8eae2!important;
+ border-radius:9px!important;
+ background-color:#ecf8f3!important;
+ color:#07836c!important;
+ font-family:Pretendard,"Pretendard Variable",sans-serif;
+ font-size:14px!important;
+ line-height:normal!important;
+ letter-spacing:-.03em!important;
+ font-weight:850!important;
+ text-align:left!important;
+ text-align-last:left!important;
+}
+body[data-trip-step="2"] #yg-open-stops{
+ min-height:44px!important;
+ margin:6px 0 5px!important;
+ padding:8px 12px!important;
+ border-radius:12px!important;
+}
+body[data-trip-step="2"] #yg-open-stops,
+body[data-trip-step="2"] #yg-open-stops strong,
+body[data-trip-step="2"] #yg-open-stops span{
+ font-size:14px!important;
+ line-height:1.5!important;
+}
+body[data-trip-step="2"] #yg-inline-stops{
+ padding:2px 10px!important;
+ max-height:min(350px,44dvh)!important;
+ border-radius:12px!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place{
+ padding:4px 0!important;
+ margin:0!important;
+ border-bottom:1px solid #edf2ef!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place:last-child{
+ border-bottom:0!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place-main{
+ display:flex!important;
+ align-items:center!important;
+ gap:6px!important;
+ min-height:44px!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place-icon{
+ flex:0 0 28px!important;
+ width:28px!important;
+ height:28px!important;
+ border-radius:8px!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place-icon svg{
+ width:18px!important;
+ height:18px!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place-focus{
+ flex:1 1 auto!important;
+ min-width:0!important;
+ min-height:44px!important;
+ gap:0!important;
+ padding:0 2px!important;
+ text-align:left!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place-focus strong{
+ display:block!important;
+ font-size:14px!important;
+ line-height:1.5!important;
+ letter-spacing:-.03em!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place-focus small{
+ display:block!important;
+ font-size:12px!important;
+ line-height:1.5!important;
+ letter-spacing:-.03em!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place-tags{
+ display:flex!important;
+ flex:0 0 auto!important;
+ gap:3px!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-place-role-tag{
+ min-width:30px!important;
+ padding:2px 4px!important;
+ font-size:12px!important;
+ border-radius:6px!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place-delete{
+ position:relative!important;
+ display:grid!important;
+ place-items:center!important;
+ flex:0 0 36px!important;
+ width:36px!important;
+ height:36px!important;
+ min-width:36px!important;
+ min-height:36px!important;
+ padding:0!important;
+ margin:0!important;
+ border:0!important;
+ border-radius:9px!important;
+ background:#f3f6f5!important;
+ color:#7e8d86!important;
+ font-size:18px!important;
+ line-height:1!important;
+ font-weight:500!important;
+}
+body[data-trip-step="2"] #yg-inline-stops .yg-role-place-delete::after{
+ content:"";
+ position:absolute;
+ inset:-4px;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-place.is-selected{
+ background:#edf8f3!important;
+ border-radius:10px!important;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-place.is-selected .yg-endpoint-chooser-select{
+ color:#bc6047!important;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-place.is-selected:disabled{
+ opacity:1!important;
+}
+@media(max-width:370px){
+ body[data-trip-step] #yg-progress{
+  gap:2px!important;
+  padding:2px!important;
+ }
+ body[data-trip-step] #yg-progress>button{
+  font-size:12px!important;
+  gap:3px!important;
+  padding:5px 2px!important;
+ }
+ body[data-trip-step] #yg-progress>button span{
+  flex-basis:20px!important;
+  width:20px!important;
+  height:20px!important;
+  min-width:20px!important;
+ }
+ body[data-trip-step="2"] #yg-plan-date #yg-active-date{
+  flex-basis:150px!important;
+  max-width:150px!important;
+  width:150px!important;
+ }
+ body[data-trip-step="2"] #yg-inline-stops{
+  padding:2px 7px!important;
+ }
+ body[data-trip-step="2"] #yg-inline-stops .yg-role-place-main{
+  gap:4px!important;
+ }
+}

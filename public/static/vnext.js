@@ -193,7 +193,6 @@ function renderEndpointChooser(){
  $('yg-endpoint-chooser-title').textContent=kind==='origin'?'출발지 선택':'도착지 선택';
  $('yg-endpoint-chooser-caption').textContent=dateText(d.date,{short:true})+' · 담은 장소에서 선택';
  const current=d[kind],items=[];
- $('yg-endpoint-chooser-clear').hidden=!configured(current);
  for(const p of [...d.stops,d.origin,d.destination]){
   if(configured(p)&&!items.some(existing=>window.YGPlaceRoles?.same?.(existing,p)))items.push(p);
  }
@@ -202,9 +201,9 @@ function renderEndpointChooser(){
  list.innerHTML=items.map(p=>{
   const chosen=window.YGPlaceRoles?.same?.(p,current),name=escape(p.name),address=escape(p.address||window.TripMeta?.meta?.(p)?.label||'저장한 장소');
   const icon=window.TripMeta?.icon?.(p,18)||'•';
-  return '<button type="button" data-chooser-place="'+escape(p.id)+'" class="yg-endpoint-chooser-place" aria-label="'+name+' 선택"'+(chosen?' disabled aria-current="true"':'')+'>'+
+  return '<button type="button" data-chooser-place="'+escape(p.id)+'" data-chooser-selected="'+String(chosen)+'" class="yg-endpoint-chooser-place'+(chosen?' is-selected':'')+'" aria-pressed="'+String(chosen)+'" aria-label="'+name+(chosen?' 선택 해제':' 선택')+'">'+
    '<span class="yg-endpoint-chooser-icon" aria-hidden="true">'+icon+'</span><span class="yg-endpoint-chooser-copy"><strong>'+name+'</strong><small>'+address+'</small></span>'+
-   '<span class="yg-endpoint-chooser-select">'+(chosen?'선택됨':'선택')+'</span></button>';
+   '<span class="yg-endpoint-chooser-select">'+(chosen?'해제':'선택')+'</span></button>';
  }).join('');
 }
 function openEndpointChooser(kind){
@@ -337,23 +336,17 @@ $('yg-end-date').addEventListener('change',syncDateRange);
 $('yg-active-date').addEventListener('change',e=>{inlineExpanded=true;app.setActive(Number(e.target.value));});
 document.querySelectorAll('[data-pick-endpoint]').forEach(btn=>btn.addEventListener('click',()=>openEndpointChooser(btn.dataset.pickEndpoint)));
 $('yg-endpoint-chooser-close').addEventListener('click',()=>closeEndpointChooser());
-$('yg-endpoint-chooser-clear').addEventListener('click',()=>{
- const kind=endpointChooserKind;
- if(!kind)return;
- const outcome=app.clearCollectedEndpoint(kind);
- if(!outcome?.ok){app.toast(outcome?.error||'지정을 취소하지 못했어요.');return;}
- closeEndpointChooser();
- app.toast(kind==='origin'?'출발지 지정을 취소했어요.':'도착지 지정을 취소했어요.');
-});
 $('yg-endpoint-chooser').addEventListener('click',e=>{
  if(e.target.id==='yg-endpoint-chooser'){closeEndpointChooser();return;}
  const button=e.target.closest('[data-chooser-place]');
- if(!button||button.disabled)return;
- const kind=endpointChooserKind,done=app.setCollectedRole(button.dataset.chooserPlace,kind);
- if(!done?.ok){app.toast(done?.error||'장소를 선택할 수 없어요.');return;}
+ if(!button)return;
+ const kind=endpointChooserKind,selected=button.dataset.chooserSelected==='true';
+ const done=selected?app.clearCollectedEndpoint(kind):app.setCollectedRole(button.dataset.chooserPlace,kind);
+ if(!done?.ok){app.toast(done?.error||(selected?'지정을 해제할 수 없어요.':'장소를 선택할 수 없어요.'));return;}
  closeEndpointChooser();
- if(done.id)app.focusPlace(done.id);
- app.toast(kind==='origin'?'출발지로 지정했어요.':'도착지로 지정했어요.');
+ if(!selected&&done.id)app.focusPlace(done.id);
+ app.toast(selected?(kind==='origin'?'출발지 지정을 해제했어요.':'도착지 지정을 해제했어요.'):
+  (kind==='origin'?'출발지로 지정했어요.':'도착지로 지정했어요.'));
 });
 $('yg-endpoint-chooser-search').addEventListener('click',()=>{
  const kind=endpointChooserKind;

@@ -107,8 +107,8 @@ test('calculation works with only one ready day and the endpoint dialog has a cl
  assert.match(ui,/filter\(\(\{d\}\)=>routeReady\(d\)\)/);
  assert.match(ui,/const routes=arranged\.map\(d=>\(\{date:d\.date,route:null\}\)\)/);
  assert.match(ui,/if\(!day\(\)\.result\)app\.setActive\(full\[0\]\.i\)/);
- assert.match(html,/id="yg-endpoint-chooser-clear" hidden/);
- assert.match(ui,/app\.clearCollectedEndpoint\(kind\)/);
+ assert.doesNotMatch(html,/id="yg-endpoint-chooser-clear"/);
+ assert.match(ui,/selected\?app\.clearCollectedEndpoint\(kind\):app\.setCollectedRole/);
  assert.match(app,/function clearCollectedEndpoint\(kind\)/);
 });
 test('changed modules have valid JavaScript syntax',()=>{
