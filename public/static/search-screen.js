@@ -432,10 +432,25 @@ function chooseRole(kind){
  window.TripApp?.toast?.(kind==='origin'?'출발지로 지정했어요.':'도착지로 지정했어요.');
  if(result.id)requestAnimationFrame(()=>window.TripApp?.focusPlace?.(result.id));
 }
+let addingSelection=false;
 function chooseAdd(){
- if(!selected||(!endpointMode()&&isSavedSelection))return;
- const ok=endpointMode()?completeEndpoint(selected):window.TripQuickAdd?.addPlace?.(selected);
- if(ok===false){$('search-picked-add').textContent='이미 추가한 장소';setTimeout(()=>$('search-picked-add').textContent='이 장소 담기',1200);}
+ if(addingSelection||!opened||mode!=='map'||!selected||(!endpointMode()&&isSavedSelection))return false;
+ const chosen=selected,button=$('search-picked-add');
+ addingSelection=true;button.disabled=true;
+ try{
+  const ok=endpointMode()?completeEndpoint(chosen):window.TripQuickAdd?.addPlace?.(chosen);
+  // The quick-add helper already gives the real failure message (including
+  // duplicate, missing region or a full day). Do not mislabel every failure.
+  if(ok!==true&&opened&&selected===chosen)button.disabled=false;
+  return ok===true;
+ }catch(error){
+  if(opened&&selected===chosen){
+   button.disabled=false;
+   notify('장소를 담는 중 문제가 생겼어요. 다시 시도해 주세요.');
+  }
+  console.warn('장소 담기 동작 실패',error);
+  return false;
+ }finally{addingSelection=false;}
 }
 $('search-screen-back').addEventListener('click',()=>hide());
 $('search-list-toggle').addEventListener('click',()=>showMode(mode==='list'?'map':'list'));

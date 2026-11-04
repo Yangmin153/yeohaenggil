@@ -78,7 +78,7 @@ test('selected-place buttons emphasize one primary CTA and a two-column role row
  assert.match(style,/#search-screen \.search-picked-actions #search-picked-add/);
  assert.match(style,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.match(screen,/showRoleOptions\(\)/);
- assert.match(html,/search-map-clarity-v82\.css\?v=1\.0\.0/);
+ assert.match(html,/search-map-clarity-v82\.css\?v=1\.1\.0/);
 });
 test('all changed scripts pass Node syntax checks',()=>{
  for(const p of ['public/static/app.js','public/static/search-screen.js','public/static/step2-map-fallback.js','api/static-map.js']){

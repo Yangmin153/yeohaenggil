@@ -54,6 +54,18 @@ body[data-trip-step="2"] #yg-step2-static-map>img{
  background:#fff!important;
  box-shadow:0 -8px 28px #0a31251c!important;
 }
+/* The HTML hidden attribute must beat the styled flex panel.
+   Otherwise a blank “이 장소 담기” CTA remains visible before any selection,
+   including over the search results on iPhone Safari. */
+#search-screen #search-picked[hidden]{
+ display:none!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+#search-screen[data-search-mode="list"] #search-picked{
+ display:none!important;
+ pointer-events:none!important;
+}
 #search-screen .search-picked-heading{
  display:flex;
  align-items:center;
