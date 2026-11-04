@@ -33,5 +33,5 @@ test('map candidates are hidden and saved map positions are real Naver images',a
  assert.ok(!area.includes('for(const item of items'));assert.ok(area.includes('refreshSavedMarkers()'));
  assert.ok(fallback.includes('focusedStaticMapLayout(coords,center,w,h,13)'));
  assert.ok(fallback.includes("img.src='/api/static-map?'"));
- assert.ok(css.includes('pointer-events:none'));assert.ok(html.includes('step2-map-fallback.js?v=1.0.0'));
+ assert.ok(css.includes('pointer-events:none'));assert.ok(html.includes('step2-map-fallback.js?v=1.1.0'));
 });

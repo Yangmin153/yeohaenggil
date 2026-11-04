@@ -56,7 +56,7 @@ test('STEP2 map requests twice-resolution tiles and survives Preview Dynamic Map
  const [fallback,app,style]=await Promise.all([
   read('public/static/step2-map-fallback.js'),
   read('public/static/app.js'),
-  read('public/static/search-map-polish.css')
+  read('public/static/search-map-clarity-v82.css')
  ]);
  assert.match(fallback,/s:density/);
  assert.match(fallback,/Math\.abs\(nowW-w\)>2/);

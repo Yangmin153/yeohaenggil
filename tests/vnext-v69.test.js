@@ -53,7 +53,7 @@ test('search marker renderer always rehydrates saved pins, without stale signatu
  assert.match(sub,/for\(const entry of existingPlaces\(\)\)/);
  assert.match(sub,/savedMarkers\.push\(pin\)/);
  assert.doesNotMatch(sub,/signature===savedSignature/);
- assert.match(src,/if\(searchMap\)\{updateSize\(\);paintMarkers\(\);return;\}/);
+ assert.match(src,/if\(searchMap&&!dynamicUnavailable\)\{updateSize\(\);paintMarkers\(\);return;\}/);
  assert.match(src,/if\(mode==='map'\)\{requestAnimationFrame\(\(\)=>\{maybeMap\(\);updateSize\(\);paintMarkers\(\);\}\);\}/);
  assert.match(src,/document\.addEventListener\('trip:endpoint-changed'/);
 });
