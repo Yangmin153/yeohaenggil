@@ -1,7 +1,7 @@
 name: Triple-inspired design preview tests
 on:
   push:
-    branches: [design/triple-inspired-b375ee37, feature/step2-unified-ux-20261104, feature/step2-place-role-picking-20261104, feature/search-map-hd-layout-v82-20261104, fix/search-picked-hidden-state-v83-20261104, feature/vnext-step12-search-map-fix-20261104, fix/vnext-step12-search-map-v85-20261104, feature/vnext-search-address-partial-routes-v86-20261104, fix/vnext-global-steps-compact-list-toggle-v87-20261104, fix/vnext-stability-search-map-ui-v88-20261104, fix/vnext-endpoint-toggle-overlap-pin-v89-20261105, fix/vnext-unassign-stale-role-label-v890-20261105]
+    branches: [design/triple-inspired-b375ee37, feature/step2-unified-ux-20261104, feature/step2-place-role-picking-20261104, feature/search-map-hd-layout-v82-20261104, fix/search-picked-hidden-state-v83-20261104, feature/vnext-step12-search-map-fix-20261104, fix/vnext-step12-search-map-v85-20261104, feature/vnext-search-address-partial-routes-v86-20261104, fix/vnext-global-steps-compact-list-toggle-v87-20261104, fix/vnext-stability-search-map-ui-v88-20261104, fix/vnext-endpoint-toggle-overlap-pin-v89-20261105, fix/vnext-unassign-stale-role-label-v890-20261105, fix/vnext-chooser-unassign-state-v892-20261105]
 permissions:
   contents: read
 jobs:

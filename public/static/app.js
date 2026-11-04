@@ -86,7 +86,11 @@ function clearCollectedEndpoint(kind){
   return {ok:false,error:'방문지가 30곳이라 선택한 장소를 보관할 수 없어요.'};
  if(preserve&&!d.stops.some(p=>same(p,current)))
   d.stops.push({...current,id:uid(),locked:false,fixedDate:d.date||null});
- d[kind]={...current,name:kind==='origin'?'출발지 미설정':'도착지 미설정',address:''};
+ // Keep the role slot's stable ID and coordinates, but remove the old
+ // place identity (sourceId/name/category). Otherwise equality checks can
+ // mistakenly treat a cleared placeholder as the previously selected place.
+ d[kind]={id:current.id,name:kind==='origin'?'출발지 미설정':'도착지 미설정',
+  lat:Number(current.lat)||36.35,lng:Number(current.lng)||127.9,address:'',locked:false};
  if(kind==='origin'&&state.active>0)d.originMode='custom';
  invalidateRoutes([state.active]);if(kind==='destination')syncLinkedOrigins(state.active+1);
  selectedMapStop=null;refresh();

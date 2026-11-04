@@ -193,6 +193,9 @@ function renderEndpointChooser(){
  $('yg-endpoint-chooser-title').textContent=kind==='origin'?'출발지 선택':'도착지 선택';
  $('yg-endpoint-chooser-caption').textContent=dateText(d.date,{short:true})+' · 담은 장소에서 선택';
  const current=d[kind],roleName=kind==='origin'?'출발지':'도착지',items=[];
+ // A cleared role keeps its former GPS coordinates for compatibility, but
+ // matching those coordinates must never make an unassigned role look selected.
+ const sameAssigned=p=>Boolean(configured(current)&&window.YGPlaceRoles?.same?.(p,current));
  $('yg-endpoint-chooser-help').textContent='장소를 누르면 '+roleName+'로 지정돼요. 선택된 장소를 다시 누르면 해제돼요.';
  $('yg-endpoint-chooser-current').textContent=configured(current)
   ?'현재 '+roleName+' · '+current.name+' (다시 누르면 해제)'
@@ -202,15 +205,14 @@ function renderEndpointChooser(){
   if(configured(p)&&!items.some(existing=>window.YGPlaceRoles?.same?.(existing,p)))items.push(p);
  }
  // Keep the current role visible first; the user never needs to hunt for "해제".
- items.sort((a,b)=>Number(Boolean(window.YGPlaceRoles?.same?.(b,current)))-
-  Number(Boolean(window.YGPlaceRoles?.same?.(a,current))));
+ items.sort((a,b)=>Number(sameAssigned(b))-Number(sameAssigned(a)));
  const list=$('yg-endpoint-chooser-list');
  if(!items.length){list.innerHTML='<p class="yg-endpoint-chooser-empty">아직 담은 장소가 없어요.<span>아래 장소 검색에서 추가할 수 있어요.</span></p>';return;}
  list.innerHTML=items.map(p=>{
-  const chosen=Boolean(window.YGPlaceRoles?.same?.(p,current)),name=escape(p.name),
+  const chosen=sameAssigned(p),name=escape(p.name),
    address=escape(p.address||window.TripMeta?.meta?.(p)?.label||'저장한 장소');
   const other=kind==='origin'?'destination':'origin';
-  const shared=Boolean(window.YGPlaceRoles?.same?.(p,d[other]));
+  const shared=Boolean(configured(d[other])&&window.YGPlaceRoles?.same?.(p,d[other]));
   const icon=window.TripMeta?.icon?.(p,18)||'•';
   const otherLabel=other==='origin'?'출발지':'도착지';
   return '<button type="button" data-chooser-place="'+escape(p.id)+'" data-chooser-selected="'+String(chosen)+'" class="yg-endpoint-chooser-place'+(chosen?' is-selected':'')+'" aria-pressed="'+String(chosen)+'" aria-label="'+name+(chosen?' '+roleName+' 지정 해제':' '+roleName+'로 지정')+'">'+
