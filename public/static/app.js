@@ -51,22 +51,10 @@ function currentRegion(){return day().region||state.days[0].region||DEFAULT_REGI
 function setRegion(value){const region=String(value||'').trim().replace(/\s+/g,' ').slice(0,28);if(!region)return false;for(const d of state.days)d.region=region;save();window.TripQuickAdd?.syncRegion?.();return true;}
 function setEndpointFromSearch(kind,item){
  if(!['origin','destination'].includes(kind)||!validPlace(item))return false;
- const d=day(),previous=d[kind];
- const place={
-  id:previous.id,
-  name:String(item.name).slice(0,100),lat:Number(item.lat),lng:Number(item.lng),
-  address:String(item.address||'').slice(0,250),
-  category:TripMeta.infer({categoryName:item.category,name:item.name}),
-  sourceId:String(item.id||'')
- };
- d[kind]=place;
- if(kind==='origin'&&state.active>0)d.originMode='custom';
- if(kind==='destination')syncLinkedOrigins(state.active+1);
- if(d.result)state.dirtyDayIds.add(d.id);
- d.result=null;sceneSignature='';sceneResult=null;mapFitQueued=true;
- refresh();
- document.dispatchEvent(new Event('trip:endpoint-changed'));
- return true;
+ // Use the same role-transfer path as the STEP 2 saved-place chooser.
+ // Previous endpoints return to the visit collection rather than being lost.
+ const result=setCollectedRoleFromSearch(item,kind);
+ return Boolean(result?.ok);
 }
 function setCollectedRole(id,role){
  const result=window.YGPlaceRoles?.select?.(day(),state.active,id,role,uid);

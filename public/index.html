@@ -30,21 +30,22 @@
   <link rel="stylesheet" href="/static/step2-unified.css?v=1.0.0">
   <link rel="stylesheet" href="/static/step2-role-picker.css?v=1.0.0">
   <link rel="stylesheet" href="/static/search-map-clarity-v82.css?v=1.1.0">
+  <link rel="stylesheet" href="/static/vnext-step12-compact-v84.css?v=1.0.0">
   <script defer src="/static/search-utils.js?v=4.2.0"></script>
   <script defer src="/static/place-meta.js?v=4.3.0"></script>
   <script defer src="/static/route-pins.js?v=6.4.0"></script>
   <script defer src="/static/route-shape.js?v=6.4.0"></script>
   <script defer src="/static/scroll-lock.js?v=7.0.0"></script>
   <script defer src="/static/place-role-core.js?v=1.0.0"></script>
-  <script defer src="/static/app.js?v=8.2.0"></script>
+  <script defer src="/static/app.js?v=8.4.0"></script>
   <script type="module" src="/static/mobile-ux.js?v=4.8.0"></script>
   <script type="module" src="/static/quick-add.js?v=7.18.0"></script>
-  <script type="module" src="/static/search-screen.js?v=8.3.0"></script>
+  <script type="module" src="/static/search-screen.js?v=8.4.0"></script>
   <script type="module" src="/static/step2-map-fallback.js?v=1.1.0"></script>
   <script defer src="/static/map-workspace.js?v=6.7.1"></script>
   <script type="module" src="/static/accounts.js?v=7.6.0"></script>
   <!-- Region onboarding removed from vNext daily planner; legacy nodes retained for compatibility. -->
-  <script defer src="/static/vnext.js?v=8.1.0"></script>
+  <script defer src="/static/vnext.js?v=8.4.0"></script>
   <script defer src="/static/navigation.js?v=7.6.0"></script>
   <script defer src="/static/live-route.js?v=7.5.0"></script>
   <script type="module" src="/static/share-trip.js?v=3.0.0"></script>
@@ -120,9 +121,16 @@
     <section id="yg-daily-editor" class="yg-daily-editor" aria-label="장소 추가와 출발지·도착지 지정">
       <div class="yg-visit-editor">
         <button type="button" id="yg-add-visit" class="yg-add-visit yg-search-open" aria-label="방문할 장소 검색해서 추가하기"><span aria-hidden="true">⌕</span> 장소 검색하고 추가하기 <span aria-hidden="true">→</span></button>
-        <div id="yg-role-status" class="yg-role-status" aria-live="polite">
-          <div><span class="yg-role-status-tag is-start">출발</span><strong id="yg-role-status-origin">아직 미지정</strong></div>
-          <div><span class="yg-role-status-tag is-end">도착</span><strong id="yg-role-status-destination">아직 미지정</strong></div>
+        <div id="yg-role-status" class="yg-role-status" aria-label="출발지와 도착지 선택">
+          <button type="button" class="yg-role-open" data-pick-endpoint="origin" aria-haspopup="dialog" aria-controls="yg-endpoint-chooser" aria-label="출발지 선택"><span class="yg-role-status-tag is-start">출발</span><strong id="yg-role-status-origin">아직 미지정</strong><span class="yg-role-open-chevron" aria-hidden="true">›</span></button>
+          <button type="button" class="yg-role-open" data-pick-endpoint="destination" aria-haspopup="dialog" aria-controls="yg-endpoint-chooser" aria-label="도착지 선택"><span class="yg-role-status-tag is-end">도착</span><strong id="yg-role-status-destination">아직 미지정</strong><span class="yg-role-open-chevron" aria-hidden="true">›</span></button>
+        </div>
+        <div id="yg-endpoint-chooser" class="yg-endpoint-chooser" role="dialog" aria-modal="true" aria-labelledby="yg-endpoint-chooser-title" hidden>
+          <div class="yg-endpoint-chooser-panel">
+            <div class="yg-endpoint-chooser-top"><div><small id="yg-endpoint-chooser-caption">담은 장소에서 선택</small><h2 id="yg-endpoint-chooser-title">출발지 선택</h2></div><button type="button" id="yg-endpoint-chooser-close" aria-label="선택 창 닫기">×</button></div>
+            <div id="yg-endpoint-chooser-list" class="yg-endpoint-chooser-list" role="group" aria-label="이 날짜에 담은 장소"></div>
+            <div class="yg-endpoint-chooser-footer"><button type="button" id="yg-endpoint-chooser-search">원하는 장소가 없나요? 장소 검색하기 <span aria-hidden="true">→</span></button></div>
+          </div>
         </div>
         <div id="yg-day-inherit" class="yg-day-inherit" hidden>
           <label><input type="radio" name="yg-origin-choice" value="inherit"> 전날 도착지 이어받기</label>

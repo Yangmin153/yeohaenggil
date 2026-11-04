@@ -53,8 +53,8 @@ test('search marker renderer always rehydrates saved pins, without stale signatu
  assert.match(sub,/for\(const entry of existingPlaces\(\)\)/);
  assert.match(sub,/savedMarkers\.push\(pin\)/);
  assert.doesNotMatch(sub,/signature===savedSignature/);
- assert.match(src,/if\(searchMap&&!dynamicUnavailable\)\{updateSize\(\);paintMarkers\(\);return;\}/);
- assert.match(src,/if\(mode==='map'\)\{requestAnimationFrame\(\(\)=>\{maybeMap\(\);updateSize\(\);paintMarkers\(\);\}\);\}/);
+ assert.match(src,/if\(searchMap&&!dynamicUnavailable\)return false;/);
+ assert.match(src,/const created=maybeMap\(\)/);assert.match(src,/resizeSearchMap\(\)/);
  assert.match(src,/document\.addEventListener\('trip:endpoint-changed'/);
 });
 test('selected search candidate hides competing search-result markers while preserving saved places',async()=>{

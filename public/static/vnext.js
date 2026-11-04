@@ -5,7 +5,7 @@
 const app=window.TripApp,$=id=>document.getElementById(id);
 if(!app||!$('yg-step-one'))return;
 const MS=86400000,MAX_DAYS=10,escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
-let currentStep=1,busy=false,sheetOpen=false,inlineExpanded=true,sheetFreeze=null,lastWarnings=[],dragStartY=0,selectedAdjustId=null,editingAdjustId=null;
+let currentStep=1,busy=false,sheetOpen=false,endpointChooserKind=null,endpointChooserFocus=null,inlineExpanded=true,sheetFreeze=null,lastWarnings=[],dragStartY=0,selectedAdjustId=null,editingAdjustId=null;
 const days=()=>app.getDays(),day=()=>app.getDay(),stops=()=>day().stops;
 function ms(value){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return NaN;
@@ -62,6 +62,8 @@ function renderDaily(){
  $('yg-day-stop-sub').textContent='장소를 담고 목록에서 출발·도착을 골라 주세요.';
  $('yg-role-status-origin').textContent=configured(d.origin)?d.origin.name:'아직 미지정';
  $('yg-role-status-destination').textContent=configured(d.destination)?d.destination.name:'아직 미지정';
+ document.querySelector('[data-pick-endpoint="origin"]').setAttribute('aria-label','출발지 선택 · '+(configured(d.origin)?d.origin.name:'아직 미지정'));
+ document.querySelector('[data-pick-endpoint="destination"]').setAttribute('aria-label','도착지 선택 · '+(configured(d.destination)?d.destination.name:'아직 미지정'));
  $('yg-empty-inline').hidden=count!==0;
  $('yg-stop-count').textContent=count+'곳';
  $('yg-legacy-stops').hidden=!pending;
@@ -156,30 +158,62 @@ function renderInlineStops(){
   ...d.stops.map(p=>({p,role:'stop',inherited:false})),
   ...(configured(d.destination)?[{p:d.destination,role:'destination',inherited:false}]:[])
  ];
- const locations=[];
+ const places=[];
  for(const item of raw){
-  const same=locations.find(entry=>window.YGPlaceRoles?.same?.(entry.p,item.p));
-  if(same){same.roles.add(item.role);continue;}
-  locations.push({...item,roles:new Set([item.role])});
+  const match=places.find(entry=>window.YGPlaceRoles?.same?.(entry.p,item.p));
+  if(match){match.roles.add(item.role);continue;}
+  places.push({...item,roles:new Set([item.role])});
  }
- if(!locations.length){
-  el.innerHTML='<div class="yg-role-empty">장소를 검색해서 추가해 주세요.</div>';
-  return;
- }
- el.innerHTML=locations.map(({p,role,roles,inherited:locked})=>{
-  const id=escape(p.id),name=escape(p.name),detail=escape(p.address||window.TripMeta?.meta?.(p)?.label||'저장한 장소');
+ if(!places.length){el.innerHTML='<div class="yg-role-empty">장소를 검색해서 추가해 주세요.</div>';return;}
+ el.innerHTML=places.map(({p,roles,inherited:locked})=>{
+  const id=escape(p.id),name=escape(p.name),description=escape(p.address||window.TripMeta?.meta?.(p)?.label||'저장한 장소');
   const icon=window.TripMeta?.icon?.(p,18)||'•';
-  const controls=locked?'<span class="yg-role-inherited">전날 도착지에서 출발</span>':
-   '<div class="yg-place-role-actions" role="group" aria-label="'+name+' 역할">'+
-   [['stop','방문지'],['origin','출발'],['destination','도착']].map(([kind,label])=>
-    '<button type="button" data-assign-role="'+kind+'" data-role-place="'+id+'" aria-pressed="'+(roles.has(kind))+'" class="'+(roles.has(kind)?'is-active is-'+kind:'')+'">'+label+'</button>'
-   ).join('')+'</div>';
+  const tags=[...(roles.has('origin')?['<span class="yg-place-role-tag is-origin">출발</span>']:[]),
+   ...(roles.has('destination')?['<span class="yg-place-role-tag is-destination">도착</span>']:[])].join('');
   return '<article class="yg-role-place" data-place-id="'+id+'"><div class="yg-role-place-main">'+
    '<span class="yg-role-place-icon" aria-hidden="true">'+icon+'</span>'+
-   '<button type="button" class="yg-role-place-focus" data-focus-place="'+id+'"><strong>'+name+'</strong><small>'+detail+'</small></button>'+
+   '<button type="button" class="yg-role-place-focus" data-focus-place="'+id+'"><strong>'+name+'</strong><small>'+description+'</small></button>'+
+   (tags?'<span class="yg-role-place-tags">'+tags+'</span>':'')+
    '<button type="button" class="yg-role-place-delete" data-remove-place="'+id+'" '+(locked?'disabled':'')+' aria-label="'+name+' 삭제">×</button>'+
-   '</div>'+controls+'</article>';
+   '</div>'+(locked?'<span class="yg-role-inherited">전날 도착지에서 자동 연결됨</span>':'')+'</article>';
  }).join('');
+}
+function closeEndpointChooser({restoreFocus=true}={}){
+ const dialog=$('yg-endpoint-chooser');
+ if(dialog.hidden)return;
+ dialog.hidden=true;document.body.classList.remove('yg-endpoint-chooser-open');
+ window.YGScrollLock?.unlock('endpoint-chooser');
+ const button=endpointChooserFocus;
+ endpointChooserKind=null;endpointChooserFocus=null;
+ if(restoreFocus&&button?.isConnected)button.focus({preventScroll:true});
+}
+function renderEndpointChooser(){
+ if(!endpointChooserKind)return;
+ const d=day(),kind=endpointChooserKind;
+ $('yg-endpoint-chooser-title').textContent=kind==='origin'?'출발지 선택':'도착지 선택';
+ $('yg-endpoint-chooser-caption').textContent=dateText(d.date,{short:true})+' · 담은 장소에서 선택';
+ const current=d[kind],items=[];
+ for(const p of [...d.stops,d.origin,d.destination]){
+  if(configured(p)&&!items.some(existing=>window.YGPlaceRoles?.same?.(existing,p)))items.push(p);
+ }
+ const list=$('yg-endpoint-chooser-list');
+ if(!items.length){list.innerHTML='<p class="yg-endpoint-chooser-empty">아직 담은 장소가 없어요.<span>아래 장소 검색에서 추가할 수 있어요.</span></p>';return;}
+ list.innerHTML=items.map(p=>{
+  const chosen=window.YGPlaceRoles?.same?.(p,current),name=escape(p.name),address=escape(p.address||window.TripMeta?.meta?.(p)?.label||'저장한 장소');
+  const icon=window.TripMeta?.icon?.(p,18)||'•';
+  return '<button type="button" data-chooser-place="'+escape(p.id)+'" class="yg-endpoint-chooser-place" aria-label="'+name+' 선택"'+(chosen?' disabled aria-current="true"':'')+'>'+
+   '<span class="yg-endpoint-chooser-icon" aria-hidden="true">'+icon+'</span><span class="yg-endpoint-chooser-copy"><strong>'+name+'</strong><small>'+address+'</small></span>'+
+   '<span class="yg-endpoint-chooser-select">'+(chosen?'선택됨':'선택')+'</span></button>';
+ }).join('');
+}
+function openEndpointChooser(kind){
+ if(document.body.dataset.tripStep!=='2'||!['origin','destination'].includes(kind))return;
+ endpointChooserKind=kind;endpointChooserFocus=document.activeElement;
+ renderEndpointChooser();
+ $('yg-endpoint-chooser').hidden=false;
+ document.body.classList.add('yg-endpoint-chooser-open');
+ window.YGScrollLock?.lock('endpoint-chooser');
+ $('yg-endpoint-chooser-close').focus({preventScroll:true});
 }
 function readiness(){
  const missing=[];
@@ -217,7 +251,7 @@ function closeSheet(){
 function go(next){
  if(next===2&&!days().every(d=>Number.isFinite(ms(d.date)))){error('출발일과 돌아오는 날을 먼저 선택해 주세요.');currentStep=1;document.body.dataset.tripStep='1';return;}
  if(next===3&&!days().some(d=>d.result)){app.toast('먼저 동선을 계산해 주세요.');return;}
- closeSheet();window.YeoSearch?.hide?.();
+ closeSheet();closeEndpointChooser({restoreFocus:false});window.YeoSearch?.hide?.();
  currentStep=next;document.body.dataset.tripStep=String(next);
   const help=$('yg-progress-help');
   if(help)help.textContent=next===3?'날짜나 방문지를 수정하려면 위의 ① 여행 일정 · ② 장소 담기를 눌러 이동하세요.':'위의 단계 이름을 누르면 언제든 해당 화면으로 이동할 수 있어요.';
@@ -302,12 +336,29 @@ $('yg-start-date').addEventListener('change',()=>{
 $('yg-end-date').addEventListener('change',syncDateRange);
 // STEP 2: Selecting a date never recreates/stomps another day's stops.
 $('yg-active-date').addEventListener('change',e=>{inlineExpanded=true;app.setActive(Number(e.target.value));});
-$('yg-origin-pick').addEventListener('click',()=>{inlineExpanded=true;renderInlineStops();});
-$('yg-dest-pick').addEventListener('click',()=>{inlineExpanded=true;renderInlineStops();});
+document.querySelectorAll('[data-pick-endpoint]').forEach(btn=>btn.addEventListener('click',()=>openEndpointChooser(btn.dataset.pickEndpoint)));
+$('yg-endpoint-chooser-close').addEventListener('click',()=>closeEndpointChooser());
+$('yg-endpoint-chooser').addEventListener('click',e=>{
+ if(e.target.id==='yg-endpoint-chooser'){closeEndpointChooser();return;}
+ const button=e.target.closest('[data-chooser-place]');
+ if(!button||button.disabled)return;
+ const kind=endpointChooserKind,done=app.setCollectedRole(button.dataset.chooserPlace,kind);
+ if(!done?.ok){app.toast(done?.error||'장소를 선택할 수 없어요.');return;}
+ closeEndpointChooser();
+ if(done.id)app.focusPlace(done.id);
+ app.toast(kind==='origin'?'출발지로 지정했어요.':'도착지로 지정했어요.');
+});
+$('yg-endpoint-chooser-search').addEventListener('click',()=>{
+ const kind=endpointChooserKind;
+ closeEndpointChooser({restoreFocus:false});
+ if(kind)openSearch(kind);
+});
+$('yg-origin-pick').addEventListener('click',()=>openEndpointChooser('origin'));
+$('yg-dest-pick').addEventListener('click',()=>openEndpointChooser('destination'));
 document.querySelectorAll('[name="yg-origin-choice"]').forEach(radio=>radio.addEventListener('change',()=>{
  if(!radio.checked)return;
  app.setDayOriginMode(app.getActive(),radio.value);
- if(radio.value==='custom'){inlineExpanded=true;renderInlineStops();}
+ if(radio.value==='custom')openEndpointChooser('origin');
 }));
 $('yg-add-visit').addEventListener('click',()=>openSearch());
 $('yg-fit-all').addEventListener('click',()=>{app.fitMap();app.resizeMap();});
@@ -327,15 +378,6 @@ $('yg-three-recalc').addEventListener('click',calculate);
 $('yg-three-add').addEventListener('click',()=>openSearch());
 $('yg-open-stops').addEventListener('click',()=>{inlineExpanded=!inlineExpanded;renderInlineStops();});
 $('yg-inline-stops').addEventListener('click',e=>{
- const role=e.target.closest('[data-assign-role]');
- if(role){
-  const kind=role.dataset.assignRole;
-  const done=app.setCollectedRole(role.dataset.rolePlace,kind);
-  if(!done?.ok)return app.toast(done?.error||'장소 역할을 변경하지 못했어요.');
-  if(done.changed)app.toast(({stop:'방문지',origin:'출발지',destination:'도착지'})[kind]+'로 지정했어요.');
-  if(done.id&&kind!=='stop')app.focusPlace(done.id);
-  return;
- }
  const remove=e.target.closest('[data-remove-place]');
  if(remove){
   const done=app.removeCollectedPlace(remove.dataset.removePlace);
@@ -388,7 +430,7 @@ sheetHeader.addEventListener('touchstart',e=>{dragStartY=e.touches[0]?.clientY||
 sheetHeader.addEventListener('touchend',e=>{if((e.changedTouches[0]?.clientY||0)-dragStartY>85)closeSheet();},{passive:true});
 document.querySelectorAll('[data-yg-step]').forEach(btn=>btn.addEventListener('click',()=>go(Number(btn.dataset.ygStep))));
 document.addEventListener('trip:endpoint-changed',()=>{renderDaily();renderWarnings();});
-document.addEventListener('trip:day-changed',()=>{renderDaily();renderWarnings();});
+document.addEventListener('trip:day-changed',()=>{closeEndpointChooser({restoreFocus:false});renderDaily();renderWarnings();});
 document.addEventListener('trip:stops-changed',()=>{renderDaily();renderWarnings();});
 document.addEventListener('trip:stop-added',()=>renderDaily());
 document.addEventListener('trip:route-mode-changed',()=>renderDaily());
@@ -402,6 +444,7 @@ document.addEventListener('trip:days-imported',()=>{
 });
 document.addEventListener('keydown',e=>{
  if(e.key!=='Escape')return;
+ if(!$('yg-endpoint-chooser').hidden){e.preventDefault();closeEndpointChooser();return;}
  if(!$('yg-position-dialog').hidden){closeVisitPositionEditor();return;}
  if(sheetOpen)closeSheet();
 });

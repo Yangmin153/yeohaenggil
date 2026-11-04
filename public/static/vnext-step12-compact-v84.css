@@ -1,0 +1,286 @@
+/* v8.4 — compact STEP 1/2 and saved-place endpoint chooser.
+ * Overrides only the relevant steps and search viewport. */
+body[data-trip-step="1"] #yg-progress,
+body[data-trip-step="2"] #yg-progress{
+ margin:4px auto 7px!important;
+}
+body[data-trip-step="1"] #yg-progress-help,
+body[data-trip-step="2"] #yg-progress-help{
+ display:none!important;
+}
+body[data-trip-step="1"] #yg-step-one{
+ justify-content:flex-start!important;
+ align-items:stretch!important;
+ min-height:0!important;
+ padding:6px 4px 24px!important;
+}
+body[data-trip-step="1"] #yg-step-one .yg-step-intro{
+ order:0;width:100%;max-width:500px;
+ margin:0 auto 8px!important;text-align:left!important;
+}
+body[data-trip-step="1"] #yg-step-one .yg-step-intro h1{
+ font-size:24px!important;line-height:1.3!important;
+ margin:4px 0 0!important;
+}
+body[data-trip-step="1"] #yg-step-one .yg-date-card{
+ order:1;max-width:500px;width:100%;
+ margin:0 auto!important;padding:14px!important;
+}
+body[data-trip-step="1"] #yg-step-one #yg-stage-one-error{
+ order:2;margin:8px auto!important;
+}
+body[data-trip-step="1"] #yg-step-one .yg-step-actions{
+ order:3;width:100%;max-width:500px;
+ position:static!important;
+ margin:10px auto 0!important;padding:0!important;
+ background:transparent!important;box-shadow:none!important;
+ backdrop-filter:none!important;
+}
+body[data-trip-step="1"] #yg-step-one .yg-step-actions button{
+ min-height:48px!important;font-size:14px!important;
+}
+body[data-trip-step="1"] #yg-step-one .yg-trip-showcase{
+ order:4;margin:16px auto 0!important;
+}
+body[data-trip-step="1"] #yg-step-one .yg-date-range-open{
+ min-height:72px!important;padding:10px 12px!important;
+}
+body[data-trip-step="1"] #yg-step-one .yg-calendar-eyebrow{
+ margin-bottom:6px!important;
+}
+body[data-trip-step="1"] #yg-step-one #yg-duration{
+ margin-top:8px!important;font-size:14px!important;line-height:1.5;
+}
+body[data-trip-step="2"] #yg-plan-date{
+ min-height:36px!important;
+ height:auto!important;
+ margin:0 auto 4px!important;
+ padding:0!important;
+}
+body[data-trip-step="2"] #yg-plan-date .yg-date-switch{
+ margin:0!important;padding:0!important;gap:8px!important;
+}
+body[data-trip-step="2"] #yg-plan-date #yg-active-date{
+ height:36px!important;min-height:36px!important;
+ width:142px!important;max-width:142px!important;
+ padding:5px 26px 5px 10px!important;
+ font-size:12px!important;
+}
+body[data-trip-step="2"] #yg-step-two-intro{
+ margin:0 auto 6px!important;
+}
+body[data-trip-step="2"] #yg-step-two-intro h1{
+ font-size:20px!important;line-height:1.5!important;
+ margin:0!important;
+}
+body[data-trip-step="2"] #yg-step-two-intro p{
+ margin:0!important;font-size:12px!important;line-height:1.5!important;
+}
+body[data-trip-step="2"] #yg-daily-editor{
+ padding:10px!important;
+ margin-top:0!important;
+}
+body[data-trip-step="2"] #yg-daily-editor .yg-visit-editor{
+ gap:6px!important;
+}
+body[data-trip-step="2"] #yg-add-visit{
+ min-height:48px!important;
+ padding:8px 12px!important;
+}
+body[data-trip-step="2"] #yg-role-status{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:8px!important;
+}
+body[data-trip-step="2"] #yg-role-status>button.yg-role-open{
+ display:flex!important;align-items:center;gap:6px;min-width:0;
+ min-height:52px;padding:9px 8px!important;
+ border:1px solid #dce9e4!important;border-radius:12px!important;
+ background:#f8fbf9!important;
+ text-align:left!important;cursor:pointer;
+}
+body[data-trip-step="2"] #yg-role-status>button.yg-role-open strong{
+ font-size:12px!important;line-height:1.5!important;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ color:#2a4c40;min-width:0;
+}
+body[data-trip-step="2"] #yg-role-status .yg-role-status-tag{
+ flex:0 0 auto;
+}
+body[data-trip-step="2"] #yg-role-status .yg-role-open-chevron{
+ flex:0 0 auto;margin-left:auto;
+ font-size:18px;color:#819c90;
+}
+body[data-trip-step="2"] #yg-role-status>button:focus-visible{
+ outline:2px solid #079984;outline-offset:2px;
+}
+body[data-trip-step="2"] .yg-role-place-tags{
+ display:flex;gap:4px;flex:0 0 auto;align-items:center;
+}
+body[data-trip-step="2"] .yg-place-role-tag{
+ display:grid;place-items:center;
+ font-size:12px;line-height:1.5;font-weight:800;
+ min-width:34px;padding:3px 4px;
+ border-radius:6px;
+}
+body[data-trip-step="2"] .yg-place-role-tag.is-origin{background:#e5f0ff;color:#1762ab}
+body[data-trip-step="2"] .yg-place-role-tag.is-destination{background:#fff0e3;color:#a65d30}
+body[data-trip-step="2"] #yg-open-stops{
+ min-height:42px!important;
+}
+body[data-trip-step="2"] #yg-day-stop-sub{
+ margin:0!important;font-size:12px!important;
+ line-height:1.5!important;
+}
+
+/* The chooser is a three-region viewport-safe dialog; background stays locked. */
+#yg-endpoint-chooser[hidden]{display:none!important}
+#yg-endpoint-chooser{
+ position:fixed!important;inset:0!important;
+ z-index:1250!important;
+ display:flex!important;align-items:flex-end!important;
+ justify-content:center!important;
+ background:#102a2280;
+ padding:14px 10px 0!important;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-panel{
+ display:grid;grid-template-rows:auto minmax(0,1fr) auto;
+ width:100%;max-width:540px;
+ min-width:0;
+ max-height:min(82dvh,670px);
+ background:#fff;border-radius:20px 20px 0 0;
+ box-shadow:0 18px 48px #102f2a29;
+ overflow:hidden;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-top{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:10px;padding:16px 18px 12px;border-bottom:1px solid #e5eeea;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-top small{
+ display:block;color:#788f84;font-size:12px;line-height:1.5;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-top h2{
+ font-size:18px;line-height:1.5;margin:2px 0 0;color:#203f33;
+}
+#yg-endpoint-chooser #yg-endpoint-chooser-close{
+ flex:0 0 44px;min-width:44px;min-height:44px;
+ border:0;border-radius:12px;background:#f2f6f3;
+ color:#60796c;font-size:24px;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-list{
+ min-height:0;overflow:auto;overscroll-behavior:contain;
+ -webkit-overflow-scrolling:touch;touch-action:pan-y;
+ padding:8px 12px;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-place{
+ width:100%;min-height:64px;
+ display:flex;align-items:center;gap:10px;
+ border:0;border-bottom:1px solid #eff3f1;
+ background:#fff;text-align:left;padding:10px 6px;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-place:disabled{opacity:.55}
+#yg-endpoint-chooser .yg-endpoint-chooser-icon{
+ flex:0 0 36px;width:36px;height:36px;
+ display:grid;place-items:center;
+ background:#eaf7f1;color:#087e67;border-radius:12px;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-copy{
+ flex:1;display:grid;gap:2px;min-width:0;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-copy strong{
+ font-size:14px;line-height:1.5;overflow:hidden;
+ white-space:nowrap;text-overflow:ellipsis;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-copy small{
+ font-size:12px;line-height:1.5;color:#819389;
+ overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-select{
+ font-size:12px;font-weight:800;color:#087e67;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-empty{
+ display:grid;gap:3px;place-items:center;
+ margin:0;padding:34px 12px;
+ color:#597567;font-size:14px;line-height:1.5;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-empty span{
+ font-size:12px;color:#80948a;
+}
+#yg-endpoint-chooser .yg-endpoint-chooser-footer{
+ padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));
+ border-top:1px solid #e7eeeb;
+ background:#fff;
+}
+#yg-endpoint-chooser #yg-endpoint-chooser-search{
+ min-height:50px;width:100%;
+ border:1px solid #a6dacc;border-radius:12px;
+ background:#eaf8f2;color:#087660;font-size:14px;font-weight:850;
+ display:flex;align-items:center;justify-content:center;gap:8px;
+ padding:10px 12px;
+}
+#yg-endpoint-chooser button:focus-visible{
+ outline:2px solid #118a75;outline-offset:2px;
+}
+#yg-endpoint-chooser,
+#yg-endpoint-chooser *,
+body[data-trip-step="1"] #yg-step-one,
+body[data-trip-step="2"] #yg-daily-editor{
+ font-family:Pretendard,"Pretendard Variable",sans-serif;
+ letter-spacing:-.03em;
+}
+@media(max-width:768px){
+ body[data-trip-step="1"] .site-header,
+ body[data-trip-step="2"] .site-header{height:58px!important;min-height:58px!important;}
+ body[data-trip-step="1"] #yg-step-one{
+  padding:4px 0 24px!important;
+ }
+ body[data-trip-step="1"] #yg-step-one .yg-trip-showcase{
+  display:none!important;
+ }
+ body[data-trip-step="1"] #yg-step-one .yg-step-intro{
+  margin-bottom:8px!important;
+ }
+ body[data-trip-step="2"] #yg-step-two-intro>span{
+  display:none!important;
+ }
+}
+@media(max-width:370px){
+ body[data-trip-step="2"] #yg-role-status{gap:6px!important}
+ body[data-trip-step="2"] #yg-role-status>button.yg-role-open{padding:8px 6px!important}
+ body[data-trip-step="2"] #yg-role-status .yg-role-status-tag{min-width:30px}
+ body[data-trip-step="2"] #yg-role-status>button.yg-role-open strong{font-size:12px!important}
+}
+/* Search overlay tracks the visual viewport instead of fixed body scroll. */
+body.search-open #search-screen{
+ max-height:var(--search-height,100dvh)!important;
+ min-height:0!important;
+}
+body.search-open #search-screen #search-screen-results-mount{
+ flex:1 1 auto!important;min-height:0!important;
+ overflow-y:auto!important;-webkit-overflow-scrolling:touch;
+}
+body.search-open #search-screen .search-map-stage{
+ flex:1 1 auto!important;min-height:0!important;
+}
+body.search-open #search-screen[data-keyboard-open="true"] .search-stage-card{
+ margin:4px 10px!important;padding:6px 9px!important;
+ min-height:0!important;
+}
+body.search-open #search-screen[data-keyboard-open="true"] .search-stage-icon{
+ width:30px;height:30px;flex-basis:30px;
+ font-size:16px;
+}
+body.search-open #search-screen[data-keyboard-open="true"] .search-stage-copy small{
+ display:none!important;
+}
+body.search-open #search-screen[data-keyboard-open="true"] .search-screen-toolbar{
+ padding:4px 10px!important;
+}
+body.search-open #search-screen[data-keyboard-open="true"] .search-area-tools{
+ display:none!important;
+}
+body.search-open #search-screen[data-keyboard-open="true"] #search-screen-results-mount{
+ padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;
+}
+body.search-open #search-screen[data-keyboard-open="true"] .search-picked{
+ padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px))!important;
+}

@@ -30,12 +30,12 @@ test('inherited start never becomes an unintended stop',async()=>{
  assert.equal(d.origin.name,'A');assert.equal(d.originMode,'custom');
  assert.ok(!d.stops.some(p=>p.name==='전날 도착지'));
 });
-test('unified screen has inline role switches and direct role search actions',async()=>{
+test('unified screen chooses endpoints from one saved-place popup and preserves search fallback',async()=>{
  const [html,ui,app,search,css]=await Promise.all([
  'public/index.html','public/static/vnext.js','public/static/app.js','public/static/search-screen.js',
  'public/static/step2-role-picker.css'].map(read));
  for(const id of ['yg-inline-stops','yg-role-status','search-picked-origin','search-picked-destination'])assert.ok(html.includes('id="'+id+'"'));
- assert.match(ui,/data-assign-role/);assert.match(app,/function setCollectedRoleFromSearch/);
+ assert.match(ui,/data-chooser-place/);assert.doesNotMatch(ui,/data-assign-role/);assert.match(app,/function setCollectedRoleFromSearch/);
  assert.match(search,/function chooseRole/);
  assert.match(css,/#yg-endpoint-section\{display:none!important/);
 });

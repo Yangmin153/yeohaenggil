@@ -7,7 +7,7 @@ const feedback=$('search-screen-feedback'),picked=$('search-picked');
 const centers={제주:[33.489,126.498],서울:[37.5665,126.978],부산:[35.1796,129.0756],강릉:[37.7519,128.8761],경주:[35.8562,129.2247],속초:[38.207,128.5918],여수:[34.7604,127.6622],전주:[35.8242,127.148],인천:[37.4563,126.7052],서귀포:[33.254,126.559]};
 let opened=false,historyEntry=false,previousFocus=null,previousScroll=0,searchKind='stop',returnStep=2,searchDayId=null;
 let mode='map',selected=null,items=[],searchMap=null,markers=[],selectedMarker=null,savedMarkers=[],savedSignature='',isSavedSelection=false,previewCamera=null,previewSource=null;
-let feedbackTimer=null,transitionTimer=null,lastChosenRegion='',backgroundInert=[],staticSignature='',staticFocus=null,staticTimer=0,staticSerial=0,dynamicUnavailable=Boolean(window.__ygNaverAuthFailed);
+let feedbackTimer=null,transitionTimer=null,lastChosenRegion='',backgroundInert=[],staticSignature='',staticFocus=null,staticTimer=0,staticSerial=0,dynamicUnavailable=Boolean(window.__ygNaverAuthFailed),lastViewportSignature='',mapResizeFrame=0;
 function lockBackground(){
  backgroundInert=[];
  for(const node of document.body.children){
@@ -20,19 +20,29 @@ function unlockBackground(){
  backgroundInert=[];
 }
 
+function resizeSearchMap(){
+ if(!searchMap||mapResizeFrame)return;
+ mapResizeFrame=requestAnimationFrame(()=>{
+  mapResizeFrame=0;
+  if(!opened||mode!=='map'||!searchMap)return;
+  window.naver?.maps?.Event?.trigger?.(searchMap,'resize');
+ });
+}
 function updateSize(){
  const viewport=window.visualViewport;
- const height=Math.max(240,Math.round(viewport?.height||innerHeight));
- const top=Math.round(viewport?.offsetTop||0);
+ const height=Math.max(180,Math.round(viewport?.height||innerHeight));
+ const top=Math.max(0,Math.round(viewport?.offsetTop||0));
+ const keyboardOpen=Boolean(opened&&viewport&&innerHeight-(viewport.height+viewport.offsetTop)>120);
+ const signature=[height,top,keyboardOpen].join('|');
+ if(signature===lastViewportSignature)return;
+ lastViewportSignature=signature;
  screen.style.setProperty('--search-height',height+'px');
  screen.style.setProperty('--search-top',top+'px');
- const keyboardOpen=Boolean(opened&&viewport&&innerHeight-(viewport.height+viewport.offsetTop)>120);
  screen.dataset.keyboardOpen=String(keyboardOpen);
- if(opened&&mode==='map'&&!searchMap){
-  $('search-static-fallback').hidden=true;
-  queueStaticFallback(keyboardOpen?160:100);
+ if(opened&&mode==='map'){
+  if(searchMap)resizeSearchMap();
+  else queueStaticFallback(keyboardOpen?180:110);
  }
- if(searchMap&&opened&&mode==='map')requestAnimationFrame(()=>window.naver?.maps?.Event?.trigger(searchMap,'resize'));
 }
 // A new traveler has no chosen destination yet. Never infer Jeju (or any other
 // region) from the legacy default region or from the background map camera.
@@ -159,7 +169,7 @@ function renderStaticFallback(){
 }
 function maybeMap(){
  if(!opened)return;
- if(searchMap&&!dynamicUnavailable){updateSize();paintMarkers();return;}
+ if(searchMap&&!dynamicUnavailable)return false;
  const maps=dynamicUnavailable?null:window.naver?.maps;
  if(!maps?.Map||!mapNode?.clientWidth||mapNode.clientHeight<80){
   if(screen.dataset.keyboardOpen==='true')queueStaticFallback(160);
@@ -176,7 +186,7 @@ function maybeMap(){
   $('search-map-message').hidden=true;
   // Map is for browsing only: selecting arbitrary coordinates is disabled.
   // Places and endpoints are selected from verified search results.
-  savedSignature='';paintMarkers();
+  savedSignature='';paintMarkers();return true;
  }catch(e){console.warn('장소 검색 지도 초기화 실패',e);dynamicUnavailable=true;searchMap=null;queueStaticFallback();}
 }
 function clearMarkers(){
@@ -213,8 +223,7 @@ function showSaved(place){
  $('search-picked-address').textContent=(place.address||'')+' · 이미 담은 장소';
  $('search-picked-add').textContent=endpointMode()?actionText():'이미 추가됨';
  $('search-picked-add').disabled=!endpointMode();
- picked.hidden=false;showRoleOptions();showMode('map');paintMarkers();
- if(searchMap)searchMap.panTo(new window.naver.maps.LatLng(place.lat,place.lng));
+ picked.hidden=false;showRoleOptions();showMode('map');
 }
 /**
  * Deterministically rebuild persisted place pins from the active day's data.
@@ -262,6 +271,7 @@ function paintMarkers(){
  refreshSavedMarkers();
 }
 function showMode(next){
+ const previous=mode;
  mode=next==='list'?'list':'map';
  if(mode==='list')hideStaticFallback();
  mapStage.hidden=mode!=='map';
@@ -270,12 +280,26 @@ function showMode(next){
  $('search-list-toggle').hidden=!items.length&&!selected;
  $('search-list-toggle').setAttribute('aria-pressed',String(mode==='list'));
  screen.dataset.searchMode=mode;
- if(mode==='map'){requestAnimationFrame(()=>{maybeMap();updateSize();paintMarkers();});}
+ if(mode!=='map')return;
+ // One visible map and one marker pass. Do not instantiate a second SDK map
+ // during the iPhone keyboard's blur / visualViewport resize animation.
+ requestAnimationFrame(()=>{
+  if(!opened||mode!=='map')return;
+  updateSize();
+  const created=maybeMap();
+  if(searchMap){
+   resizeSearchMap();
+   if(!created&&selected)paintMarkers();
+   else if(!created&&previous==='list')paintMarkers();
+   if(selected&&window.naver?.maps?.LatLng)
+    searchMap.panTo(new window.naver.maps.LatLng(Number(selected.lat),Number(selected.lng)));
+  }
+ });
 }
 function searchStarted(){if(!opened)return;showMode('list');}
 function onResults(next){
  items=Array.isArray(next)?next:[];
- paintMarkers();
+ if(opened&&mode==='map'&&selected)paintMarkers();
  if(opened&&input.value.trim().length>=2&&!selected)showMode('list');
 }
 function rememberCamera(){
@@ -309,9 +333,6 @@ function preview(item,source='result'){
  input.blur();
  picked.hidden=false;showRoleOptions();
  showMode('map');
- if(!searchMap)maybeMap();
- paintMarkers();
- if(searchMap)searchMap.panTo(new window.naver.maps.LatLng(Number(item.lat),Number(item.lng)));
 }
 function focusAdded(item){
  if(!item||!opened||searchKind!=='stop')return;
@@ -323,19 +344,7 @@ function focusAdded(item){
  $('search-picked-address').textContent=String(item.address||'')+' · 담은 장소';
  $('search-picked-add').disabled=true;$('search-picked-add').textContent='담았어요';
  $('search-picked-cancel').textContent='닫기';
- picked.hidden=false;showMode('map');paintMarkers();
- // showMode may first create an SDK map on the next animation frame. Pan after
- // the map becomes visible, including when adding a second/third stop.
- requestAnimationFrame(()=>{
-  if(!opened||selected!==item||mode!=='map')return;
-  maybeMap();
-  if(searchMap&&window.naver?.maps?.LatLng){
-   window.naver.maps.Event?.trigger?.(searchMap,'resize');
-   searchMap.panTo(new window.naver.maps.LatLng(Number(item.lat),Number(item.lng)));
-   if((searchMap.getZoom?.()||0)<12)searchMap.setZoom(13);
-   paintMarkers();
-  }
- });
+ picked.hidden=false;input.blur();showMode('map');
  input.blur();
 }
 
@@ -366,7 +375,7 @@ function show(kind='stop',options={}){
  updateSavedButton();
  screen.hidden=false;screen.querySelector('#search-screen-form-mount').append(form);resultMount.append(results);
  window.YGScrollLock?.lock('search-screen');document.body.classList.add('search-open');lockBackground();
- updateSize();showMode('list');
+ showMode('list');updateSize();
  const viewKey=mapViewKey();
  if(searchMap&&lastChosenRegion!==viewKey){
   const [lat,lng]=mapCenter();
